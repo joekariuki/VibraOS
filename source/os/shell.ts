@@ -73,6 +73,11 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
+            // date 
+            sc = new ShellCommand(this.shellPrompt,
+                                    "date",
+                                    "- Displays the current date and time");
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -226,6 +231,7 @@ module TSOS {
             _StdOut.clearScreen();     
             _StdOut.resetXY();
         }
+
 
         // Displays descriptive MANual page entries for shell commands
         public shellMan(args: string[]) {
