@@ -48,6 +48,9 @@ var TSOS;
             // date 
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time");
             this.commandList[this.commandList.length] = sc;
+            // whereami
+            sc = new TSOS.ShellCommand(this.shellLocation, "whereami", "- Displays users current location");
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
@@ -276,6 +279,9 @@ var TSOS;
         Shell.prototype.shellDate = function (args) {
             var currentDate = new Date();
             _StdOut.putText("" + currentDate);
+        };
+        Shell.prototype.shellLocation = function (args) {
+            // display location
         };
         return Shell;
     }());
