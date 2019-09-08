@@ -77,6 +77,7 @@ module TSOS {
             sc = new ShellCommand(this.shellDate,
                                     "date",
                                     "- Displays the current date and time");
+            this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -266,6 +267,7 @@ module TSOS {
                         break;
                     case "date":
                         _StdOut.putText("Displays the current date and time");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -316,8 +318,8 @@ module TSOS {
         }
 
         public shellDate(args: string[]) {
-            var currentDate = new Date()
-            _StdOut.putText
+            var currentDate = new Date();
+            _StdOut.putText(`${currentDate}`);
         }
 
     }
