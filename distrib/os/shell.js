@@ -49,7 +49,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time");
             this.commandList[this.commandList.length] = sc;
             // whereami
-            sc = new TSOS.ShellCommand(this.shellLocation, "whereami", "- Displays users current location");
+            sc = new TSOS.ShellCommand(this.shellLocation, "whereami", "- Displays users current location. Hint: Try the command multiple times");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -226,6 +226,8 @@ var TSOS;
                     case "date":
                         _StdOut.putText("Displays the current date and time");
                         break;
+                    case "whereami":
+                        _StdOut.putText("Display users location. Hint: Try the command multiple times");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -281,7 +283,16 @@ var TSOS;
             _StdOut.putText("" + currentDate);
         };
         Shell.prototype.shellLocation = function (args) {
-            // display location
+            // Array of locations
+            var location = [
+                "EARTH!",
+                "On a pale blue dot",
+                "On a planet in a galaxy far far away",
+                "The question is not \"where you are?\" but rather, where will you be going?"
+            ];
+            // Generates random index multiplied by location length
+            var randomIndex = Math.floor(Math.random() * location.length);
+            _StdOut.putText("" + location[randomIndex]);
         };
         return Shell;
     }());

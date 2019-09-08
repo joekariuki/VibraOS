@@ -82,7 +82,7 @@ module TSOS {
             // whereami
             sc = new ShellCommand(this.shellLocation,
                                     "whereami",
-                                    "- Displays users current location");
+                                    "- Displays users current location. Hint: Try the command multiple times");
             this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
@@ -274,6 +274,8 @@ module TSOS {
                     case "date":
                         _StdOut.putText("Displays the current date and time");
                         break;
+                    case "whereami":
+                        _StdOut.putText("Display users location. Hint: Try the command multiple times");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -329,7 +331,16 @@ module TSOS {
         }
 
         public shellLocation(args: string[]) {
-            // display location
+            // Array of locations
+            var location = [
+                "EARTH!",
+                "On a pale blue dot",
+                "On a planet in a galaxy far far away",
+                "The question is not \"where you are?\" but rather, where will you be going?"
+            ];
+            // Generates random index multiplied by location length
+            var randomIndex = Math.floor(Math.random() * location.length);
+            _StdOut.putText(`${location[randomIndex]}`);
         }
 
     }
