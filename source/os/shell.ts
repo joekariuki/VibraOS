@@ -227,14 +227,37 @@ module TSOS {
             _StdOut.resetXY();
         }
 
+        // Displays descriptive MANual page entries for shell commands
         public shellMan(args: string[]) {
             if (args.length > 0) {
                 var topic = args[0];
                 switch (topic) {
+                    // help
                     case "help":
                         _StdOut.putText("Help displays a list of (hopefully) valid commands.");
                         break;
                     // TODO: Make descriptive MANual page entries for the the rest of the shell commands here.
+                    case "ver":
+                        _StdOut.putText("Displays the current version data.");
+                        break;
+                    case "shutdown":
+                        _StdOut.putText("Shuts down the virtual OS but leaves the underlying host / hardware simulation running.");
+                        break;
+                    case "cls":
+                        _StdOut.putText("Clears the screen and resets the cursor position.");
+                        break;
+                    case "man":
+                        _StdOut.putText("<topic> - Displays the MANual page for <topic>.");
+                        break;
+                    case "trace":
+                        _StdOut.putText("<on | off> - Turns the OS trace on or off.");
+                        break;
+                    case "rot13":
+                        _StdOut.putText("<string> - Does rot13 obfuscation on <string>.");
+                        break;
+                    case "prompt":
+                        _StdOut.putText("<string> - Sets the prompt.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
