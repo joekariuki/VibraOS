@@ -74,7 +74,7 @@ module TSOS {
             this.commandList[this.commandList.length] = sc;
 
             // date 
-            sc = new ShellCommand(this.shellPrompt,
+            sc = new ShellCommand(this.shellDate,
                                     "date",
                                     "- Displays the current date and time");
 
@@ -313,6 +313,11 @@ module TSOS {
             } else {
                 _StdOut.putText("Usage: prompt <string>  Please supply a string.");
             }
+        }
+
+        public shellDate(args: string[]) {
+            var currentDate = new Date()
+            _StdOut.putText
         }
 
     }
