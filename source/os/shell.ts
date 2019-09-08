@@ -264,6 +264,8 @@ module TSOS {
                     case "prompt":
                         _StdOut.putText("<string> - Sets the prompt.");
                         break;
+                    case "date":
+                        _StdOut.putText("Displays the current date and time");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
