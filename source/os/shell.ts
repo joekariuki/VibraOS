@@ -84,6 +84,12 @@ module TSOS {
                                     "whereami",
                                     "- Displays users current location. Hint: Try the command multiple times");
             this.commandList[this.commandList.length] = sc;
+            
+            // telljoke
+            sc = new ShellCommand(this.shellJoke,
+                                    "telljoke",
+                                    "- Only programmers will smile");
+            this.commandList[this.commandList.length] = sc;
 
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -276,6 +282,8 @@ module TSOS {
                         break;
                     case "whereami":
                         _StdOut.putText("Display users location. Hint: Try the command multiple times");
+                    case "telljoke":
+                        _StdOut.putText("Only programmers will smile");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -334,13 +342,36 @@ module TSOS {
             // Array of locations
             var location = [
                 "EARTH!",
-                "On a pale blue dot",
+                "On a pale blue dot on an art piece called The Universe",
                 "On a planet in a galaxy far far away",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
             // Generates random index multiplied by location length
             var randomIndex = Math.floor(Math.random() * location.length);
             _StdOut.putText(`${location[randomIndex]}`);
+        }
+
+        public shellJoke(arg: string[]) {
+            // Array of jokes
+            var jokes = [
+                `A journalist asked a programmer: 
+                    "What makes code bad?"
+                 Programmer: "No comment."
+                `,
+                `Documentation is like sex.
+                 When it's good , it's very good.
+                 When it is bad, it's better than nothing.
+                `,
+                `
+                How real people play Russian roulette:
+                 bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*
+                `,
+                "I'd like to make the world a better place, but they won't give me the source code...",
+                `Q: How many programmers does it take to screw in a light bulb?
+                 A: None. It's a hardware problem.`
+            ];
+            var randomIndex = Math.floor(Math.random() * jokes.length);
+            _StdOut.putText(`${jokes[randomIndex]}`);
         }
 
     }
