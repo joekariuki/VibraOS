@@ -69,6 +69,22 @@ module TSOS {
             // TODO in the future: Optionally update a log database or some streaming service.
         }
 
+        // Display current date
+        public static hostDisplayDate(): void {
+            // Get current date
+            let currentDate = new Date();
+            // Display current date in task bar
+            document.getElementById("taskBarDate").innerHTML= ` | ${currentDate}`;
+         }
+
+        
+        //  Set host status
+        public static hostSetStatus(msg: string): void {
+            // Display host status in task bar
+            document.getElementById("taskBarStatus").innerHTML = `[Status]: ${msg}`;
+        }
+        
+
 
         //
         // Host Events

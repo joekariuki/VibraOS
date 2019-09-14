@@ -27,6 +27,11 @@ module TSOS {
         // Hardware/Host Clock Pulse
         //
         public static hostClockPulse(): void {
+            // Check if clock has changed every second
+            if (_OSclock % 10 == 0) {
+                // Update display date
+                Control.hostDisplayDate();
+            }
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.

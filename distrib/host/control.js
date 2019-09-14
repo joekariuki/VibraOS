@@ -58,6 +58,18 @@ var TSOS;
             taLog.value = str + taLog.value;
             // TODO in the future: Optionally update a log database or some streaming service.
         };
+        // Display current date
+        Control.hostDisplayDate = function () {
+            // Get current date
+            var currentDate = new Date();
+            // Display current date in task bar
+            document.getElementById("taskBarDate").innerHTML = " | " + currentDate;
+        };
+        //  Set host status
+        Control.hostSetStatus = function (msg) {
+            // Display host status in task bar
+            document.getElementById("taskBarStatus").innerHTML = "[Status]: " + msg;
+        };
         //
         // Host Events
         //

@@ -54,6 +54,9 @@ var TSOS;
             // telljoke
             sc = new TSOS.ShellCommand(this.shellJoke, "telljoke", "- Only programmers will smile");
             this.commandList[this.commandList.length] = sc;
+            // status <string>
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "<string> - Sets the status in the taskbar.");
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
@@ -231,8 +234,13 @@ var TSOS;
                         break;
                     case "whereami":
                         _StdOut.putText("Display users location. Hint: Try the command multiple times");
+                        break;
                     case "telljoke":
                         _StdOut.putText("Only programmers will smile");
+                        break;
+                    case "status":
+                        _StdOut.putText("<string> - Sets the status in the taskbar");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -295,8 +303,9 @@ var TSOS;
                 "On a planet in a galaxy far far away",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
-            // Generates random index multiplied by location length
+            // Generate random index
             var randomIndex = Math.floor(Math.random() * location.length);
+            // Display location value
             _StdOut.putText("" + location[randomIndex]);
         };
         Shell.prototype.shellJoke = function (arg) {
@@ -308,8 +317,18 @@ var TSOS;
                 "I'd like to make the world a better place, but they won't give me the source code...",
                 "Q: How many programmers does it take to screw in a light bulb?\n                 A: None. It's a hardware problem."
             ];
+            // Generate random index
             var randomIndex = Math.floor(Math.random() * jokes.length);
+            // Display joke value
             _StdOut.putText("" + jokes[randomIndex]);
+        };
+        Shell.prototype.shellStatus = function (args) {
+            if (args.length > 0) {
+                TSOS.Control.hostSetStatus(args.join(" "));
+            }
+            else {
+                _StdOut.putText("Usage: status <string>  Please supply a string.");
+            }
         };
         return Shell;
     }());
