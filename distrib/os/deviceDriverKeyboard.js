@@ -141,11 +141,19 @@ var TSOS;
                     _KernelInputQueue.enqueue(chr);
                 }
             }
+            else if (keyCode == 38) {
+                chr = "&uarr;";
+                _KernelInputQueue.enqueue(chr);
+            }
+            else if (keyCode == 40) {
+                chr = "&darr;";
+                _KernelInputQueue.enqueue(chr);
+            }
             else if (((keyCode >= 48) && (keyCode <= 57)) || // digits
                 (keyCode == 32) || // space
                 (keyCode == 13) || // enter 
                 (keyCode == 8) || // backspace 
-                (keyCode == 9)) { // tab           
+                (keyCode == 9)) { // tab
                 chr = String.fromCharCode(keyCode);
                 // Shifted special number characters and punctiation
                 if (isShifted) {

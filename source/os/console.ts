@@ -13,6 +13,8 @@ module TSOS {
                     public currentFontSize = _DefaultFontSize,
                     public currentXPosition = 0,
                     public currentYPosition = _DefaultFontSize,
+                    public prevCommandHistory = [], // Old commands
+                    public recCommandHistory = [],  // Most recent commands
                     public buffer = "") {
         }
 
@@ -52,7 +54,7 @@ module TSOS {
                 // Tab Key - autocomplete comes first
                 if (chr === String.fromCharCode(9)) {
                     this.tabComplete(this.buffer);
-                }
+                } 
                 // Enter key
                 else if (chr === String.fromCharCode(13)) { 
                     // The enter key marks the end of a console command, so ...
@@ -64,12 +66,48 @@ module TSOS {
                     }
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-                    
-                    // ... and reset our buffer.
+                    // Add initial entered command
+                    this.prevCommandHistory.push(this.buffer);
+
+                    // Reset buffer.
                     this.buffer = "";
-                    
+                
+                } else if (chr === "&uarr;") { // Up arrow key
+                    this.recCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set previous command
+                    let prevCmd = this.prevCommandHistory.pop();
+                    // Display previous command
+                    this.putText(prevCmd);
+                    // Set buffer to previous command
+                    this.buffer = prevCmd;
+
+                    // // debug
+                    // console.log(prevCmd);
+
+
+                } else if (chr === "&darr;") { // Down arrow key
+                    this.prevCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set recent command
+                    let recentCmd = this.recCommandHistory.pop();
+                    // Display most recent command
+                    this.putText(recentCmd);
+                    // Set buffer to most recent command
+                    this.buffer = recentCmd;
+
+                    // // debug
+                    // console.log(recentCmd);
+
+                }
                 // Backspace key
-                } else if (chr === String.fromCharCode(8)) {
+                else if (chr === String.fromCharCode(8)) {
                     // Get last character in buffer
                     let lastChar = this.buffer.slice(-1); 
                     // Get backspace width

@@ -7,16 +7,22 @@
 var TSOS;
 (function (TSOS) {
     var Console = /** @class */ (function () {
-        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, buffer) {
+        function Console(currentFont, currentFontSize, currentXPosition, currentYPosition, prevCommandHistory, // Old commands
+        recCommandHistory, // Most recent commands
+        buffer) {
             if (currentFont === void 0) { currentFont = _DefaultFontFamily; }
             if (currentFontSize === void 0) { currentFontSize = _DefaultFontSize; }
             if (currentXPosition === void 0) { currentXPosition = 0; }
             if (currentYPosition === void 0) { currentYPosition = _DefaultFontSize; }
+            if (prevCommandHistory === void 0) { prevCommandHistory = []; }
+            if (recCommandHistory === void 0) { recCommandHistory = []; }
             if (buffer === void 0) { buffer = ""; }
             this.currentFont = currentFont;
             this.currentFontSize = currentFontSize;
             this.currentXPosition = currentXPosition;
             this.currentYPosition = currentYPosition;
+            this.prevCommandHistory = prevCommandHistory;
+            this.recCommandHistory = recCommandHistory;
             this.buffer = buffer;
         }
         Console.prototype.init = function () {
@@ -62,10 +68,42 @@ var TSOS;
                     }
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-                    // ... and reset our buffer.
+                    // Add initial entered command
+                    this.prevCommandHistory.push(this.buffer);
+                    // Reset buffer.
                     this.buffer = "";
-                    // Backspace key
                 }
+                else if (chr === "&uarr;") { // Up arrow key
+                    this.recCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set previous command
+                    var prevCmd = this.prevCommandHistory.pop();
+                    // Display previous command
+                    this.putText(prevCmd);
+                    // Set buffer to previous command
+                    this.buffer = prevCmd;
+                    // // debug
+                    // console.log(prevCmd);
+                }
+                else if (chr === "&darr;") { //Down arrow key
+                    this.prevCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set recent command
+                    var recentCmd = this.recCommandHistory.pop();
+                    // Display most recent command
+                    this.putText(recentCmd);
+                    // Set buffer to most recent command
+                    this.buffer = recentCmd;
+                    // // debug
+                    // console.log(recentCmd);
+                }
+                // Backspace key
                 else if (chr === String.fromCharCode(8)) {
                     // Get last character in buffer
                     var lastChar = this.buffer.slice(-1);
