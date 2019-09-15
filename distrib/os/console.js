@@ -42,6 +42,20 @@ var TSOS;
                     // ... and reset our buffer.
                     this.buffer = "";
                 }
+                else if (chr === String.fromCharCode(8)) {
+                    // Get last character in buffer
+                    var lastChar = this.buffer.slice(-1);
+                    // Get backspace width
+                    var backspaceWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, lastChar);
+                    // Get backspace height
+                    var backspaceHeight = this.consoleLineHeight();
+                    // Decrement current position by size of backspace width
+                    this.currentXPosition -= backspaceWidth;
+                    //  Delete character using clearRect
+                    _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - backspaceHeight + _FontHeightMargin, backspaceWidth, backspaceHeight);
+                    // Remove character from buffer
+                    this.buffer = this.buffer.slice(0, -1);
+                }
                 else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -68,6 +82,12 @@ var TSOS;
                 this.currentXPosition = this.currentXPosition + offset;
             }
         };
+        // Handle Scrolling
+        Console.prototype.consoleLineHeight = function () {
+            return _DefaultFontSize +
+                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                _FontHeightMargin;
+        };
         Console.prototype.advanceLine = function () {
             this.currentXPosition = 0;
             // Assign current Y position to console height
@@ -85,17 +105,6 @@ var TSOS;
                 // Display console contents one line down
                 _DrawingContext.putImageData(screenShot, 0, -scrollYBy);
             }
-        };
-        // Handle Scrolling
-        Console.prototype.consoleLineHeight = function () {
-            /*
-            * Font size measures from the baseline to the highest point in the font.
-            * Font descent measures from the baseline to the lowest point in the font.
-            * Font height margin is extra spacing between the lines.
-            */
-            return _DefaultFontSize +
-                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                _FontHeightMargin;
         };
         return Console;
     }());
