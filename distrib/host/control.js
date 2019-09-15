@@ -79,6 +79,23 @@ var TSOS;
             // Stop the clock
             clearInterval(_hardwareClockID);
         };
+        // Load program
+        Control.hostProgramLoad = function () {
+            // Get user program input
+            var programInput = document.getElementById("taProgramInput").value;
+            // Check if program input if empty
+            if (!programInput.length) {
+                return false;
+            }
+            else {
+                // Declare regular expression for matching any non-hex or space charcter
+                var re = new RegExp("[^ 0-9a-fA-F]");
+                // Test for invalid character
+                var invalidChar = re.test(programInput);
+                // Return true for valid program
+                return !invalidChar;
+            }
+        };
         //
         // Host Events
         //

@@ -93,6 +93,22 @@ module TSOS {
              // Stop the clock
              clearInterval(_hardwareClockID);
         }
+        // Load program
+        public static hostProgramLoad(): boolean {
+            // Get user program input
+            let programInput = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+            // Check if program input if empty
+            if (!programInput.length) { 
+                return false; 
+            } else {
+                // Declare regular expression for matching any non-hex or space charcter
+                let re = new RegExp("[^ 0-9a-fA-F]");
+                // Test for invalid character
+                let invalidChar = re.test(programInput);
+                // Return true for valid program
+                return !invalidChar;
+            }
+        }
         
         //
         // Host Events

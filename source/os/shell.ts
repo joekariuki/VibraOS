@@ -102,8 +102,13 @@ module TSOS {
                 "nuke",
                 " - [WARNING] Crashes the entire OS.");
             this.commandList[this.commandList.length] = sc;
-            
 
+            // load
+            sc = new ShellCommand(this.shellLoad,
+                "load",
+                "- Loads program from User Program Input");
+            this.commandList[this.commandList.length] = sc;
+            
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -415,6 +420,17 @@ module TSOS {
             _StdOut.putText("Please reset the console...");
             // Display kernel error
             _Kernel.krnTrapError("User initiated OS error");
+        }
+
+        public shellLoad(args) {
+            // Assign control to verify and load program
+            let isLoaded = Control.hostProgramLoad();
+            // Check if program is loaded
+            if (isLoaded) {
+               _StdOut.putText("[SUCCESS] Program loaded");
+            } else {
+                _StdOut.putText("[ERROR] Invalid program. Only valid characters are 0-9, a-z, and A-z");
+            }
         }
     }
 }
