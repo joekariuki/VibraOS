@@ -68,6 +68,13 @@ module TSOS {
                 this.currentXPosition = this.currentXPosition + offset;
             }
          }
+        
+        // Handle Scrolling
+        public consoleLineHeight(): number {
+            return _DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin;
+        }
 
         public advanceLine(): void {
             this.currentXPosition = 0;
@@ -89,16 +96,6 @@ module TSOS {
                 _DrawingContext.putImageData(screenShot, 0, -scrollYBy);
             }
         }
-        // Handle Scrolling
-        public consoleLineHeight(): number {
-            /*
-            * Font size measures from the baseline to the highest point in the font.
-            * Font descent measures from the baseline to the lowest point in the font.
-            * Font height margin is extra spacing between the lines.
-            */
-        return _DefaultFontSize +
-                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                _FontHeightMargin;
-            }
+        
         }
     }
