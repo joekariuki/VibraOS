@@ -46,6 +46,8 @@ module TSOS {
                 }
                 _KernelInputQueue.enqueue(chr);
             
+            // Refactor code below
+            
             // Special characters and punctuation
             } else if ((keyCode >= 186) && (keyCode <= 222)) {
                 if (isShifted) {
