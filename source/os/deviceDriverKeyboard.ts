@@ -145,7 +145,9 @@ module TSOS {
             } else if (((keyCode >= 48) && (keyCode <= 57)) ||   // digits
                         (keyCode == 32)                     ||   // space
                         (keyCode == 13) ||                      // enter 
-                        (keyCode == 8))  {                      // backspace   
+                        (keyCode == 8)  ||                      // backspace 
+                        (keyCode == 9))  {                      
+
                 chr = String.fromCharCode(keyCode);  
                 
                 // Shifted special number characters and punctiation

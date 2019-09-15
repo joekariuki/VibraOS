@@ -345,27 +345,27 @@ module TSOS {
         }
 
         public shellDate(args: string[]) {
-            var currentDate = new Date();
+            let currentDate = new Date();
             _StdOut.putText(`${currentDate}`);
         }
 
         public shellLocation(args: string[]) {
             // Array of locations
-            var location = [
+            let location = [
                 "EARTH!",
                 "On a pale blue dot on an art piece called The Universe",
                 "On a planet in a galaxy far far away",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
             // Generate random index
-            var randomIndex = Math.floor(Math.random() * location.length);
+            let randomIndex = Math.floor(Math.random() * location.length);
             // Display location value
             _StdOut.putText(`${location[randomIndex]}`);
         }
 
         public shellJoke(arg: string[]) {
             // Array of jokes
-            var jokes = [
+            let jokes = [
                 `A journalist asked a programmer: 
                     "What makes code bad?"
                  Programmer: "No comment."
@@ -383,7 +383,7 @@ module TSOS {
                  A: None. It's a hardware problem.`
             ];
             // Generate random index
-            var randomIndex = Math.floor(Math.random() * jokes.length);
+            let randomIndex = Math.floor(Math.random() * jokes.length);
             // Display joke value
             _StdOut.putText(`${jokes[randomIndex]}`);
         }
