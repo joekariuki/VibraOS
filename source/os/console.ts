@@ -30,18 +30,44 @@ module TSOS {
             this.currentYPosition = this.currentFontSize;
         }
 
+        // Clears line
+        public clearLine(): void {
+            this.currentXPosition = 0;
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - _DefaultFontSize, _Canvas.width, this.consoleLineHeight());
+            _StdOut.putText(_OsShell.promptStr);
+        }
+
+        // Handles Scrolling
+        public consoleLineHeight(): number {
+            return _DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin;
+        }
+
         public handleInput(): void {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
+                // Tab Key - autocomplete comes first
+                if (chr === String.fromCharCode(9)) {
+                    this.tabComplete(this.buffer);
+                }
                 // Enter key
-                if (chr === String.fromCharCode(13)) { 
+                else if (chr === String.fromCharCode(13)) { 
                     // The enter key marks the end of a console command, so ...
+                    // buffer is empty; advance line and do not process command
+                    if (this.buffer.length == 0) { 
+                        this.advanceLine();
+                        _OsShell.putPrompt();
+                        return;
+                    }
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
+                    
                     // ... and reset our buffer.
                     this.buffer = "";
+                    
                 // Backspace key
                 } else if (chr === String.fromCharCode(8)) {
                     // Get last character in buffer
@@ -79,16 +105,39 @@ module TSOS {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                let offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
             }
          }
-        
-        // Handle Scrolling
-        public consoleLineHeight(): number {
-            return _DefaultFontSize +
-                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                    _FontHeightMargin;
+
+         public tabComplete(prefix): void {
+            // Check if buffer is empty
+            if (prefix.length === 0) { return; }
+            let prefixCommands = _OsShell.commandList.filter((cmd) => {
+                // Returns true command has prefix
+                 return cmd.command.startsWith(prefix); 
+            });
+            // Check if prefix has only 1 possible command
+            if (prefixCommands.length == 1) { 
+                let currCmd = prefixCommands[0].command;
+                // Clear line
+                this.clearLine();
+                this.putText(currCmd);
+                this.buffer = currCmd;
+            } 
+            // Check if prefix has multiple possible commands
+            else if (prefixCommands.length > 1) { 
+                // Get appropriate command names and join with a space
+                let commandNames = prefixCommands.map((cmd) => { return cmd.command; }).join(" ");
+                this.advanceLine();
+                // Display all possible commands with prefix
+                this.putText(commandNames);
+                this.advanceLine();
+                // Prepare for next input
+                _OsShell.putPrompt();
+                // Restore buffer
+                this.putText(this.buffer);
+            }
         }
 
         public advanceLine(): void {
@@ -111,6 +160,6 @@ module TSOS {
                 _DrawingContext.putImageData(screenShot, 0, -scrollYBy);
             }
         }
-        
+
         }
     }

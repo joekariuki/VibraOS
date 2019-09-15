@@ -30,14 +30,36 @@ var TSOS;
             this.currentXPosition = 0;
             this.currentYPosition = this.currentFontSize;
         };
+        // Clears line
+        Console.prototype.clearLine = function () {
+            this.currentXPosition = 0;
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - _DefaultFontSize, _Canvas.width, this.consoleLineHeight());
+            _StdOut.putText(_OsShell.promptStr);
+        };
+        // Handles Scrolling
+        Console.prototype.consoleLineHeight = function () {
+            return _DefaultFontSize +
+                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                _FontHeightMargin;
+        };
         Console.prototype.handleInput = function () {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
+                // Tab Key - autocomplete comes first
+                if (chr === String.fromCharCode(9)) {
+                    this.tabComplete(this.buffer);
+                }
                 // Enter key
-                if (chr === String.fromCharCode(13)) {
+                else if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
+                    // buffer is empty; advance line and do not process command
+                    if (this.buffer.length == 0) {
+                        this.advanceLine();
+                        _OsShell.putPrompt();
+                        return;
+                    }
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
                     // ... and reset our buffer.
@@ -84,11 +106,36 @@ var TSOS;
                 this.currentXPosition = this.currentXPosition + offset;
             }
         };
-        // Handle Scrolling
-        Console.prototype.consoleLineHeight = function () {
-            return _DefaultFontSize +
-                _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                _FontHeightMargin;
+        Console.prototype.tabComplete = function (prefix) {
+            // Check if buffer is empty
+            if (prefix.length === 0) {
+                return;
+            }
+            var prefixCommands = _OsShell.commandList.filter(function (cmd) {
+                // Returns true command has prefix
+                return cmd.command.startsWith(prefix);
+            });
+            // Check if prefix has only 1 possible command
+            if (prefixCommands.length == 1) {
+                var currCmd = prefixCommands[0].command;
+                // Clear line
+                this.clearLine();
+                this.putText(currCmd);
+                this.buffer = currCmd;
+            }
+            // Check if prefix has multiple possible commands
+            else if (prefixCommands.length > 1) {
+                // Get appropriate command names and join with a space
+                var commandNames = prefixCommands.map(function (cmd) { return cmd.command; }).join(" ");
+                this.advanceLine();
+                // Display all possible commands with prefix
+                this.putText(commandNames);
+                this.advanceLine();
+                // Prepare for next input
+                _OsShell.putPrompt();
+                // Restore buffer
+                this.putText(this.buffer);
+            }
         };
         Console.prototype.advanceLine = function () {
             this.currentXPosition = 0;

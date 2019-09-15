@@ -56,6 +56,7 @@ var TSOS;
                     chr = String.fromCharCode(keyCode);
                 }
                 _KernelInputQueue.enqueue(chr);
+                // Refactor code below
                 // Special characters and punctuation
             }
             else if ((keyCode >= 186) && (keyCode <= 222)) {
@@ -143,7 +144,8 @@ var TSOS;
             else if (((keyCode >= 48) && (keyCode <= 57)) || // digits
                 (keyCode == 32) || // space
                 (keyCode == 13) || // enter 
-                (keyCode == 8)) { // backspace   
+                (keyCode == 8) || // backspace 
+                (keyCode == 9)) { // tab           
                 chr = String.fromCharCode(keyCode);
                 // Shifted special number characters and punctiation
                 if (isShifted) {
