@@ -83,9 +83,17 @@ module TSOS {
             // Display host status in task bar
             document.getElementById("taskBarStatus").innerHTML = `[Status]: ${msg}`;
         }
+
+        // Display BSOD
+        public static hostDisplayBSOD(): void {
+            // Change background color
+            _Canvas.style.backgroundColor = "blue"
+             // Call the OS shutdown routine.
+             _Kernel.krnShutdown();
+             // Stop the clock
+             clearInterval(_hardwareClockID);
+        }
         
-
-
         //
         // Host Events
         //
@@ -96,6 +104,9 @@ module TSOS {
             // .. enable the Halt and Reset buttons ...
             (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
+
+            // Display status bar
+            document.getElementById('taskBar').style.display = "block";
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();

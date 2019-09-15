@@ -70,6 +70,15 @@ var TSOS;
             // Display host status in task bar
             document.getElementById("taskBarStatus").innerHTML = "[Status]: " + msg;
         };
+        // Display BSOD
+        Control.hostDisplayBSOD = function () {
+            // Change background color
+            _Canvas.style.backgroundColor = "blue";
+            // Call the OS shutdown routine.
+            _Kernel.krnShutdown();
+            // Stop the clock
+            clearInterval(_hardwareClockID);
+        };
         //
         // Host Events
         //
@@ -79,6 +88,8 @@ var TSOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            // Display status bar
+            document.getElementById('taskBar').style.display = "block";
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...

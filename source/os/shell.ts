@@ -91,11 +91,18 @@ module TSOS {
                                     "- Only programmers will smile");
             this.commandList[this.commandList.length] = sc;
 
-             // status <string>
-             sc = new ShellCommand(this.shellStatus,
+            // status <string>
+            sc = new ShellCommand(this.shellStatus,
                 "status",
                 "<string> - Sets the status in the taskbar.");
-             this.commandList[this.commandList.length] = sc;
+            this.commandList[this.commandList.length] = sc;
+
+            // nuke
+            sc = new ShellCommand(this.shellCrash,
+                "nuke",
+                " - [WARNING] Crashes the entire OS.");
+            this.commandList[this.commandList.length] = sc;
+            
 
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -295,6 +302,9 @@ module TSOS {
                     case "status":
                         _StdOut.putText("<string> - Sets the status in the taskbar");
                         break;
+                    case "nuke":
+                        _StdOut.putText(" - [WARNING] Crashes the entire OS.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -396,5 +406,15 @@ module TSOS {
             }
         }
 
+        public shellCrash(args) {
+            // Clear console
+            _StdOut.clearScreen();
+            // Display system error message
+            _StdOut.putText("[SYSTEM FAILURE] User initiated VibraOS system crash!");
+            _StdOut.advanceLine();
+            _StdOut.putText("Please reset the console...");
+            // Display kernel error
+            _Kernel.krnTrapError("User initiated OS error");
+        }
     }
 }
