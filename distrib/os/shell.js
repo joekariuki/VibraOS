@@ -12,7 +12,7 @@ var TSOS;
     var Shell = /** @class */ (function () {
         function Shell() {
             // Properties
-            this.promptStr = ">";
+            this.promptStr = "~VibraOS ";
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
