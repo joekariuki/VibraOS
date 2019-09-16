@@ -307,9 +307,10 @@ var TSOS;
         Shell.prototype.shellLocation = function (args) {
             // Array of locations
             var location = [
-                "EARTH!",
-                "On a pale blue dot on an art piece called The Universe",
-                "On a planet in a galaxy far far away",
+                "...On a pale blue dot",
+                "...EARTH!",
+                "... On a lonely spec in a great envolping cosmic dark",
+                "...On a mote of dust suspended in a sunbeam",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
             // Generate random index
@@ -357,7 +358,7 @@ var TSOS;
                 _StdOut.putText("[SUCCESS] Program loaded");
             }
             else {
-                _StdOut.putText("[ERROR] Invalid program. Only valid characters are 0-9, a-z, and A-z");
+                _StdOut.putText("[ERROR] Invalid program. Only characters are 0-9, a-z, and A-z are valid!");
             }
         };
         return Shell;
