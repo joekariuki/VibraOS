@@ -6,6 +6,7 @@ body {
   font-size: 12pt;
   font-weight: normal;
   font-style: normal;
+  height: 100vh;
 }
 
 h1 {
@@ -79,4 +80,8 @@ h3 {
 
 #defaultStatus {
   color: black;
+}
+
+.height {
+  height: 100vh;
 }
