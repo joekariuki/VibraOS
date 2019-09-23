@@ -13,6 +13,8 @@ module TSOS {
                     public currentFontSize = _DefaultFontSize,
                     public currentXPosition = 0,
                     public currentYPosition = _DefaultFontSize,
+                    public prevCommandHistory = [], // Old commands
+                    public recCommandHistory = [],  // Most recent commands
                     public buffer = "") {
         }
 
@@ -30,17 +32,94 @@ module TSOS {
             this.currentYPosition = this.currentFontSize;
         }
 
+        // Clears line
+        public clearLine(): void {
+            this.currentXPosition = 0;
+            _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - _DefaultFontSize, _Canvas.width, this.consoleLineHeight());
+            _StdOut.putText(_OsShell.promptStr);
+        }
+
+        // Handles Scrolling
+        public consoleLineHeight(): number {
+            return _DefaultFontSize +
+                    _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
+                    _FontHeightMargin;
+        }
+
         public handleInput(): void {
             while (_KernelInputQueue.getSize() > 0) {
                 // Get the next character from the kernel input queue.
                 var chr = _KernelInputQueue.dequeue();
                 // Check to see if it's "special" (enter or ctrl-c) or "normal" (anything else that the keyboard device driver gave us).
-                if (chr === String.fromCharCode(13)) { // the Enter key
+                // Tab Key - autocomplete comes first
+                if (chr === String.fromCharCode(9)) {
+                    this.tabComplete(this.buffer);
+                } 
+                // Enter key
+                else if (chr === String.fromCharCode(13)) { 
                     // The enter key marks the end of a console command, so ...
+                    // buffer is empty; advance line and do not process command
+                    if (this.buffer.length == 0) { 
+                        this.advanceLine();
+                        _OsShell.putPrompt();
+                        return;
+                    }
                     // ... tell the shell ...
                     _OsShell.handleInput(this.buffer);
-                    // ... and reset our buffer.
+                    // Add initial entered command
+                    this.prevCommandHistory.push(this.buffer);
+
+                    // Reset buffer.
                     this.buffer = "";
+                
+                } else if (chr === "&uarr;") { // Up arrow key
+                    this.recCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set previous command
+                    let prevCmd = this.prevCommandHistory.pop();
+                    // Display previous command
+                    this.putText(prevCmd);
+                    // Set buffer to previous command
+                    this.buffer = prevCmd;
+
+                    // // debug
+                    // console.log(prevCmd);
+
+
+                } else if (chr === "&darr;") { // Down arrow key
+                    this.prevCommandHistory.push(this.buffer);
+                    // Clear line
+                    this.clearLine();
+                    // Reset buffer
+                    this.buffer = "";
+                    // Set recent command
+                    let recentCmd = this.recCommandHistory.pop();
+                    // Display most recent command
+                    this.putText(recentCmd);
+                    // Set buffer to most recent command
+                    this.buffer = recentCmd;
+
+                    // // debug
+                    // console.log(recentCmd);
+
+                }
+                // Backspace key
+                else if (chr === String.fromCharCode(8)) {
+                    // Get last character in buffer
+                    let lastChar = this.buffer.slice(-1); 
+                    // Get backspace width
+                    let backspaceWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, lastChar);
+                    // Get backspace height
+                    let backspaceHeight = this.consoleLineHeight();
+                    // Decrement current position by size of backspace width
+                    this.currentXPosition -= backspaceWidth;
+                    //  Delete character using clearRect
+                    _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - backspaceHeight + _FontHeightMargin, backspaceWidth, backspaceHeight);
+                    // Remove character from buffer
+                    this.buffer = this.buffer.slice(0, -1);
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -64,23 +143,61 @@ module TSOS {
                 // Draw the text at the current X and Y coordinates.
                 _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
                 // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
+                let offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
                 this.currentXPosition = this.currentXPosition + offset;
             }
          }
 
+         public tabComplete(prefix): void {
+            // Check if buffer is empty
+            if (prefix.length === 0) { return; }
+            let prefixCommands = _OsShell.commandList.filter((cmd) => {
+                // Returns true command has prefix
+                 return cmd.command.startsWith(prefix); 
+            });
+            // Check if prefix has only 1 possible command
+            if (prefixCommands.length == 1) { 
+                let currCmd = prefixCommands[0].command;
+                // Clear line
+                this.clearLine();
+                this.putText(currCmd);
+                this.buffer = currCmd;
+            } 
+            // Check if prefix has multiple possible commands
+            else if (prefixCommands.length > 1) { 
+                // Get appropriate command names and join with a space
+                let commandNames = prefixCommands.map((cmd) => { return cmd.command; }).join(" ");
+                this.advanceLine();
+                // Display all possible commands with prefix
+                this.putText(commandNames);
+                this.advanceLine();
+                // Prepare for next input
+                _OsShell.putPrompt();
+                // Restore buffer
+                this.putText(this.buffer);
+            }
+        }
+
         public advanceLine(): void {
             this.currentXPosition = 0;
-            /*
-             * Font size measures from the baseline to the highest point in the font.
-             * Font descent measures from the baseline to the lowest point in the font.
-             * Font height margin is extra spacing between the lines.
-             */
-            this.currentYPosition += _DefaultFontSize + 
-                                     _DrawingContext.fontDescent(this.currentFont, this.currentFontSize) +
-                                     _FontHeightMargin;
 
-            // TODO: Handle scrolling. (iProject 1)
+            // Assign current Y position to console height
+            this.currentYPosition += this.consoleLineHeight();
+            
+            // Check if current position cursor is at bottom of canvas
+            if (this.currentYPosition >= _Canvas.height) {
+                // Assign scroll distance
+                let scrollYBy = this.currentYPosition-_Canvas.height + _FontHeightMargin;
+                // Capture console contents
+                let screenShot = _DrawingContext.getImageData(0, 0, _Canvas.width, _Canvas.height);
+                // Clear console
+                this.clearScreen();
+                // Subtract current position by scroll distance
+                this.currentYPosition -= scrollYBy;
+                // Display console contents one line down
+                _DrawingContext.putImageData(screenShot, 0, -scrollYBy);
+            }
+        }
+
         }
     }
- }

@@ -30,10 +30,16 @@ h3 {
   font-style: normal;
 }
 
+#divConsole {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
 #display {
   background-color:#DFDBC3;
   border: 2px solid red;
   cursor: default;
+  overflow-x: hidden;
 }
 
 .normal_button {
@@ -45,4 +51,32 @@ h3 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 8pt;
   text-align: center;
+}
+
+#canvas {
+  height: 451px;
+  width: 570px;
+  overflow-x: hidden; 
+  overflow-y: scroll;
+}
+
+/* Host Taskbar */
+#taskBar {
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0 4px 6px 0 hsla(0, 0%, 0%, 0.2);
+  margin-left: 5px;
+  width: 50%;
+}
+
+#taskBarDisplay {
+  padding: 8px;
+}
+
+#taskBarStatus {
+  color: green;
+}
+
+#defaultStatus {
+  color: black;
 }

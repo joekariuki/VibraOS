@@ -24,6 +24,11 @@ var TSOS;
         // Hardware/Host Clock Pulse
         //
         Devices.hostClockPulse = function () {
+            // Check if clock has changed every second
+            if (_OSclock % 10 == 0) {
+                // Update display date
+                TSOS.Control.hostDisplayDate();
+            }
             // Increment the hardware (host) clock.
             _OSclock++;
             // Call the kernel clock pulse event handler.

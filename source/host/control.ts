@@ -69,7 +69,47 @@ module TSOS {
             // TODO in the future: Optionally update a log database or some streaming service.
         }
 
+        // Display current date
+        public static hostDisplayDate(): void {
+            // Get current date
+            let currentDate = new Date();
+            // Display current date in task bar
+            document.getElementById("taskBarDate").innerHTML= ` | ${currentDate}`;
+         }
 
+        
+        //  Set host status
+        public static hostSetStatus(msg: string): void {
+            // Display host status in task bar
+            document.getElementById("taskBarStatus").innerHTML = `[Status]: ${msg}`;
+        }
+
+        // Display BSOD
+        public static hostDisplayBSOD(): void {
+            // Change background color
+            _Canvas.style.backgroundColor = "blue"
+             // Call the OS shutdown routine.
+             _Kernel.krnShutdown();
+             // Stop the clock
+             clearInterval(_hardwareClockID);
+        }
+        // Load program
+        public static hostProgramLoad(): boolean {
+            // Get user program input
+            let programInput = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+            // Check if program input if empty
+            if (!programInput.length) { 
+                return false; 
+            } else {
+                // Declare regular expression for matching any non-hex or space charcter
+                let re = new RegExp("[^ 0-9a-fA-F]");
+                // Test for invalid character
+                let invalidChar = re.test(programInput);
+                // Return true for valid program
+                return !invalidChar;
+            }
+        }
+        
         //
         // Host Events
         //
@@ -80,6 +120,9 @@ module TSOS {
             // .. enable the Halt and Reset buttons ...
             (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
             (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
+
+            // Display status bar
+            document.getElementById('taskBar').style.display = "block";
 
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();

@@ -12,7 +12,7 @@ var TSOS;
     var Shell = /** @class */ (function () {
         function Shell() {
             // Properties
-            this.promptStr = ">";
+            this.promptStr = "~VibraOS ";
             this.commandList = [];
             this.curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
             this.apologies = "[sorry]";
@@ -53,6 +53,15 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             // telljoke
             sc = new TSOS.ShellCommand(this.shellJoke, "telljoke", "- Only programmers will smile");
+            this.commandList[this.commandList.length] = sc;
+            // status <string>
+            sc = new TSOS.ShellCommand(this.shellStatus, "status", "<string> - Sets the status in the taskbar.");
+            this.commandList[this.commandList.length] = sc;
+            // nuke
+            sc = new TSOS.ShellCommand(this.shellCrash, "nuke", " - [WARNING] Crashes the entire OS.");
+            this.commandList[this.commandList.length] = sc;
+            // load
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads program from User Program Input");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -231,8 +240,16 @@ var TSOS;
                         break;
                     case "whereami":
                         _StdOut.putText("Display users location. Hint: Try the command multiple times");
+                        break;
                     case "telljoke":
                         _StdOut.putText("Only programmers will smile");
+                        break;
+                    case "status":
+                        _StdOut.putText("<string> - Sets the status in the taskbar");
+                        break;
+                    case "nuke":
+                        _StdOut.putText(" - [WARNING] Crashes the entire OS.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -290,13 +307,15 @@ var TSOS;
         Shell.prototype.shellLocation = function (args) {
             // Array of locations
             var location = [
-                "EARTH!",
-                "On a pale blue dot on an art piece called The Universe",
-                "On a planet in a galaxy far far away",
+                "...On a pale blue dot",
+                "...EARTH!",
+                "... On a lonely spec in a great envolping cosmic dark",
+                "...On a mote of dust suspended in a sunbeam",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
-            // Generates random index multiplied by location length
+            // Generate random index
             var randomIndex = Math.floor(Math.random() * location.length);
+            // Display location value
             _StdOut.putText("" + location[randomIndex]);
         };
         Shell.prototype.shellJoke = function (arg) {
@@ -308,8 +327,39 @@ var TSOS;
                 "I'd like to make the world a better place, but they won't give me the source code...",
                 "Q: How many programmers does it take to screw in a light bulb?\n                 A: None. It's a hardware problem."
             ];
+            // Generate random index
             var randomIndex = Math.floor(Math.random() * jokes.length);
+            // Display joke value
             _StdOut.putText("" + jokes[randomIndex]);
+        };
+        Shell.prototype.shellStatus = function (args) {
+            if (args.length > 0) {
+                TSOS.Control.hostSetStatus(args.join(" "));
+            }
+            else {
+                _StdOut.putText("Usage: status <string>  Please supply a string.");
+            }
+        };
+        Shell.prototype.shellCrash = function (args) {
+            // Clear console
+            _StdOut.clearScreen();
+            // Display system error message
+            _StdOut.putText("[SYSTEM FAILURE] User initiated VibraOS system crash!");
+            _StdOut.advanceLine();
+            _StdOut.putText("Please reset the console...");
+            // Display kernel error
+            _Kernel.krnTrapError("User initiated OS error");
+        };
+        Shell.prototype.shellLoad = function (args) {
+            // Assign control to verify and load program
+            var isLoaded = TSOS.Control.hostProgramLoad();
+            // Check if program is loaded
+            if (isLoaded) {
+                _StdOut.putText("[SUCCESS] Program loaded");
+            }
+            else {
+                _StdOut.putText("[ERROR] Invalid program. Only characters are 0-9, a-z, and A-z are valid!");
+            }
         };
         return Shell;
     }());

@@ -12,7 +12,7 @@
 module TSOS {
     export class Shell {
         // Properties
-        public promptStr = ">";
+        public promptStr = "~VibraOS ";
         public commandList = [];
         public curses = "[fuvg],[cvff],[shpx],[phag],[pbpxfhpxre],[zbgureshpxre],[gvgf]";
         public apologies = "[sorry]";
@@ -91,6 +91,24 @@ module TSOS {
                                     "- Only programmers will smile");
             this.commandList[this.commandList.length] = sc;
 
+            // status <string>
+            sc = new ShellCommand(this.shellStatus,
+                "status",
+                "<string> - Sets the status in the taskbar.");
+            this.commandList[this.commandList.length] = sc;
+
+            // nuke
+            sc = new ShellCommand(this.shellCrash,
+                "nuke",
+                " - [WARNING] Crashes the entire OS.");
+            this.commandList[this.commandList.length] = sc;
+
+            // load
+            sc = new ShellCommand(this.shellLoad,
+                "load",
+                "- Loads program from User Program Input");
+            this.commandList[this.commandList.length] = sc;
+            
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -282,8 +300,16 @@ module TSOS {
                         break;
                     case "whereami":
                         _StdOut.putText("Display users location. Hint: Try the command multiple times");
+                        break;
                     case "telljoke":
                         _StdOut.putText("Only programmers will smile");
+                        break;
+                    case "status":
+                        _StdOut.putText("<string> - Sets the status in the taskbar");
+                        break;
+                    case "nuke":
+                        _StdOut.putText(" - [WARNING] Crashes the entire OS.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -334,26 +360,28 @@ module TSOS {
         }
 
         public shellDate(args: string[]) {
-            var currentDate = new Date();
+            let currentDate = new Date();
             _StdOut.putText(`${currentDate}`);
         }
 
         public shellLocation(args: string[]) {
             // Array of locations
-            var location = [
-                "EARTH!",
-                "On a pale blue dot on an art piece called The Universe",
-                "On a planet in a galaxy far far away",
+            let location = [
+                "...On a pale blue dot",
+                "...EARTH!",
+                "... On a lonely spec in a great envolping cosmic dark",
+                "...On a mote of dust suspended in a sunbeam",
                 "The question is not \"where you are?\" but rather, where will you be going?"
             ];
-            // Generates random index multiplied by location length
-            var randomIndex = Math.floor(Math.random() * location.length);
+            // Generate random index
+            let randomIndex = Math.floor(Math.random() * location.length);
+            // Display location value
             _StdOut.putText(`${location[randomIndex]}`);
         }
 
         public shellJoke(arg: string[]) {
             // Array of jokes
-            var jokes = [
+            let jokes = [
                 `A journalist asked a programmer: 
                     "What makes code bad?"
                  Programmer: "No comment."
@@ -370,9 +398,40 @@ module TSOS {
                 `Q: How many programmers does it take to screw in a light bulb?
                  A: None. It's a hardware problem.`
             ];
-            var randomIndex = Math.floor(Math.random() * jokes.length);
+            // Generate random index
+            let randomIndex = Math.floor(Math.random() * jokes.length);
+            // Display joke value
             _StdOut.putText(`${jokes[randomIndex]}`);
         }
 
+        public shellStatus(args) {
+            if (args.length > 0) {
+                Control.hostSetStatus(args.join(" "));
+            } else {
+                _StdOut.putText("Usage: status <string>  Please supply a string.");
+            }
+        }
+
+        public shellCrash(args) {
+            // Clear console
+            _StdOut.clearScreen();
+            // Display system error message
+            _StdOut.putText("[SYSTEM FAILURE] User initiated VibraOS system crash!");
+            _StdOut.advanceLine();
+            _StdOut.putText("Please reset the console...");
+            // Display kernel error
+            _Kernel.krnTrapError("User initiated OS error");
+        }
+
+        public shellLoad(args) {
+            // Assign control to verify and load program
+            let isLoaded = Control.hostProgramLoad();
+            // Check if program is loaded
+            if (isLoaded) {
+               _StdOut.putText("[SUCCESS] Program loaded");
+            } else {
+                _StdOut.putText("[ERROR] Invalid program. Only characters are 0-9, a-z, and A-z are valid!");
+            }
+        }
     }
 }

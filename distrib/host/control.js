@@ -58,6 +58,44 @@ var TSOS;
             taLog.value = str + taLog.value;
             // TODO in the future: Optionally update a log database or some streaming service.
         };
+        // Display current date
+        Control.hostDisplayDate = function () {
+            // Get current date
+            var currentDate = new Date();
+            // Display current date in task bar
+            document.getElementById("taskBarDate").innerHTML = " | " + currentDate;
+        };
+        //  Set host status
+        Control.hostSetStatus = function (msg) {
+            // Display host status in task bar
+            document.getElementById("taskBarStatus").innerHTML = "[Status]: " + msg;
+        };
+        // Display BSOD
+        Control.hostDisplayBSOD = function () {
+            // Change background color
+            _Canvas.style.backgroundColor = "blue";
+            // Call the OS shutdown routine.
+            _Kernel.krnShutdown();
+            // Stop the clock
+            clearInterval(_hardwareClockID);
+        };
+        // Load program
+        Control.hostProgramLoad = function () {
+            // Get user program input
+            var programInput = document.getElementById("taProgramInput").value;
+            // Check if program input if empty
+            if (!programInput.length) {
+                return false;
+            }
+            else {
+                // Declare regular expression for matching any non-hex or space charcter
+                var re = new RegExp("[^ 0-9a-fA-F]");
+                // Test for invalid character
+                var invalidChar = re.test(programInput);
+                // Return true for valid program
+                return !invalidChar;
+            }
+        };
         //
         // Host Events
         //
@@ -67,6 +105,8 @@ var TSOS;
             // .. enable the Halt and Reset buttons ...
             document.getElementById("btnHaltOS").disabled = false;
             document.getElementById("btnReset").disabled = false;
+            // Display status bar
+            document.getElementById('taskBar').style.display = "block";
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
