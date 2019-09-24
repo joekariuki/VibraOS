@@ -54,6 +54,10 @@ h3 {
   text-align: center;
 }
 
+#divButtonBar {
+  padding: 20px 0 10px 10px;
+}
+
 #canvas {
   height: 451px;
   width: 570px;
