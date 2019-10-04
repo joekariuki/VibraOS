@@ -307,11 +307,11 @@ var TSOS;
         Shell.prototype.shellLocation = function (args) {
             // Array of locations
             var location = [
-                "...On a pale blue dot",
-                "...EARTH!",
-                "... On a lonely spec in a great envolping cosmic dark",
-                "...On a mote of dust suspended in a sunbeam",
-                "The question is not \"where you are?\" but rather, where will you be going?"
+                "...On a pale blue dot...",
+                "...EARTH!...",
+                "... On a lonely spec in a great envolping cosmic dark...",
+                "...On a mote of dust suspended in a sunbeam...",
+                "...The question is not \"where you are?\" but rather, where will you be going?..."
             ];
             // Generate random index
             var randomIndex = Math.floor(Math.random() * location.length);
