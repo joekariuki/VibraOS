@@ -120,6 +120,14 @@ module TSOS {
                     _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - backspaceHeight + _FontHeightMargin, backspaceWidth, backspaceHeight);
                     // Remove character from buffer
                     this.buffer = this.buffer.slice(0, -1);
+                    // Check if last character from line deleted, and snap back to last line if needed
+                    if (this.currentXPosition <= 0) {
+                        this.currentYPosition -= this.consoleLineHeight();
+                        // xPosition is used to compute where to place the cursor on the previous line
+                        var xPosition = _DrawingContext.measureText(this.currentFont, this.currentFontSize, _OsShell.promptStr + this.buffer);
+                        xPosition = xPosition % _Canvas.width; // If there are multiple lines worth of text in the buffer, calculate the width of the last line
+                        this.currentXPosition = xPosition;
+                    }
                 } else {
                     // This is a "normal" character, so ...
                     // ... draw it on the screen...
@@ -131,6 +139,7 @@ module TSOS {
             }
         }
 
+
         public putText(text): void {
             /*  My first inclination here was to write two functions: putChar() and putString().
                 Then I remembered that JavaScript is (sadly) untyped and it won't differentiate
@@ -139,12 +148,19 @@ module TSOS {
                 do the same thing, thereby encouraging confusion and decreasing readability, I
                 decided to write one function and use the term "text" to connote string or char.
             */
+
+            // Line Wrap
             if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                // Move the current X position.
-                let offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                let lineWrappedText = this.lineWrapText(text);
+                for (let i = 0; i < lineWrappedText.length; i++) {
+                    let line = lineWrappedText[i];
+                    // Draw the text at the current X and Y coordinates.
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
+                    // Move the current X position.
+                    let offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, line);
+                    this.currentXPosition = this.currentXPosition + offset;
+                    if (i+1 < lineWrappedText.length) { this.advanceLine(); }
+                }
             }
          }
 
@@ -199,5 +215,25 @@ module TSOS {
             }
         }
 
+        public lineWrapText(text): string[] {
+            let buffer = "";
+            let lineWrappedText: string[] = [];
+            // Get available space on current line
+            let availableWidth = _Canvas.width - this.currentXPosition;
+            
+            while (text.length > 0) {
+                // Add character by character while width of buffer is smaller than the available width of canvas
+                while (text.length > 0 &&
+                _DrawingContext.measureText(this.currentFont, this.currentFontSize, (buffer + text.charAt(0))) <= availableWidth) {
+                    buffer += text.charAt(0);
+                    text = text.slice(1);
+                }
+                lineWrappedText.push(buffer);
+                buffer = "";
+                // Assign availabe width to canvas width
+                availableWidth = _Canvas.width; 
+            }
+            return lineWrappedText;
         }
     }
+}
