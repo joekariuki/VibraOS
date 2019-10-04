@@ -321,11 +321,11 @@ var TSOS;
         Shell.prototype.shellJoke = function (arg) {
             // Array of jokes
             var jokes = [
-                "A journalist asked a programmer: \n                    \"What makes code bad?\"\n                 Programmer: \"No comment.\"\n                ",
-                "Documentation is like sex.\n                 When it's good , it's very good.\n                 When it is bad, it's better than nothing.\n                ",
-                "\n                How real people play Russian roulette:\n                 bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*\n                ",
+                "A journalist asked a programmer: \"What makes code bad?\" Programmer: \"No comment.\"\n                ",
+                "Documentation is like sex. When it's good , it's very good. When it is bad, it's better than nothing.\n                ",
+                "\n                How real people play Russian roulette: bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*\n                ",
                 "I'd like to make the world a better place, but they won't give me the source code...",
-                "Q: How many programmers does it take to screw in a light bulb?\n                 A: None. It's a hardware problem."
+                "Q: How many programmers does it take to screw in a light bulb? A: None. It's a hardware problem."
             ];
             // Generate random index
             var randomIndex = Math.floor(Math.random() * jokes.length);

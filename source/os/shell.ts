@@ -382,21 +382,15 @@ module TSOS {
         public shellJoke(arg: string[]) {
             // Array of jokes
             let jokes = [
-                `A journalist asked a programmer: 
-                    "What makes code bad?"
-                 Programmer: "No comment."
+                `A journalist asked a programmer: "What makes code bad?" Programmer: "No comment."
                 `,
-                `Documentation is like sex.
-                 When it's good , it's very good.
-                 When it is bad, it's better than nothing.
+                `Documentation is like sex. When it's good , it's very good. When it is bad, it's better than nothing.
                 `,
                 `
-                How real people play Russian roulette:
-                 bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*
+                How real people play Russian roulette: bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*
                 `,
                 "I'd like to make the world a better place, but they won't give me the source code...",
-                `Q: How many programmers does it take to screw in a light bulb?
-                 A: None. It's a hardware problem.`
+                `Q: How many programmers does it take to screw in a light bulb? A: None. It's a hardware problem.`
             ];
             // Generate random index
             let randomIndex = Math.floor(Math.random() * jokes.length);
