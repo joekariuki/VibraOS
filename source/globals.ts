@@ -23,7 +23,12 @@ const MEMORY_ACCESS_VIOLATION_IRQ: number = 4;
 const TERMINATE_PROGRAM_IRQ: number = 3;
 const SYSCALL_IRQ: number = 2;
 
-
+// PCB process states
+const PS_NEW: number = 0;
+const PS_READY: number = 1;
+const PS_RUNNING: number = 2;
+const PS_WAITING: number = 3;
+const PS_TERMINATED: number = 4;
 
 //
 // Global Variables
@@ -53,6 +58,32 @@ var _KernelBuffers = null;
 // Standard input and output
 var _StdIn:  TSOS.Console = null; 
 var _StdOut: TSOS.Console = null;
+
+// PCB
+var _PCB: TSOS.PCB;
+var _PID: number = -1;             //PID for PCB
+var _PRIORITY : number = 0;    //default priority for PCB Process
+
+
+
+
+
+// Memory
+var _Memory: TSOS.Memory;
+var _MemoryManager: TSOS.MemoryManager;
+// Allocate 256 bytes for program
+var _ProgramSize: number = 256; 
+var _MemoryArray: string[] = [];
+var _ProgramInput = "";      // Program input
+// Declare default base memory
+var _BASE: number = 0;            
+// Declare current memory index
+var _CurrMemIndex: number = 0; 
+// Declare resident queue
+var _ResidentQueue: any = [];         
+// Declare ready queue
+var _ReadyQueue: any = [];           
+
 
 // UI
 var _Console: TSOS.Console;

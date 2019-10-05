@@ -19,7 +19,7 @@ var KEYBOARD_IRQ = 1;
 var MEMORY_ACCESS_VIOLATION_IRQ = 4;
 var TERMINATE_PROGRAM_IRQ = 3;
 var SYSCALL_IRQ = 2;
-// states of process for PCB.. Make constants to represent different states.
+// PCB process states
 var PS_NEW = 0;
 var PS_READY = 1;
 var PS_RUNNING = 2;
@@ -51,16 +51,21 @@ var _StdOut = null;
 var _PCB;
 var _PID = -1; //PID for PCB
 var _PRIORITY = 0; //default priority for PCB Process
-var _BASE = 0; //defualt base of memory
-var _CurrMemIndex = 0; //defualt base of memory
-var _ResidentQueue = []; //resident queue 
-var _ReadyQueue = []; //resident queue
 // Memory
 var _Memory;
 var _MemoryManager;
-var _ProgramSize = 256; // Allocate 256 bytes for program
+// Allocate 256 bytes for program
+var _ProgramSize = 256;
 var _MemoryArray = [];
 var _ProgramInput = ""; // Program input
+// Declare default base memory
+var _BASE = 0;
+// Declare current memory index
+var _CurrMemIndex = 0;
+// Declare resident queue
+var _ResidentQueue = [];
+// Declare ready queue
+var _ReadyQueue = [];
 // UI
 var _Console;
 var _OsShell;
