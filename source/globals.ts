@@ -19,6 +19,9 @@ const CPU_CLOCK_INTERVAL: number = 100;   // This is in ms (milliseconds) so 100
 const TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
                               // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ: number = 1;
+const MEMORY_ACCESS_VIOLATION_IRQ: number = 4;
+const TERMINATE_PROGRAM_IRQ: number = 3;
+const SYSCALL_IRQ: number = 2;
 
 const SEGMENT_SIZE: number = 256;
 const SEGMENT_COUNT: number = 3;
