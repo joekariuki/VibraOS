@@ -29,6 +29,8 @@ const SEGMENT_COUNT: number = 3;
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
+var _SSMode: boolean = false; // Declare single step mode
+var _Memory: TSOS.Memory;  // Declare _Memory as an instance of Memory Class
 
 var _OSclock: number = 0;  // Page 23.
 
