@@ -19,15 +19,18 @@ var KEYBOARD_IRQ = 1;
 var MEMORY_ACCESS_VIOLATION_IRQ = 4;
 var TERMINATE_PROGRAM_IRQ = 3;
 var SYSCALL_IRQ = 2;
-var SEGMENT_SIZE = 256;
-var SEGMENT_COUNT = 3;
+// states of process for PCB.. Make constants to represent different states.
+var PS_NEW = 0;
+var PS_READY = 1;
+var PS_RUNNING = 2;
+var PS_WAITING = 3;
+var PS_TERMINATED = 4;
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU; // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _SSMode = false; // Declare single step mode
-var _Memory; // Declare _Memory as an instance of Memory Class
 var _OSclock = 0; // Page 23.
 var _Mode = 0; // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
 var _Canvas; // Initialized in Control.hostInit().
@@ -44,6 +47,20 @@ var _KernelBuffers = null;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
+// PCB
+var _PCB;
+var _PID = -1; //PID for PCB
+var _PRIORITY = 0; //default priority for PCB Process
+var _BASE = 0; //defualt base of memory
+var _CurrMemIndex = 0; //defualt base of memory
+var _ResidentQueue = []; //resident queue 
+var _ReadyQueue = []; //resident queue
+// Memory
+var _Memory;
+var _MemoryManager;
+var _ProgramSize = 256; // Allocate 256 bytes for program
+var _MemoryArray = [];
+var _ProgramInput = ""; // Program input
 // UI
 var _Console;
 var _OsShell;
