@@ -87,3 +87,13 @@ h3 {
 .height {
   height: 100vh;
 }
+
+/* Memory Table */
+
+#memoryTable {
+  overflow-y: scroll; 
+  height: 100px; 
+  display: block;  
+  border: 1px solid;  
+  background-color: #ffffff;
+}

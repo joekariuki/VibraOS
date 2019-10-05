@@ -14,6 +14,7 @@
    <script type="text/javascript" src="distrib/globals.js"></script>
 
    <!-- Host (Virtual Machine / Hardware Simulation) Routines -->
+   <script type="text/javascript" src="distrib/host/memory.js"></script>
    <script type="text/javascript" src="distrib/host/control.js"></script>
    <script type="text/javascript" src="distrib/host/devices.js"></script>
    <script type="text/javascript" src="distrib/host/cpu.js"></script>
@@ -25,6 +26,8 @@
    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
    <script type="text/javascript" src="distrib/os/queue.js"></script>
+   <script type="text/javascript" src="distrib/os/pcb.js"></script>
+   <script type="text/javascript" src="distrib/os/memoryManager.js"></script>
    <script type="text/javascript" src="distrib/os/shell.js"></script>
    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
@@ -112,6 +115,13 @@
          ></textarea>
       </label>
    </div>
+
+   <div style="margin-left:520px; width:340px;" >
+      <p>Memory</p>
+      <table border="1" cellpadding="7" id="memoryTable"> 
+      </table>
+   </div>	
+
 </div>
 <footer>
       <p class="footerText" style="clear:both;">
