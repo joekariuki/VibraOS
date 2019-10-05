@@ -106,7 +106,7 @@ module TSOS {
             // load
             sc = new ShellCommand(this.shellLoad,
                 "load",
-                "- Loads program from User Program Input");
+                "- Loads program from user program input");
             this.commandList[this.commandList.length] = sc;
             
             // ps  - list the running processes and their IDs
@@ -418,13 +418,24 @@ module TSOS {
         }
 
         public shellLoad(args) {
-            // Assign control to verify and load program
-            let isLoaded = Control.hostProgramLoad();
-            // Check if program is loaded
-            if (isLoaded) {
-               _StdOut.putText("[SUCCESS] Program loaded");
+            // Get user input 
+            _ProgramInput = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
+            // Declare hex code from user input
+            let hexCode = _ProgramInput;
+            // Declare new regex to check user input
+            let regex = new RegExp('^[0-9A-Fa-f\\s]+$');
+            // Check if hexCode matches regex
+            if (hexCode.match(regex)) {
+                _StdOut.putText('[SUCCESS] Valid hex. Program loaded');
+                _Console.advanceLine();
+                // Add new memory instance
+                _MemoryManager = new MemoryManager();
+                // Update Memory Table
+                _MemoryManager.updateMemTable();
             } else {
-                _StdOut.putText("[ERROR] Invalid program. Only characters are 0-9, a-z, and A-z are valid!");
+                _StdOut.putText('[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!');
+                // Reset program input if not valid
+                _ProgramInput = "";
             }
         }
     }
