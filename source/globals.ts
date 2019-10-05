@@ -23,8 +23,6 @@ const MEMORY_ACCESS_VIOLATION_IRQ: number = 4;
 const TERMINATE_PROGRAM_IRQ: number = 3;
 const SYSCALL_IRQ: number = 2;
 
-const SEGMENT_SIZE: number = 256;
-const SEGMENT_COUNT: number = 3;
 
 
 //
@@ -33,7 +31,6 @@ const SEGMENT_COUNT: number = 3;
 //
 var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _SSMode: boolean = false; // Declare single step mode
-var _Memory: TSOS.Memory;  // Declare _Memory as an instance of Memory Class
 
 var _OSclock: number = 0;  // Page 23.
 
