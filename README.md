@@ -1,3 +1,3 @@
 # VibraOS
 
-1. [Project 1](https://github.com/joekariuki/VibraOS/tree/iProject1) - This branch has all the work I wish to submit for grading
+Please switch to the [development](https://github.com/joekariuki/VibraOS/tree/development) branch for grading
