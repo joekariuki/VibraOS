@@ -16,23 +16,44 @@ var CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds) so 1000 = 1 second
 var TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
-var MEMORY_ACCESS_VIOLATION_IRQ = 4;
-var TERMINATE_PROGRAM_IRQ = 3;
-var SYSCALL_IRQ = 2;
-// PCB process states
-var PS_NEW = 0;
-var PS_READY = 1;
-var PS_RUNNING = 2;
-var PS_WAITING = 3;
-var PS_TERMINATED = 4;
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
 //
 var _CPU; // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
-var _SSMode = false; // Declare single step mode
 var _OSclock = 0; // Page 23.
 var _Mode = 0; // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
+// Declare 256 bytes for program
+var _ProgramSize = 256;
+// Memory size
+var _MemorySize = _ProgramSize * 3;
+var _MemoryArray = [];
+// PCB
+var _PCB;
+var _PID = -1;
+var _IR = "0";
+var _Acc = 0;
+var _PC = 0;
+var _Xreg = 0;
+var _Yreg = 0;
+var _Zflag = 0;
+var _BASE = 0;
+// PCB process states
+var PS_NEW = "New";
+var PS_READY = "Ready";
+var PS_RUNNING = "Running";
+var PS_WAITING = "Waiting";
+var PS_TERMINATED = "Terminated";
+// Declare default base memory
+var _BASE = 0;
+// Declare current memory index
+var _CurrMemIndex = 0;
+// Declare resident queue
+var _ResidentQueue = [];
+// Declare ready queue
+var _ReadyQueue = [];
+// Declare row for eacg program
+var _RowNum = 0;
 var _Canvas; // Initialized in Control.hostInit().
 var _DrawingContext; // = _Canvas.getContext("2d");  // Assigned here for type safety, but re-initialized in Control.hostInit() for OCD and logic.
 var _DefaultFontFamily = "sans"; // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
@@ -47,26 +68,10 @@ var _KernelBuffers = null;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
-// PCB
-var _PCB;
-var _PID = -1; //PID for PCB
-var _PRIORITY = 0; //default priority for PCB Process
 // Memory
 var _CurrentProgram;
 var _Memory;
 var _MemoryManager;
-// Allocate 256 bytes for program
-var _ProgramSize = 256;
-var _MemoryArray = [];
-var _ProgramInput = ""; // Program input
-// Declare default base memory
-var _BASE = 0;
-// Declare current memory index
-var _CurrMemIndex = 0;
-// Declare resident queue
-var _ResidentQueue = [];
-// Declare ready queue
-var _ReadyQueue = [];
 // Declare start index for each program
 var _BaseProgram = 0;
 // Declare program input
