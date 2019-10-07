@@ -73,7 +73,7 @@ module TSOS {
                                   "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
 
-            // date 
+            // date
             sc = new ShellCommand(this.shellDate,
                                     "date",
                                     "- Displays the current date and time");
@@ -84,7 +84,7 @@ module TSOS {
                                     "whereami",
                                     "- Displays users current location. Hint: Try the command multiple times");
             this.commandList[this.commandList.length] = sc;
-            
+
             // telljoke
             sc = new ShellCommand(this.shellJoke,
                                     "telljoke",
@@ -106,9 +106,14 @@ module TSOS {
             // load
             sc = new ShellCommand(this.shellLoad,
                 "load",
-                "- Loads program from user program input");
+                "<HEX>- Loads program with valid HEX from user program input");
             this.commandList[this.commandList.length] = sc;
-            
+            // run
+            sc = new ShellCommand(this.shellRun,
+                "run",
+                " <pid> - runs a valid process.");
+            this.commandList[this.commandList.length] = sc;
+
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
 
@@ -133,7 +138,7 @@ module TSOS {
             // Determine the command and execute it.
             //
             // TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the
-            // command list in attempt to find a match. 
+            // command list in attempt to find a match.
             // TODO: Is there a better way? Probably. Someone work it out and tell me in class.
             var index: number = 0;
             var found: boolean = false;
@@ -236,7 +241,7 @@ module TSOS {
            }
         }
 
-        // Although args is unused in some of these functions, it is always provided in the 
+        // Although args is unused in some of these functions, it is always provided in the
         // actual parameter list when this function is called, so I feel like we need it.
 
         public shellVer(args: string[]) {
@@ -258,8 +263,8 @@ module TSOS {
             // TODO: Stop the final prompt from being displayed. If possible. Not a high priority. (Damn OCD!)
         }
 
-        public shellCls(args: string[]) {         
-            _StdOut.clearScreen();     
+        public shellCls(args: string[]) {
+            _StdOut.clearScreen();
             _StdOut.resetXY();
         }
 
@@ -309,6 +314,12 @@ module TSOS {
                         break;
                     case "nuke":
                         _StdOut.putText(" - [WARNING] Crashes the entire OS.");
+                        break;
+                    case "load":
+                        _StdOut.putText("<HEX>- Loads program with valid HEX from user program input");
+                        break;
+                    case "run":
+                        _StdOut.putText("Runs a valid process.");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -418,7 +429,7 @@ module TSOS {
         }
 
         public shellLoad(args) {
-            // Get user input 
+            // Get user input
             _ProgramInput = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
             // Declare hex code from user input
             let hexCode = _ProgramInput;
@@ -430,13 +441,58 @@ module TSOS {
                 _Console.advanceLine();
                 // Add new memory instance
                 _MemoryManager = new MemoryManager();
-                // Update Memory Table
+                //load program to memory
+                // Update Memory Table with current program
                 _MemoryManager.updateMemTable();
+
             } else {
                 _StdOut.putText('[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!');
                 // Reset program input if not valid
                 _ProgramInput = "";
-            }
         }
+    }
+    public shellRun(args) {
+
+            // Check if args is 0
+            if (args.length == 0) {
+            _StdOut.putText('Empty PID... Please enter a PID');
+            }
+            else {
+              let pid = -1;
+              let index = -1;
+
+              for (index = 0; index < _ResidentQueue.length; index++) {
+                  if (args == _ResidentQueue[index].PID) {
+                      pid = _ResidentQueue[index].PID;
+                      // Set process to ready
+                      _ResidentQueue[index].state = PS_READY;
+                      _CurrentProgram = _ResidentQueue[index];
+                      _ResidentQueue.splice(index, 1);
+                      // Add program to ready queue
+                      _ReadyQueue.push(_CurrentProgram);
+                      // Update PCB table with current program
+                      _MemoryManager.updatePcbTable(_CurrentProgram);
+                      break;
+                  }
+
+               }
+               if (_CurrentProgram.state != PS_TERMINATED) {
+                      _StdOut.putText(`Running PID ${pid}`);
+                      if ((<HTMLButtonElement>document.getElementById("singleStep")).disabled == true) {
+                        // Run CPU cylce
+                          _CPU.cycle();
+                      }
+                      else {
+                          // Initialize CPU
+                          _CPU.init();
+                          // Update CPU execution
+                          _CPU.isExecuting = true;
+                      }
+
+                  } else {
+                      _StdOut.putText(`PID ${pid} does not exist... please enter a valid pid to run program `);
+                  }
+            }
+          }
     }
 }
