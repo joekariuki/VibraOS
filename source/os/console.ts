@@ -54,12 +54,12 @@ module TSOS {
                 // Tab Key - autocomplete comes first
                 if (chr === String.fromCharCode(9)) {
                     this.tabComplete(this.buffer);
-                } 
+                }
                 // Enter key
-                else if (chr === String.fromCharCode(13)) { 
+                else if (chr === String.fromCharCode(13)) {
                     // The enter key marks the end of a console command, so ...
                     // buffer is empty; advance line and do not process command
-                    if (this.buffer.length == 0) { 
+                    if (this.buffer.length == 0) {
                         this.advanceLine();
                         _OsShell.putPrompt();
                         return;
@@ -71,7 +71,7 @@ module TSOS {
 
                     // Reset buffer.
                     this.buffer = "";
-                
+
                 } else if (chr === "&uarr;") { // Up arrow key
                     this.recCommandHistory.push(this.buffer);
                     // Clear line
@@ -102,14 +102,12 @@ module TSOS {
                     // Set buffer to most recent command
                     this.buffer = recentCmd;
 
-                    // // debug
-                    // console.log(recentCmd);
 
                 }
                 // Backspace key
                 else if (chr === String.fromCharCode(8)) {
                     // Get last character in buffer
-                    let lastChar = this.buffer.slice(-1); 
+                    let lastChar = this.buffer.slice(-1);
                     // Get backspace width
                     let backspaceWidth = _DrawingContext.measureText(this.currentFont, this.currentFontSize, lastChar);
                     // Get backspace height
@@ -169,18 +167,18 @@ module TSOS {
             if (prefix.length === 0) { return; }
             let prefixCommands = _OsShell.commandList.filter((cmd) => {
                 // Returns true command has prefix
-                 return cmd.command.startsWith(prefix); 
+                 return cmd.command.startsWith(prefix);
             });
             // Check if prefix has only 1 possible command
-            if (prefixCommands.length == 1) { 
+            if (prefixCommands.length == 1) {
                 let currCmd = prefixCommands[0].command;
                 // Clear line
                 this.clearLine();
                 this.putText(currCmd);
                 this.buffer = currCmd;
-            } 
+            }
             // Check if prefix has multiple possible commands
-            else if (prefixCommands.length > 1) { 
+            else if (prefixCommands.length > 1) {
                 // Get appropriate command names and join with a space
                 let commandNames = prefixCommands.map((cmd) => { return cmd.command; }).join(" ");
                 this.advanceLine();
@@ -199,7 +197,7 @@ module TSOS {
 
             // Assign current Y position to console height
             this.currentYPosition += this.consoleLineHeight();
-            
+
             // Check if current position cursor is at bottom of canvas
             if (this.currentYPosition >= _Canvas.height) {
                 // Assign scroll distance
@@ -220,7 +218,7 @@ module TSOS {
             let lineWrappedText: string[] = [];
             // Get available space on current line
             let availableWidth = _Canvas.width - this.currentXPosition;
-            
+
             while (text.length > 0) {
                 // Add character by character while width of buffer is smaller than the available width of canvas
                 while (text.length > 0 &&
@@ -231,7 +229,7 @@ module TSOS {
                 lineWrappedText.push(buffer);
                 buffer = "";
                 // Assign availabe width to canvas width
-                availableWidth = _Canvas.width; 
+                availableWidth = _Canvas.width;
             }
             return lineWrappedText;
         }

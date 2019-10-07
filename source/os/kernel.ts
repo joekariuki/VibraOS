@@ -72,7 +72,7 @@ module TSOS {
             /* This gets called from the host hardware simulation every time there is a hardware clock pulse.
                This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
                This, on the other hand, is the clock pulse from the hardware / VM / host that tells the kernel
-               that it has to look for interrupts and process them if it finds any.                          
+               that it has to look for interrupts and process them if it finds any.
             */
 
             // Check for an interrupt, if there are any. Page 560

@@ -100,8 +100,6 @@ var TSOS;
                     this.putText(recentCmd);
                     // Set buffer to most recent command
                     this.buffer = recentCmd;
-                    // // debug
-                    // console.log(recentCmd);
                 }
                 // Backspace key
                 else if (chr === String.fromCharCode(8)) {
