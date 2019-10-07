@@ -2,19 +2,19 @@
 module TSOS {
 
     export class PCB {
-    
-        constructor(public PID: number = _PID,
-                    public priority: number = _PRIORITY,
-                    public PC: number = 0,
-                    public Acc: number = 0,
-                    public Xreg: number = 0,
+
+        constructor(public PC: number = 0,
+                    public PID: number = _PID,
                     public base: number = _BASE,
-                    public limit: number = _ProgramSize - 1,
-                    public isExecuting: boolean = false,
+                    public Acc: number = _Acc,
+                    public Xreg: number = _Xreg,
+                    public Yreg: number = _Yreg,
+                    public limit: number = (_BASE + _ProgramSize - 1),
+                    public IR: string = _IR,
                     public pcbProgram :string = "",
-                    public Yreg: number = 0,
-                    public Zflag: number = 0,
-                    public state: number = PS_NEW) {
+                    public Zflag: number = _Zflag,
+                    public startIndex: number = 0,
+                    public state: string = PS_NEW) {
         }
     }
 }
