@@ -37,7 +37,7 @@
    <script type="text/javascript" src="distrib/utils.js"></script>
    <!-- Uncomment the line below to enable GLaDOS testing. -->
    <!-- <script type="text/javascript" src="./test/glados-ip2.js"></script> -->
-   
+
 </head>
 
 <body onload="onDocumentLoad()">
@@ -70,6 +70,23 @@
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
+
+      <input type="button"
+             id = "singleStep"
+             name="singleStep"
+             class="normal_button btn btn-secondary"
+             value="Single Step"
+             tabindex="3"
+             onclick="TSOS.Control.hostBtnSingleStepOS_click(this);">
+
+       <input type="button"
+             id = "execStep"
+             name="execStep"
+             class="normal_button btn btn-secondary"
+             disabled="disabled"
+             value="  >  "
+             tabindex="4"
+             onclick="TSOS.Control.hostBtnExecStepOS_click(this);">
    </div>
 
    <div id="taskBar" style="display: none;">
@@ -116,11 +133,46 @@
       </label>
    </div>
 
+<!-- Memory -->
    <div style="margin-left:520px; width:340px;" >
       <p>Memory</p>
-      <table border="1" cellpadding="7" id="memoryTable"> 
+      <table border="1" cellpadding="7" id="memoryTabDisplay">
       </table>
-   </div>	
+   </div>
+
+<!-- CPU  -->
+   <div style="margin-left: 4px; width:213px;"><p>
+     <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="cpuTabDisplay" >
+         <label>CPU</label>
+          <tr>
+            <th>PC</th>
+            <th>IR</th>
+            <th>Acc</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>Z</th>
+          </tr>
+        </table>
+        <p>
+    </div>
+    <div class="Division" style="margin-left: 4px; width:610px;" ><p>
+      <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="pcbTabDisplay">
+        <label>Processes</label>
+         <tr>
+           <th>PID</th>
+           <th>PC</th>
+           <th>IR</th>
+           <th>Acc</th>
+           <th>X</th>
+           <th>Y</th>
+           <th>Z</th>
+           <th>Base</th>
+           <th>Limit</th>
+           <th>State</th>
+         </tr>
+     </table>
+     </p>
+   </div>
 
 </div>
 <footer>
@@ -130,7 +182,7 @@
             <br>
             Reproduction is inhibited without the express written consent of
             Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-      </p>         
+      </p>
 </footer>
 <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </body>
