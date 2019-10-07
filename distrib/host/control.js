@@ -99,7 +99,7 @@ var TSOS;
                     while (hexStr.length < 3) {
                         hexStr = "0" + hexStr;
                     }
-                    //  Create data from hex 
+                    //  Create data from hex
                     var data_1 = document.createTextNode("0x" + hexStr.toUpperCase());
                     // Add data to cell
                     cell_1.appendChild(data_1);
@@ -116,7 +116,7 @@ var TSOS;
                 var lastRow = rows[rows.length - 1];
                 // Add data to cell in table
                 cell.appendChild(data);
-                // Add cell to last row in table 
+                // Add cell to last row in table
                 lastRow.appendChild(cell);
             }
         };
@@ -158,6 +158,23 @@ var TSOS;
             // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
+        };
+        Control.hostBtnSingleStepOS_click = function (btn) {
+            document.getElementById("singleStep").disabled = true;
+            document.getElementById("execStep").disabled = false;
+        };
+        Control.hostBtnExecStepOS_click = function (btn) {
+            if (_CPU.startIndex > 0) {
+                if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
+                    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
+                    _CPU.cycle();
+                }
+                else {
+                    _CPU.cycle();
+                    document.getElementById("singleStep").disabled = false;
+                    document.getElementById("execStep").disabled = true;
+                }
+            }
         };
         return Control;
     }());

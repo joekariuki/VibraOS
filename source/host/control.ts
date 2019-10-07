@@ -77,7 +77,7 @@ module TSOS {
             document.getElementById("taskBarDate").innerHTML= ` | ${currentDate}`;
          }
 
-        
+
         //  Set host status
         public static hostSetStatus(msg: string): void {
             // Display host status in task bar
@@ -93,14 +93,14 @@ module TSOS {
              // Stop the clock
              clearInterval(_hardwareClockID);
         }
-        
+
         // Memory Manager Table
         public static memoryManagerTable():void {
             // Create new memory
             _Memory = new Memory();
             //  Initialize memory
             _Memory.init();
-   
+
               for (var i = 0; i < _MemoryArray.length; i++) {
                 // Check if memory array has 8 cells
                  if (i % 8 === 0) {
@@ -108,16 +108,16 @@ module TSOS {
                    let row = document.createElement("tr");
                    // Add new row element to memory table
                    document.getElementById("memoryTable").appendChild(row);
-                   
+
                    // Create table cell
                    let cell = document.createElement("td");
                    // Convert i to hex string
                    let hexStr = i.toString(16);
-   
+
                    while (hexStr.length < 3) {
                      hexStr = `0${hexStr}`;
                    }
-                   //  Create data from hex 
+                   //  Create data from hex
                    let data = document.createTextNode(`0x${hexStr.toUpperCase()}`);
                    // Add data to cell
                    cell.appendChild(data);
@@ -134,7 +134,7 @@ module TSOS {
                  let lastRow = rows[rows.length - 1];
                  // Add data to cell in table
                  cell.appendChild(data);
-                 // Add cell to last row in table 
+                 // Add cell to last row in table
                  lastRow.appendChild(cell);
                }
         }
@@ -186,5 +186,27 @@ module TSOS {
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
-    }
+
+        public static hostBtnSingleStepOS_click(btn): void {
+
+          (<HTMLButtonElement>document.getElementById("singleStep")).disabled = true;
+          (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
+       }
+
+       public static hostBtnExecStepOS_click(btn): void {
+           if (_CPU.startIndex > 0) {
+               if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
+                   _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
+                   _CPU.cycle();
+               } else {
+                   _CPU.cycle();
+                   (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
+                   (<HTMLButtonElement>document.getElementById("execStep")).disabled = true;
+               }
+
+           }
+
+
+       }
+     }
 }
