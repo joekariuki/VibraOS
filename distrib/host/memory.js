@@ -1,11 +1,16 @@
 var TSOS;
 (function (TSOS) {
     var Memory = /** @class */ (function () {
-        function Memory() {
+        function Memory(base, limit) {
+            if (base === void 0) { base = 0; }
+            if (limit === void 0) { limit = _MemorySize - 1; }
+            this.base = base;
+            this.limit = limit;
         }
+        // Create default memory
         Memory.prototype.init = function () {
-            for (var i = 0; i < _ProgramSize; i++) {
-                _MemoryArray.push("00");
+            for (var i = 0; i < _MemorySize; i++) {
+                _MemoryArray[i] = "00";
             }
         };
         return Memory;
