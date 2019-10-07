@@ -52,6 +52,7 @@ var _PCB;
 var _PID = -1; //PID for PCB
 var _PRIORITY = 0; //default priority for PCB Process
 // Memory
+var _CurrentProgram;
 var _Memory;
 var _MemoryManager;
 // Allocate 256 bytes for program
@@ -66,6 +67,10 @@ var _CurrMemIndex = 0;
 var _ResidentQueue = [];
 // Declare ready queue
 var _ReadyQueue = [];
+// Declare start index for each program
+var _BaseProgram = 0;
+// Declare program input
+var _ProgramInput = "";
 // UI
 var _Console;
 var _OsShell;
