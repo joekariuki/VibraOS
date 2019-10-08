@@ -107,7 +107,7 @@ module TSOS {
                    // Create table row element
                    let row = document.createElement("tr");
                    // Add new row element to memory table
-                   document.getElementById("memoryTable").appendChild(row);
+                   document.getElementById("memoryTabDisplay").appendChild(row);
 
                    // Create table cell
                    let cell = document.createElement("td");
@@ -129,7 +129,7 @@ module TSOS {
                  //  Create table cell
                  let cell = document.createElement("td");
                  // Create rows
-                 let rows = document.getElementById("memoryTable").getElementsByTagName("tr");
+                 let rows = document.getElementById("memoryTabDisplay").getElementsByTagName("tr");
                  // Delcare last row in table
                  let lastRow = rows[rows.length - 1];
                  // Add data to cell in table

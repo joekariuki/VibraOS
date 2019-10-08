@@ -90,7 +90,7 @@ h3 {
 
 /* Memory Table */
 
-#memoryTable {
+#memoryTabDisplay {
   overflow-y: scroll; 
   height: 100px; 
   display: block;  

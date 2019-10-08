@@ -91,7 +91,7 @@ var TSOS;
                     // Create table row element
                     var row = document.createElement("tr");
                     // Add new row element to memory table
-                    document.getElementById("memoryTable").appendChild(row);
+                    document.getElementById("memoryTabDisplay").appendChild(row);
                     // Create table cell
                     var cell_1 = document.createElement("td");
                     // Convert i to hex string
@@ -111,7 +111,7 @@ var TSOS;
                 //  Create table cell
                 var cell = document.createElement("td");
                 // Create rows
-                var rows = document.getElementById("memoryTable").getElementsByTagName("tr");
+                var rows = document.getElementById("memoryTabDisplay").getElementsByTagName("tr");
                 // Delcare last row in table
                 var lastRow = rows[rows.length - 1];
                 // Add data to cell in table
