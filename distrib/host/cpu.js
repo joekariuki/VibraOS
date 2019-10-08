@@ -220,7 +220,7 @@ var TSOS;
             _Kernel.krnTrace('CPU cycle');
             // TODO: Accumulate CPU usage and profiling statistics here.
             // Do the real work here. Be sure to set this.isExecuting appropriately.
-            //debugger;
+            // this.IR = _MemoryAccessor.readMemory(this.PC);
             if (_MemoryManager.fetch(this.startIndex) != "00") {
                 this.programExecute(_MemoryManager.fetch(this.startIndex));
                 _CurrentProgram.state = PS_RUNNING;

@@ -26,6 +26,7 @@ var TSOS;
             // Initialize standard input and output to the _Console.
             _StdIn = _Console;
             _StdOut = _Console;
+            _MemoryAccessor = new TSOS.MemoryAccessor();
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
             _krnKeyboardDriver = new TSOS.DeviceDriverKeyboard(); // Construct it.

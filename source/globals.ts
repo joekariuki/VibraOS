@@ -91,6 +91,7 @@ var _StdOut: TSOS.Console = null;
 var _CurrentProgram: TSOS.PCB;
 var _Memory: TSOS.Memory;
 var _MemoryManager: TSOS.MemoryManager;
+var _MemoryAccessor: TSOS.MemoryAccessor;
 // Declare start index for each program
 var _BaseProgram: number = 0;
 // Declare program input

@@ -72,6 +72,7 @@ var _StdOut = null;
 var _CurrentProgram;
 var _Memory;
 var _MemoryManager;
+var _MemoryAccessor;
 // Declare start index for each program
 var _BaseProgram = 0;
 // Declare program input
