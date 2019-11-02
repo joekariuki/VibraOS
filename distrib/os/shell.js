@@ -45,7 +45,7 @@ var TSOS;
             // prompt <string>
             sc = new TSOS.ShellCommand(this.shellPrompt, "prompt", "<string> - Sets the prompt.");
             this.commandList[this.commandList.length] = sc;
-            // date 
+            // date
             sc = new TSOS.ShellCommand(this.shellDate, "date", "- Displays the current date and time");
             this.commandList[this.commandList.length] = sc;
             // whereami
@@ -61,7 +61,10 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellCrash, "nuke", " - [WARNING] Crashes the entire OS.");
             this.commandList[this.commandList.length] = sc;
             // load
-            sc = new TSOS.ShellCommand(this.shellLoad, "load", "- Loads program from User Program Input");
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "<HEX>- Loads program with valid HEX from user program input");
+            this.commandList[this.commandList.length] = sc;
+            // run
+            sc = new TSOS.ShellCommand(this.shellRun, "run", " <pid> - runs a valid process.");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
@@ -84,7 +87,7 @@ var TSOS;
             // Determine the command and execute it.
             //
             // TypeScript/JavaScript may not support associative arrays in all browsers so we have to iterate over the
-            // command list in attempt to find a match. 
+            // command list in attempt to find a match.
             // TODO: Is there a better way? Probably. Someone work it out and tell me in class.
             var index = 0;
             var found = false;
@@ -182,7 +185,7 @@ var TSOS;
                 _StdOut.putText("For what?");
             }
         };
-        // Although args is unused in some of these functions, it is always provided in the 
+        // Although args is unused in some of these functions, it is always provided in the
         // actual parameter list when this function is called, so I feel like we need it.
         Shell.prototype.shellVer = function (args) {
             _StdOut.putText(APP_NAME + " version " + APP_VERSION);
@@ -250,6 +253,12 @@ var TSOS;
                     case "nuke":
                         _StdOut.putText(" - [WARNING] Crashes the entire OS.");
                         break;
+                    case "load":
+                        _StdOut.putText("<HEX>- Loads program with valid HEX from user program input");
+                        break;
+                    case "run":
+                        _StdOut.putText("Runs a valid process.");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -307,11 +316,11 @@ var TSOS;
         Shell.prototype.shellLocation = function (args) {
             // Array of locations
             var location = [
-                "...On a pale blue dot",
-                "...EARTH!",
-                "... On a lonely spec in a great envolping cosmic dark",
-                "...On a mote of dust suspended in a sunbeam",
-                "The question is not \"where you are?\" but rather, where will you be going?"
+                "...On a pale blue dot...",
+                "...EARTH!...",
+                "... On a lonely spec in a great envolping cosmic dark...",
+                "...On a mote of dust suspended in a sunbeam...",
+                "...The question is not \"where you are?\" but rather, where will you be going?..."
             ];
             // Generate random index
             var randomIndex = Math.floor(Math.random() * location.length);
@@ -321,11 +330,11 @@ var TSOS;
         Shell.prototype.shellJoke = function (arg) {
             // Array of jokes
             var jokes = [
-                "A journalist asked a programmer: \n                    \"What makes code bad?\"\n                 Programmer: \"No comment.\"\n                ",
-                "Documentation is like sex.\n                 When it's good , it's very good.\n                 When it is bad, it's better than nothing.\n                ",
-                "\n                How real people play Russian roulette:\n                 bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*\n                ",
+                "A journalist asked a programmer: \"What makes code bad?\" Programmer: \"No comment.\"\n                ",
+                "Documentation is like sex. When it's good , it's very good. When it is bad, it's better than nothing.\n                ",
+                "\n                How real people play Russian roulette: bash-4.4$ [ $[ $RANDOM % 6] == 0] && rm -rf /* || echo *click*\n                ",
                 "I'd like to make the world a better place, but they won't give me the source code...",
-                "Q: How many programmers does it take to screw in a light bulb?\n                 A: None. It's a hardware problem."
+                "Q: How many programmers does it take to screw in a light bulb? A: None. It's a hardware problem."
             ];
             // Generate random index
             var randomIndex = Math.floor(Math.random() * jokes.length);
@@ -351,14 +360,66 @@ var TSOS;
             _Kernel.krnTrapError("User initiated OS error");
         };
         Shell.prototype.shellLoad = function (args) {
-            // Assign control to verify and load program
-            var isLoaded = TSOS.Control.hostProgramLoad();
-            // Check if program is loaded
-            if (isLoaded) {
-                _StdOut.putText("[SUCCESS] Program loaded");
+            // Get user input
+            _ProgramInput = document.getElementById("taProgramInput").value;
+            // Declare hex code from user input
+            var hexCode = _ProgramInput;
+            // Declare new regex to check user input
+            var regex = new RegExp('^[0-9A-Fa-f\\s]+$');
+            // Check if hexCode matches regex
+            if (hexCode.match(regex)) {
+                _StdOut.putText('[SUCCESS] Valid hex. Program loaded');
+                _Console.advanceLine();
+                // Add new memory instance
+                _MemoryManager = new TSOS.MemoryManager();
+                //load program to memory
+                // Update Memory Table with current program
+                _MemoryManager.updateMemTable();
             }
             else {
-                _StdOut.putText("[ERROR] Invalid program. Only characters are 0-9, a-z, and A-z are valid!");
+                _StdOut.putText('[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!');
+                // Reset program input if not valid
+                _ProgramInput = "";
+            }
+        };
+        Shell.prototype.shellRun = function (args) {
+            // Check if args is 0
+            if (args.length == 0) {
+                _StdOut.putText('Empty PID... Please enter a PID');
+            }
+            else {
+                var pid = -1;
+                var index = -1;
+                for (index = 0; index < _ResidentQueue.length; index++) {
+                    if (args == _ResidentQueue[index].PID) {
+                        pid = _ResidentQueue[index].PID;
+                        // Set process to ready
+                        _ResidentQueue[index].state = PS_READY;
+                        _CurrentProgram = _ResidentQueue[index];
+                        _ResidentQueue.splice(index, 1);
+                        // Add program to ready queue
+                        _ReadyQueue.push(_CurrentProgram);
+                        // Update PCB table with current program
+                        _MemoryManager.updatePcbTable(_CurrentProgram);
+                        break;
+                    }
+                }
+                if (_CurrentProgram.state != PS_TERMINATED) {
+                    _StdOut.putText("Running PID " + pid);
+                    if (document.getElementById("singleStep").disabled == true) {
+                        // Run CPU cylce
+                        _CPU.cycle();
+                    }
+                    else {
+                        // Initialize CPU
+                        _CPU.init();
+                        // Update CPU execution
+                        _CPU.isExecuting = true;
+                    }
+                }
+                else {
+                    _StdOut.putText("PID " + pid + " does not exist... please enter a valid pid to run program ");
+                }
             }
         };
         return Shell;

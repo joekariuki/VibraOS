@@ -21,6 +21,7 @@ const TIMER_IRQ: number = 0;  // Pages 23 (timer), 9 (interrupts), and 561 (inte
 const KEYBOARD_IRQ: number = 1;
 
 
+
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -30,6 +31,42 @@ var _CPU: TSOS.Cpu;  // Utilize TypeScript's type annotation system to ensure th
 var _OSclock: number = 0;  // Page 23.
 
 var _Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
+
+// Declare 256 bytes for program
+var _ProgramSize: number = 256;
+// Memory size
+var _MemorySize: number = _ProgramSize * 3 ;
+var _MemoryArray: string[] = [];
+
+// PCB
+var _PCB: TSOS.PCB;
+var _PID: number = -1;            
+var _IR: string = "0";
+var _Acc: number = 0;
+var _PC: number = 0;
+var _Xreg: number = 0;
+var _Yreg: number = 0;
+var _Zflag: number = 0;
+var _BASE: number = 0;
+
+// PCB process states
+var PS_NEW: string = "New";
+var PS_READY: string = "Ready";
+var PS_RUNNING: string = "Running";
+var PS_WAITING: string = "Waiting";
+var PS_TERMINATED: string = "Terminated";
+
+// Declare default base memory
+var _BASE: number = 0;
+// Declare current memory index
+var _CurrMemIndex: number = 0;
+// Declare resident queue
+var _ResidentQueue: any = [];
+// Declare ready queue
+var _ReadyQueue: any = [];
+// Declare row for eacg program
+var _RowNum: number = 0;
+
 
 var _Canvas: HTMLCanvasElement;          // Initialized in Control.hostInit().
 var _DrawingContext: any;                // = _Canvas.getContext("2d");  // Assigned here for type safety, but re-initialized in Control.hostInit() for OCD and logic.
@@ -42,12 +79,26 @@ var _Trace: boolean = true;              // Default the OS trace to be on.
 // The OS Kernel and its queues.
 var _Kernel: TSOS.Kernel;
 var _KernelInterruptQueue: TSOS.Queue = null;
-var _KernelInputQueue: TSOS.Queue = null; 
-var _KernelBuffers = null; 
+var _KernelInputQueue: TSOS.Queue = null;
+var _KernelBuffers = null;
 
 // Standard input and output
-var _StdIn:  TSOS.Console = null; 
+var _StdIn:  TSOS.Console = null;
 var _StdOut: TSOS.Console = null;
+
+
+// Memory
+var _CurrentProgram: TSOS.PCB;
+var _Memory: TSOS.Memory;
+var _MemoryManager: TSOS.MemoryManager;
+var _MemoryAccessor: TSOS.MemoryAccessor;
+// Declare start index for each program
+var _BaseProgram: number = 0;
+// Declare program input
+var _ProgramInput = "";
+
+
+
 
 // UI
 var _Console: TSOS.Console;

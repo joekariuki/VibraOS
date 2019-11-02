@@ -6,6 +6,7 @@ body {
   font-size: 12pt;
   font-weight: normal;
   font-style: normal;
+  height: 100vh;
 }
 
 h1 {
@@ -53,10 +54,12 @@ h3 {
   text-align: center;
 }
 
+#divButtonBar {
+  padding: 20px 0 10px 10px;
+}
+
 #canvas {
-  height: 451px;
-  width: 570px;
-  overflow-x: hidden; 
+  margin-left: 10px;
   overflow-y: scroll;
 }
 
@@ -79,4 +82,18 @@ h3 {
 
 #defaultStatus {
   color: black;
+}
+
+.height {
+  height: 100vh;
+}
+
+/* Memory Table */
+
+#memoryTabDisplay {
+  overflow-y: scroll; 
+  height: 100px; 
+  display: block;  
+  border: 1px solid;  
+  background-color: #ffffff;
 }

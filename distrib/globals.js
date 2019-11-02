@@ -23,6 +23,37 @@ var KEYBOARD_IRQ = 1;
 var _CPU; // Utilize TypeScript's type annotation system to ensure that _CPU is an instance of the Cpu class.
 var _OSclock = 0; // Page 23.
 var _Mode = 0; // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
+// Declare 256 bytes for program
+var _ProgramSize = 256;
+// Memory size
+var _MemorySize = _ProgramSize * 3;
+var _MemoryArray = [];
+// PCB
+var _PCB;
+var _PID = -1;
+var _IR = "0";
+var _Acc = 0;
+var _PC = 0;
+var _Xreg = 0;
+var _Yreg = 0;
+var _Zflag = 0;
+var _BASE = 0;
+// PCB process states
+var PS_NEW = "New";
+var PS_READY = "Ready";
+var PS_RUNNING = "Running";
+var PS_WAITING = "Waiting";
+var PS_TERMINATED = "Terminated";
+// Declare default base memory
+var _BASE = 0;
+// Declare current memory index
+var _CurrMemIndex = 0;
+// Declare resident queue
+var _ResidentQueue = [];
+// Declare ready queue
+var _ReadyQueue = [];
+// Declare row for eacg program
+var _RowNum = 0;
 var _Canvas; // Initialized in Control.hostInit().
 var _DrawingContext; // = _Canvas.getContext("2d");  // Assigned here for type safety, but re-initialized in Control.hostInit() for OCD and logic.
 var _DefaultFontFamily = "sans"; // Ignored, I think. The was just a place-holder in 2008, but the HTML canvas may have use for it.
@@ -37,6 +68,15 @@ var _KernelBuffers = null;
 // Standard input and output
 var _StdIn = null;
 var _StdOut = null;
+// Memory
+var _CurrentProgram;
+var _Memory;
+var _MemoryManager;
+var _MemoryAccessor;
+// Declare start index for each program
+var _BaseProgram = 0;
+// Declare program input
+var _ProgramInput = "";
 // UI
 var _Console;
 var _OsShell;

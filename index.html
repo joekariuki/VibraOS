@@ -3,7 +3,8 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
    <meta name="author"             content="Alan G. Labouseur" />
-   <!-- <link href="https://fonts.googleapis.com/css?family=Anonymous+Pro|Poppins&display=swap" rel="stylesheet"> -->
+   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
    <link rel="stylesheet" href="tsos.css" type="text/css" media="screen" />
    <title>
       VibraOS
@@ -13,6 +14,7 @@
    <script type="text/javascript" src="distrib/globals.js"></script>
 
    <!-- Host (Virtual Machine / Hardware Simulation) Routines -->
+   <script type="text/javascript" src="distrib/host/memory.js"></script>
    <script type="text/javascript" src="distrib/host/control.js"></script>
    <script type="text/javascript" src="distrib/host/devices.js"></script>
    <script type="text/javascript" src="distrib/host/cpu.js"></script>
@@ -24,6 +26,8 @@
    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
    <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
    <script type="text/javascript" src="distrib/os/queue.js"></script>
+   <script type="text/javascript" src="distrib/os/pcb.js"></script>
+   <script type="text/javascript" src="distrib/os/memoryManager.js"></script>
    <script type="text/javascript" src="distrib/os/shell.js"></script>
    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
@@ -32,8 +36,8 @@
    <!-- Other Routines -->
    <script type="text/javascript" src="distrib/utils.js"></script>
    <!-- Uncomment the line below to enable GLaDOS testing. -->
-   <script type="text/javascript" src="./test/glados-ip1.js"></script>
-   
+   <script type="text/javascript" src="./test/glados-ip2.js"></script>
+
 </head>
 
 <body onload="onDocumentLoad()">
@@ -44,7 +48,7 @@
       <input type="button"
              id = "btnStartOS"
              name="brnStartOS"
-             class="normal_button"
+             class="normal_button btn btn-success"
              value="Start"
              tabindex="0"
              onclick="TSOS.Control.hostBtnStartOS_click(this);">
@@ -52,7 +56,7 @@
       <input type="button"
              id = "btnHaltOS"
              name="brnHaltOS"
-             class="normal_button"
+             class="normal_button btn btn-warning"
              disabled="disabled"
              value="Halt"
              tabindex="1"
@@ -61,11 +65,28 @@
       <input type="button"
              id = "btnReset"
              name="brnReset"
-             class="normal_button"
+             class="normal_button btn btn-danger"
              disabled="disabled"
              value="Reset"
              tabindex="2"
              onclick="TSOS.Control.hostBtnReset_click(this);">
+
+      <input type="button"
+             id = "singleStep"
+             name="singleStep"
+             class="normal_button btn btn-secondary"
+             value="Single Step"
+             tabindex="3"
+             onclick="TSOS.Control.hostBtnSingleStepOS_click(this);">
+
+       <input type="button"
+             id = "execStep"
+             name="execStep"
+             class="normal_button btn btn-secondary"
+             disabled="disabled"
+             value="  >  "
+             tabindex="4"
+             onclick="TSOS.Control.hostBtnExecStepOS_click(this);">
    </div>
 
    <div id="taskBar" style="display: none;">
@@ -77,12 +98,12 @@
       </p>
    </div>
 
-   <div id="divConsole" style="margin:4px; width:500px; height:500px; float:left;">
+   <div id="divConsole" style="margin:4px; height: 512px; float:left;">
       <div id="canvas">
          <canvas id="display"
-              width="500px"
-              height="500px"
-              tabindex="3">
+         width="480px"
+         height="500px"
+         tabindex="3">
          </canvas>
       </div>
    </div>
@@ -94,7 +115,7 @@
          <br>
          <textarea name="taHostLog"
                    id  ="taHostLog"
-                   rows="26"
+                   rows="10"
                    cols="48"
          ></textarea>
       </label>
@@ -111,15 +132,58 @@
          ></textarea>
       </label>
    </div>
+
+<!-- Memory -->
+   <div style="margin-left:520px; width:340px;" >
+      <p>Memory</p>
+      <table border="1" cellpadding="7" id="memoryTabDisplay">
+      </table>
+   </div>
+
+<!-- CPU  -->
+   <div style="margin-left: 4px; width:213px;"><p>
+     <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="cpuTabDisplay" >
+         <label>CPU</label>
+          <tr>
+            <th>PC</th>
+            <th>IR</th>
+            <th>Acc</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>Z</th>
+          </tr>
+        </table>
+        <p>
+    </div>
+    <div class="Division" style="margin-left: 4px; width:610px;" ><p>
+      <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="pcbTabDisplay">
+        <label>Processes</label>
+         <tr>
+           <th>PID</th>
+           <th>PC</th>
+           <th>IR</th>
+           <th>Acc</th>
+           <th>X</th>
+           <th>Y</th>
+           <th>Z</th>
+           <th>Base</th>
+           <th>Limit</th>
+           <th>State</th>
+         </tr>
+     </table>
+     </p>
+   </div>
+
 </div>
-
-<p class="footerText" style="clear:both;">
-   <br>
-   Copyright &copy; 2008 - 2019 No Rights Reserved.
-   <br>
-   Reproduction is inhibited without the express written consent of
-   Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
-</p>
-
+<footer>
+      <p class="footerText" style="clear:both;">
+            <br>
+            Copyright &copy; 2008 - 2019 No Rights Reserved.
+            <br>
+            Reproduction is inhibited without the express written consent of
+            Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+      </p>
+</footer>
+<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
 </body>
 </html>

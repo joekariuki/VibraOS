@@ -24,10 +24,16 @@ module TSOS {
             // Initialize the console.
             _Console = new Console();             // The command line interface / console I/O device.
             _Console.init();
-
+            
+            _Memory = new TSOS.Memory();
+            _Memory.init();
+            _MemoryManager = new TSOS.MemoryManager();
+            _MemoryAccessor = new TSOS.MemoryAccessor();
+            
             // Initialize standard input and output to the _Console.
             _StdIn  = _Console;
             _StdOut = _Console;
+           
 
             // Load the Keyboard Device Driver
             this.krnTrace("Loading the keyboard device driver.");
@@ -72,7 +78,7 @@ module TSOS {
             /* This gets called from the host hardware simulation every time there is a hardware clock pulse.
                This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
                This, on the other hand, is the clock pulse from the hardware / VM / host that tells the kernel
-               that it has to look for interrupts and process them if it finds any.                          
+               that it has to look for interrupts and process them if it finds any.
             */
 
             // Check for an interrupt, if there are any. Page 560

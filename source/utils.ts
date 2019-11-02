@@ -43,5 +43,14 @@ module TSOS {
             }
             return retVal;
         }
+
+        public static toHex(num: number, digits: number = 2): string {
+            let numStr = num.toString(16).toUpperCase();
+            return (`000000000${numStr}`).slice(-digits);
+        }
+
+        public static fromHex(hexString: string) : number {
+            return parseInt(hexString, 16);
+        }
     }
 }

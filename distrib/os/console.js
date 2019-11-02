@@ -88,7 +88,7 @@ var TSOS;
                     // // debug
                     // console.log(prevCmd);
                 }
-                else if (chr === "&darr;") { //Down arrow key
+                else if (chr === "&darr;") { // Down arrow key
                     this.prevCommandHistory.push(this.buffer);
                     // Clear line
                     this.clearLine();
@@ -100,8 +100,6 @@ var TSOS;
                     this.putText(recentCmd);
                     // Set buffer to most recent command
                     this.buffer = recentCmd;
-                    // // debug
-                    // console.log(recentCmd);
                 }
                 // Backspace key
                 else if (chr === String.fromCharCode(8)) {
@@ -117,6 +115,14 @@ var TSOS;
                     _DrawingContext.clearRect(this.currentXPosition, this.currentYPosition - backspaceHeight + _FontHeightMargin, backspaceWidth, backspaceHeight);
                     // Remove character from buffer
                     this.buffer = this.buffer.slice(0, -1);
+                    // Check if last character from line deleted, and snap back to last line if needed
+                    if (this.currentXPosition <= 0) {
+                        this.currentYPosition -= this.consoleLineHeight();
+                        // xPosition is used to compute where to place the cursor on the previous line
+                        var xPosition = _DrawingContext.measureText(this.currentFont, this.currentFontSize, _OsShell.promptStr + this.buffer);
+                        xPosition = xPosition % _Canvas.width; // If there are multiple lines worth of text in the buffer, calculate the width of the last line
+                        this.currentXPosition = xPosition;
+                    }
                 }
                 else {
                     // This is a "normal" character, so ...
@@ -136,12 +142,20 @@ var TSOS;
                 do the same thing, thereby encouraging confusion and decreasing readability, I
                 decided to write one function and use the term "text" to connote string or char.
             */
+            // Line Wrap
             if (text !== "") {
-                // Draw the text at the current X and Y coordinates.
-                _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, text);
-                // Move the current X position.
-                var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, text);
-                this.currentXPosition = this.currentXPosition + offset;
+                var lineWrappedText = this.lineWrapText(text);
+                for (var i = 0; i < lineWrappedText.length; i++) {
+                    var line = lineWrappedText[i];
+                    // Draw the text at the current X and Y coordinates.
+                    _DrawingContext.drawText(this.currentFont, this.currentFontSize, this.currentXPosition, this.currentYPosition, line);
+                    // Move the current X position.
+                    var offset = _DrawingContext.measureText(this.currentFont, this.currentFontSize, line);
+                    this.currentXPosition = this.currentXPosition + offset;
+                    if (i + 1 < lineWrappedText.length) {
+                        this.advanceLine();
+                    }
+                }
             }
         };
         Console.prototype.tabComplete = function (prefix) {
@@ -192,6 +206,25 @@ var TSOS;
                 // Display console contents one line down
                 _DrawingContext.putImageData(screenShot, 0, -scrollYBy);
             }
+        };
+        Console.prototype.lineWrapText = function (text) {
+            var buffer = "";
+            var lineWrappedText = [];
+            // Get available space on current line
+            var availableWidth = _Canvas.width - this.currentXPosition;
+            while (text.length > 0) {
+                // Add character by character while width of buffer is smaller than the available width of canvas
+                while (text.length > 0 &&
+                    _DrawingContext.measureText(this.currentFont, this.currentFontSize, (buffer + text.charAt(0))) <= availableWidth) {
+                    buffer += text.charAt(0);
+                    text = text.slice(1);
+                }
+                lineWrappedText.push(buffer);
+                buffer = "";
+                // Assign availabe width to canvas width
+                availableWidth = _Canvas.width;
+            }
+            return lineWrappedText;
         };
         return Console;
     }());

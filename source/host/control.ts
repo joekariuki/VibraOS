@@ -77,7 +77,7 @@ module TSOS {
             document.getElementById("taskBarDate").innerHTML= ` | ${currentDate}`;
          }
 
-        
+
         //  Set host status
         public static hostSetStatus(msg: string): void {
             // Display host status in task bar
@@ -93,23 +93,52 @@ module TSOS {
              // Stop the clock
              clearInterval(_hardwareClockID);
         }
-        // Load program
-        public static hostProgramLoad(): boolean {
-            // Get user program input
-            let programInput = (<HTMLInputElement>document.getElementById("taProgramInput")).value;
-            // Check if program input if empty
-            if (!programInput.length) { 
-                return false; 
-            } else {
-                // Declare regular expression for matching any non-hex or space charcter
-                let re = new RegExp("[^ 0-9a-fA-F]");
-                // Test for invalid character
-                let invalidChar = re.test(programInput);
-                // Return true for valid program
-                return !invalidChar;
-            }
+
+        // Memory Manager Table
+        public static memoryManagerTable():void {
+            // Create new memory
+            _Memory = new Memory();
+            //  Initialize memory
+            _Memory.init();
+
+              for (var i = 0; i < _MemoryArray.length; i++) {
+                // Check if memory array has 8 cells
+                 if (i % 8 === 0) {
+                   // Create table row element
+                   let row = document.createElement("tr");
+                   // Add new row element to memory table
+                   document.getElementById("memoryTabDisplay").appendChild(row);
+
+                   // Create table cell
+                   let cell = document.createElement("td");
+                   // Convert i to hex string
+                   let hexStr = i.toString(16);
+
+                   while (hexStr.length < 3) {
+                     hexStr = `0${hexStr}`;
+                   }
+                   //  Create data from hex
+                   let data = document.createTextNode(`0x${hexStr.toUpperCase()}`);
+                   // Add data to cell
+                   cell.appendChild(data);
+                   // Add cell to table row
+                   row.appendChild(cell);
+                 }
+                 //  Create data from memory arrat
+                 let data = document.createTextNode(_MemoryArray[i]);
+                 //  Create table cell
+                 let cell = document.createElement("td");
+                 // Create rows
+                 let rows = document.getElementById("memoryTabDisplay").getElementsByTagName("tr");
+                 // Delcare last row in table
+                 let lastRow = rows[rows.length - 1];
+                 // Add data to cell in table
+                 cell.appendChild(data);
+                 // Add cell to last row in table
+                 lastRow.appendChild(cell);
+               }
         }
-        
+
         //
         // Host Events
         //
@@ -136,6 +165,8 @@ module TSOS {
             // .. and call the OS Kernel Bootstrap routine.
             _Kernel = new Kernel();
             _Kernel.krnBootstrap();  // _GLaDOS.afterStartup() will get called in there, if configured.
+
+            this.memoryManagerTable();
         }
 
         public static hostBtnHaltOS_click(btn): void {
@@ -155,5 +186,27 @@ module TSOS {
             // be reloaded from the server. If it is false or not specified the browser may reload the
             // page from its cache, which is not what we want.
         }
-    }
+
+        public static hostBtnSingleStepOS_click(btn): void {
+
+          (<HTMLButtonElement>document.getElementById("singleStep")).disabled = true;
+          (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
+       }
+
+       public static hostBtnExecStepOS_click(btn): void {
+           if (_CPU.startIndex > 0) {
+               if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
+                   _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
+                   _CPU.cycle();
+               } else {
+                   _CPU.cycle();
+                   (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
+                   (<HTMLButtonElement>document.getElementById("execStep")).disabled = true;
+               }
+
+           }
+
+
+       }
+     }
 }
