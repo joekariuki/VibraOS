@@ -440,6 +440,11 @@ var TSOS;
         };
         Shell.prototype.shellClearMem = function (args) {
             // Clear memory and update memory log
+            _BASE = 0;
+            _BaseProgram = 0;
+            _ResidentQueue = [];
+            _ReadyQueue = [];
+            _RowNum = 0;
             _Memory.init();
             _MemoryManager.clearMemLog();
             _StdOut.putText("[SUCCESS] Memory cleared.");
