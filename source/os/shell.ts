@@ -160,6 +160,12 @@ module TSOS {
       );
       this.commandList[this.commandList.length] = sc;
 
+      //Quantum
+      sc = new ShellCommand(this.shellQuantum,
+        "quantum",
+        "<int> - sets the quantum for round robin.");
+      this.commandList[this.commandList.length] = sc;
+
       // ps  - list the running processes and their IDs
 
       // kill <id> - kills the specified process id.
@@ -388,6 +394,9 @@ module TSOS {
           case "clearmem":
             _StdOut.putText("Clears all memory partitions");
             break;
+          case "quantum":
+            _StdOut.putText("Sets the quantum number for Round Robin");
+            break;
           default:
             _StdOut.putText("No manual entry for " + args[0] + ".");
         }
@@ -612,6 +621,15 @@ module TSOS {
           "No loaded programs to run. Please load a program to run."
         );
       }
+    }
+
+    public shellQuantum(args) {
+        //Sets quantum number for round robin
+
+        if (args == parseInt(args, 10))
+            _Quantum = args
+        else
+            _StdOut.putText("Please enter an inter");
     }
   }
 }

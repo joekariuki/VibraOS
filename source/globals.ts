@@ -48,6 +48,8 @@ var _Xreg: number = 0;
 var _Yreg: number = 0;
 var _Zflag: number = 0;
 
+var _Quantum: number = 0;     //Quantum number
+
 // PCB process states
 var PS_NEW: string = "New";
 var PS_READY: string = "Ready";

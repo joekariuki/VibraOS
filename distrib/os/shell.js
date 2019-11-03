@@ -72,6 +72,9 @@ var TSOS;
             //run All
             sc = new TSOS.ShellCommand(this.shellRunAll, "runall", " - Runs all loaded programs in memory.");
             this.commandList[this.commandList.length] = sc;
+            //Quantum
+            sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<int> - sets the quantum for round robin.");
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
@@ -273,6 +276,9 @@ var TSOS;
                         break;
                     case "clearmem":
                         _StdOut.putText("Clears all memory partitions");
+                        break;
+                    case "quantum":
+                        _StdOut.putText("Sets the quantum number for Round Robin");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -478,6 +484,13 @@ var TSOS;
             else {
                 _StdOut.putText("No loaded programs to run. Please load a program to run.");
             }
+        };
+        Shell.prototype.shellQuantum = function (args) {
+            //Sets quantum number for round robin
+            if (args == parseInt(args, 10))
+                _Quantum = args;
+            else
+                _StdOut.putText("Please enter an inter");
         };
         return Shell;
     }());
