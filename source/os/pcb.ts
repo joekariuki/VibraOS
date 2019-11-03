@@ -16,5 +16,10 @@ module TSOS {
                     public startIndex: number = 0,
                     public state: string = PS_NEW) {
         }
+        public init(){
+            this.PC = 0;
+            this.IR = "NA";
+      
+        }
     }
 }

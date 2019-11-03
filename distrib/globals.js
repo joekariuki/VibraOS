@@ -37,7 +37,8 @@ var _PC = 0;
 var _Xreg = 0;
 var _Yreg = 0;
 var _Zflag = 0;
-var _Quantum = 0; //Quantum number
+var _Quantum = 6; //Default Quantum number
+var _ClockTicks = 0; // Number of clock ticks 
 // PCB process states
 var PS_NEW = "New";
 var PS_READY = "Ready";
@@ -48,6 +49,7 @@ var PS_TERMINATED = "Terminated";
 var _RunAll = false;
 // Reset Memory
 var _ResetMem = false;
+var _DONE = false;
 // Declare default base memory
 var _BASE = 0;
 // Declare current memory index

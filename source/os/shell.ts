@@ -564,6 +564,7 @@ module TSOS {
     }
     public shellRun(args) {
       //set Runall to false for running a specific program
+      _DONE = false;
       _RunAll = false;
       // Check if args is 0
       if (args.length == 0) {
@@ -624,6 +625,8 @@ module TSOS {
 
     public shellRunAll(args) {
       _RunAll = true;
+      _DONE = false;
+      _ClockTicks = 0;
       // Check if resident queue is empty
       if (_ResidentQueue.length > 0) {
         let resLength = _ResidentQueue.length;
@@ -653,9 +656,11 @@ module TSOS {
             (<HTMLButtonElement>document.getElementById("singleStep"))
               .disabled == true
           ) {
+            _ClockTicks++;
             _CPU.cycle();
           } else {
             _CPU.init();
+            _ClockTicks++;
             _CPU.isExecuting = true;
           }
         }
@@ -687,25 +692,60 @@ module TSOS {
       }
     }
     public shellKill(args) {
+      _CPU.isExecuting = false;
+      let deadProg = new PCB();
       let pid = -1;
       if (args.length == 0) {
         _StdOut.putText("Empty PID... Please enter PID");
       } else {
-        for (var i = 0; i < _ReadyQueue.length; i++) {
-          if (args == _ReadyQueue[i].PID) {
-            pid = _ReadyQueue[i].PID;
+        if (_ReadyQueue.length == 0) {
+          _StdOut.putText("There are no active PIDs to Kill");
+        } else {
+          for (var i = 0; i < _ReadyQueue.length; i++) {
+            if (args == _ReadyQueue[i].PID) {
+              pid = _ReadyQueue[i].PID;
 
-            //remove process from ready queue
-            _CurrentProgram = _ReadyQueue[i];
-            _CurrentProgram.state = PS_TERMINATED;
-            _ReadyQueue.splice(i, 1);
+              //remove process from ready queue
+              if (_ReadyQueue.length > 1) {
+                deadProg = _ReadyQueue[i];
+                deadProg.state = PS_TERMINATED;
 
-            _CPU.isExecuting = false;
-            //update pcb table
-            _MemoryManager.deleteRowPcb(_CurrentProgram);
-            break;
+                if (i == _ReadyQueue.length - 1) {
+                  _CurrentProgram = _ReadyQueue[0];
+                } else {
+                  _CurrentProgram = _ReadyQueue[i + 1];
+                }
+
+                _ReadyQueue.splice(i, 1);
+                _CPU.isExecuting = true;
+                _CPU.cycle();
+              } else {
+                deadProg = _ReadyQueue[i];
+                deadProg.state = PS_TERMINATED;
+                _ReadyQueue.splice(i, 1);
+              }
+
+              //update pcb table
+              _MemoryManager.deleteRowPcb(deadProg);
+              break;
+            }
           }
         }
+        // for (var i = 0; i < _ReadyQueue.length; i++) {
+        //   if (args == _ReadyQueue[i].PID) {
+        //     pid = _ReadyQueue[i].PID;
+
+        //     //remove process from ready queue
+        //     _CurrentProgram = _ReadyQueue[i];
+        //     _CurrentProgram.state = PS_TERMINATED;
+        //     _ReadyQueue.splice(i, 1);
+
+        //     _CPU.isExecuting = false;
+        //     //update pcb table
+        //     _MemoryManager.deleteRowPcb(_CurrentProgram);
+        //     break;
+        //   }
+        // }
 
         if (pid == -1) {
           _StdOut.putText(

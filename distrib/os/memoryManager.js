@@ -223,19 +223,21 @@ var TSOS;
             }
         };
         MemoryManager.prototype.deleteRowPcb = function (pcb) {
-            //load program to memory
-            //this.loadProgToMem();
             //get Memory table and upadte memory cells
             var pcbTable = (document.getElementById("pcbTabDisplay"));
             var rows = pcbTable.getElementsByTagName("tr");
             for (var i = 1; i < rows.length; i++) {
-                var cells = rows[i].cells;
-                console.log(cells);
+                // let cells = rows[i].cells;
                 if (rows[i].cells[0].innerHTML == pcb.PID) {
                     rows[i].remove();
                     break;
                 }
             }
+        };
+        MemoryManager.prototype.deleteRowCpu = function () {
+            var cpuTable = (document.getElementById("cpuTabDisplay"));
+            var row = cpuTable.getElementsByTagName("tr")[1];
+            row.remove();
         };
         // Clear a section of memory
         MemoryManager.prototype.resetMem = function () {

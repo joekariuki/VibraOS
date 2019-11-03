@@ -423,6 +423,7 @@ var TSOS;
         };
         Shell.prototype.shellRun = function (args) {
             //set Runall to false for running a specific program
+            _DONE = false;
             _RunAll = false;
             // Check if args is 0
             if (args.length == 0) {
@@ -479,6 +480,8 @@ var TSOS;
         };
         Shell.prototype.shellRunAll = function (args) {
             _RunAll = true;
+            _DONE = false;
+            _ClockTicks = 0;
             // Check if resident queue is empty
             if (_ResidentQueue.length > 0) {
                 var resLength = _ResidentQueue.length;
@@ -502,10 +505,12 @@ var TSOS;
                     _StdOut.putText("Running all Programs...");
                     if (document.getElementById("singleStep")
                         .disabled == true) {
+                        _ClockTicks++;
                         _CPU.cycle();
                     }
                     else {
                         _CPU.init();
+                        _ClockTicks++;
                         _CPU.isExecuting = true;
                     }
                 }
@@ -536,24 +541,58 @@ var TSOS;
             }
         };
         Shell.prototype.shellKill = function (args) {
+            _CPU.isExecuting = false;
+            var deadProg = new TSOS.PCB();
             var pid = -1;
             if (args.length == 0) {
                 _StdOut.putText("Empty PID... Please enter PID");
             }
             else {
-                for (var i = 0; i < _ReadyQueue.length; i++) {
-                    if (args == _ReadyQueue[i].PID) {
-                        pid = _ReadyQueue[i].PID;
-                        //remove process from ready queue
-                        _CurrentProgram = _ReadyQueue[i];
-                        _CurrentProgram.state = PS_TERMINATED;
-                        _ReadyQueue.splice(i, 1);
-                        _CPU.isExecuting = false;
-                        //update pcb table
-                        _MemoryManager.deleteRowPcb(_CurrentProgram);
-                        break;
+                if (_ReadyQueue.length == 0) {
+                    _StdOut.putText("There are no active PIDs to Kill");
+                }
+                else {
+                    for (var i = 0; i < _ReadyQueue.length; i++) {
+                        if (args == _ReadyQueue[i].PID) {
+                            pid = _ReadyQueue[i].PID;
+                            //remove process from ready queue
+                            if (_ReadyQueue.length > 1) {
+                                deadProg = _ReadyQueue[i];
+                                deadProg.state = PS_TERMINATED;
+                                if (i == _ReadyQueue.length - 1) {
+                                    _CurrentProgram = _ReadyQueue[0];
+                                }
+                                else {
+                                    _CurrentProgram = _ReadyQueue[i + 1];
+                                }
+                                _ReadyQueue.splice(i, 1);
+                                _CPU.isExecuting = true;
+                                _CPU.cycle();
+                            }
+                            else {
+                                deadProg = _ReadyQueue[i];
+                                deadProg.state = PS_TERMINATED;
+                                _ReadyQueue.splice(i, 1);
+                            }
+                            //update pcb table
+                            _MemoryManager.deleteRowPcb(deadProg);
+                            break;
+                        }
                     }
                 }
+                // for (var i = 0; i < _ReadyQueue.length; i++) {
+                //   if (args == _ReadyQueue[i].PID) {
+                //     pid = _ReadyQueue[i].PID;
+                //     //remove process from ready queue
+                //     _CurrentProgram = _ReadyQueue[i];
+                //     _CurrentProgram.state = PS_TERMINATED;
+                //     _ReadyQueue.splice(i, 1);
+                //     _CPU.isExecuting = false;
+                //     //update pcb table
+                //     _MemoryManager.deleteRowPcb(_CurrentProgram);
+                //     break;
+                //   }
+                // }
                 if (pid == -1) {
                     _StdOut.putText("[ERROR] INVALID PID! The pid you entered is not active");
                 }

@@ -27,6 +27,10 @@ var TSOS;
             this.startIndex = startIndex;
             this.state = state;
         }
+        PCB.prototype.init = function () {
+            this.PC = 0;
+            this.IR = "NA";
+        };
         return PCB;
     }());
     TSOS.PCB = PCB;
