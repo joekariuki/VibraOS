@@ -32,11 +32,11 @@ var _OSclock: number = 0;  // Page 23.
 
 var _Mode: number = 0;     // (currently unused)  0 = Kernel Mode, 1 = User Mode.  See page 21.
 
-// Declare 256 bytes for program
+// Allocate 256 bytes for program
 var _ProgramSize: number = 256;
 // Memory size
 var _MemorySize: number = _ProgramSize * 3 ;
-var _MemoryArray: string[] = [];
+var _MemoryArray = [];
 
 // PCB
 var _PCB: TSOS.PCB;
@@ -47,7 +47,6 @@ var _PC: number = 0;
 var _Xreg: number = 0;
 var _Yreg: number = 0;
 var _Zflag: number = 0;
-var _BASE: number = 0;
 
 // PCB process states
 var PS_NEW: string = "New";

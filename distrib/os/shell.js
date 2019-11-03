@@ -66,6 +66,12 @@ var TSOS;
             // run
             sc = new TSOS.ShellCommand(this.shellRun, "run", " <pid> - runs a valid process.");
             this.commandList[this.commandList.length] = sc;
+            // clear mem
+            sc = new TSOS.ShellCommand(this.shellClearMem, "clearmem", " - Clears all memory partitions.");
+            this.commandList[this.commandList.length] = sc;
+            //run All
+            sc = new TSOS.ShellCommand(this.shellRunAll, "runall", " - Runs all loaded programs in memory.");
+            this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
@@ -106,13 +112,16 @@ var TSOS;
             }
             else {
                 // It's not found, so check for curses and apologies before declaring the command invalid.
-                if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) { // Check for curses.
+                if (this.curses.indexOf("[" + TSOS.Utils.rot13(cmd) + "]") >= 0) {
+                    // Check for curses.
                     this.execute(this.shellCurse);
                 }
-                else if (this.apologies.indexOf("[" + cmd + "]") >= 0) { // Check for apologies.
+                else if (this.apologies.indexOf("[" + cmd + "]") >= 0) {
+                    // Check for apologies.
                     this.execute(this.shellApology);
                 }
-                else { // It's just a bad command. {
+                else {
+                    // It's just a bad command. {
                     this.execute(this.shellInvalidCommand);
                 }
             }
@@ -194,7 +203,10 @@ var TSOS;
             _StdOut.putText("Commands:");
             for (var i in _OsShell.commandList) {
                 _StdOut.advanceLine();
-                _StdOut.putText("  " + _OsShell.commandList[i].command + " " + _OsShell.commandList[i].description);
+                _StdOut.putText("  " +
+                    _OsShell.commandList[i].command +
+                    " " +
+                    _OsShell.commandList[i].description);
             }
         };
         Shell.prototype.shellShutdown = function (args) {
@@ -259,6 +271,9 @@ var TSOS;
                     case "run":
                         _StdOut.putText("Runs a valid process.");
                         break;
+                    case "clearmem":
+                        _StdOut.putText("Clears all memory partitions");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -295,7 +310,7 @@ var TSOS;
         Shell.prototype.shellRot13 = function (args) {
             if (args.length > 0) {
                 // Requires Utils.ts for rot13() function.
-                _StdOut.putText(args.join(' ') + " = '" + TSOS.Utils.rot13(args.join(' ')) + "'");
+                _StdOut.putText(args.join(" ") + " = '" + TSOS.Utils.rot13(args.join(" ")) + "'");
             }
             else {
                 _StdOut.putText("Usage: rot13 <string>  Please supply a string.");
@@ -320,7 +335,7 @@ var TSOS;
                 "...EARTH!...",
                 "... On a lonely spec in a great envolping cosmic dark...",
                 "...On a mote of dust suspended in a sunbeam...",
-                "...The question is not \"where you are?\" but rather, where will you be going?..."
+                '...The question is not "where you are?" but rather, where will you be going?...'
             ];
             // Generate random index
             var randomIndex = Math.floor(Math.random() * location.length);
@@ -361,14 +376,14 @@ var TSOS;
         };
         Shell.prototype.shellLoad = function (args) {
             // Get user input
-            _ProgramInput = document.getElementById("taProgramInput").value;
+            _ProgramInput = (document.getElementById("taProgramInput")).value;
             // Declare hex code from user input
             var hexCode = _ProgramInput;
             // Declare new regex to check user input
-            var regex = new RegExp('^[0-9A-Fa-f\\s]+$');
+            var regex = new RegExp("^[0-9A-Fa-f\\s]+$");
             // Check if hexCode matches regex
             if (hexCode.match(regex)) {
-                _StdOut.putText('[SUCCESS] Valid hex. Program loaded');
+                _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
                 // Add new memory instance
                 _MemoryManager = new TSOS.MemoryManager();
@@ -377,7 +392,7 @@ var TSOS;
                 _MemoryManager.updateMemTable();
             }
             else {
-                _StdOut.putText('[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!');
+                _StdOut.putText("[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!");
                 // Reset program input if not valid
                 _ProgramInput = "";
             }
@@ -385,7 +400,7 @@ var TSOS;
         Shell.prototype.shellRun = function (args) {
             // Check if args is 0
             if (args.length == 0) {
-                _StdOut.putText('Empty PID... Please enter a PID');
+                _StdOut.putText("Empty PID... Please enter a PID");
             }
             else {
                 var pid = -1;
@@ -406,7 +421,8 @@ var TSOS;
                 }
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep").disabled == true) {
+                    if (document.getElementById("singleStep")
+                        .disabled == true) {
                         // Run CPU cylce
                         _CPU.cycle();
                     }
@@ -418,8 +434,44 @@ var TSOS;
                     }
                 }
                 else {
-                    _StdOut.putText("PID " + pid + " does not exist... please enter a valid pid to run program ");
+                    _StdOut.putText("PID " + pid + " is terminated. You cannot run this process");
                 }
+            }
+        };
+        Shell.prototype.shellClearMem = function (args) {
+            // Clear memory and update memory log
+            _Memory.init();
+            _MemoryManager.clearMemLog();
+            _StdOut.putText("[SUCCESS] Memory cleared.");
+            _StdOut.advanceLine();
+        };
+        Shell.prototype.shellRunAll = function (args) {
+            // Check if resident queue is empty 
+            if (_ResidentQueue.length > 0) {
+                //   Run programs in resident queue
+                for (var i = 0; i < _ResidentQueue.length; i++) {
+                    if (_ResidentQueue[i] !== undefined &&
+                        _ResidentQueue[i].state !== PS_TERMINATED) {
+                        _CurrentProgram = _ResidentQueue[i];
+                        _CurrentProgram.state = PS_READY;
+                        _ReadyQueue.push(_CurrentProgram);
+                        _MemoryManager.updatePcbTable(_CurrentProgram);
+                    }
+                }
+                if (_CurrentProgram.state != PS_TERMINATED) {
+                    _StdOut.putText("Running PID: " + _CurrentProgram.PID);
+                    if (document.getElementById("singleStep")
+                        .disabled == true) {
+                        _CPU.cycle();
+                    }
+                    else {
+                        _CPU.init();
+                        _CPU.isExecuting = true;
+                    }
+                }
+            }
+            else {
+                _StdOut.putText("No loaded programs to run. Please load a program to run.");
             }
         };
         return Shell;

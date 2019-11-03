@@ -28,7 +28,7 @@ module TSOS {
             _Memory = new TSOS.Memory();
             _Memory.init();
             _MemoryManager = new TSOS.MemoryManager();
-            _MemoryAccessor = new TSOS.MemoryAccessor();
+            // _MemoryAccessor = new TSOS.MemoryAccessor();
             
             // Initialize standard input and output to the _Console.
             _StdIn  = _Console;
