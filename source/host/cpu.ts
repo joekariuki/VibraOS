@@ -14,7 +14,7 @@
 module TSOS {
   export class Cpu {
     constructor(
-      public startIndex = _BaseProgram,
+      public startIndex = 0,
       public PC: number = 0,
       public IR: string = _IR,
       public Acc: number = 0,
@@ -25,7 +25,7 @@ module TSOS {
     ) {}
 
     public init(): void {
-      this.startIndex = _BaseProgram;
+      // this.startIndex = _BaseProgram;
       this.PC = 0;
       this.IR = _IR;
       this.Acc = 0;
@@ -228,32 +228,59 @@ module TSOS {
         _MemoryManager.updatePcbTable(_CurrentProgram);
         // Update CPU table
         _MemoryManager.updateCpuTable();
-      } else if (_MemoryManager.fetch(this.startIndex) == "00") {
+      } else {
+        //else if (_MemoryManager.fetch(this.startIndex) == "00") {
+        /*
         if (_BaseProgram != 512) {
           _BaseProgram = _BaseProgram + 256;
           this.startIndex = _BaseProgram;
         }
+        */
         // Update CPU execution
         this.isExecuting = false;
         // Update index for programs
-        _BaseProgram = _BaseProgram + 256;
+        // _BaseProgram = _BaseProgram + 256;
         // Set program state to terminated
         _CurrentProgram.state = PS_TERMINATED;
         // Update PCB table with current program
         _MemoryManager.updatePcbTable(_CurrentProgram);
-        if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+
+        //remove program from ready queue
+        for (var i = 0; i < _ReadyQueue.length; i++) {
+          if (_ReadyQueue[i].PID == _CurrentProgram.PID) {
+            _ReadyQueue.splice(i, 1);
+
+            _MemoryManager.deleteRowPcb(_CurrentProgram);
+            break;
+          }
+        }
+
+        if (_RunAll == true) {
           this.isExecuting = true;
           for (var i = 0; i < _ReadyQueue.length; i++) {
             if (_ReadyQueue[i].state != PS_TERMINATED) {
               _CurrentProgram = _ReadyQueue[i];
-              _CurrentProgram.state = PS_RUNNING
-              this.cycle();
-              break;
+              this.startIndex = _CurrentProgram.base;
+              if (_MemoryManager.fetch(this.startIndex) != "00") {
+                _CurrentProgram.state = PS_RUNNING;
+                this.cycle();
+                break;
+              }
             }
           }
         }
-      } else {
-        // Do nothing
+
+        // if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+        //   this.isExecuting = true;
+        //   for (var i = 0; i < _ReadyQueue.length; i++) {
+        //     if (_ReadyQueue[i].state != PS_TERMINATED) {
+        //       _CurrentProgram = _ReadyQueue[i];
+        //       _CurrentProgram.state = PS_RUNNING;
+        //       this.cycle();
+        //       break;
+        //     }
+        //   }
+        // }
       }
     }
   }

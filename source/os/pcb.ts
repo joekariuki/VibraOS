@@ -5,7 +5,7 @@ module TSOS {
 
         constructor(public PC: number = 0,
                     public PID: number = _PID,
-                    public base: number = _BASE,
+                    public base: number = 0,
                     public Acc: number = _Acc,
                     public Xreg: number = _Xreg,
                     public Yreg: number = _Yreg,

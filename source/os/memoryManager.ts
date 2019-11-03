@@ -6,7 +6,7 @@ module TSOS {
     public loadProgToMem(programInput) {
       // Remove spaces from input
       programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
-      
+
       let Base = _BASE;
 
       // if (programInput.length/2 < 256) {
@@ -23,7 +23,7 @@ module TSOS {
       _PID++;
       _CurrentProgram = new PCB();
       _CurrentProgram.pcbProgram = programInput;
-
+      _CurrentProgram.base = _BASE;
       _CurrentProgram.state = PS_NEW;
       _ResidentQueue.push(_CurrentProgram);
 
@@ -246,7 +246,8 @@ module TSOS {
         let cells = rows[i].cells;
 
         // Check if pcb state is running
-        if (pcb.state == PS_RUNNING && rows[i].cells[0].innerHTML == pcb.PID) {
+        // if (pcb.state == PS_RUNNING && rows[i].cells[0].innerHTML == pcb.PID) {
+        if (rows[i].cells[0].innerHTML == pcb.PID) {
           // Update memory cells
           rows[i].cells[0].innerHTML = `${pcb.PID}`;
           rows[i].cells[1].innerHTML = `${_CPU.PC}`;
@@ -262,13 +263,45 @@ module TSOS {
         }
 
         // Check if pcb state is terminated
-        if (
-          pcb.state == PS_TERMINATED &&
-          rows[i].cells[0].innerHTML == pcb.PID
-        ) {
-          rows[i].cells[9].innerHTML = pcb.state;
+        // if (
+        //   pcb.state == PS_TERMINATED &&
+        //   rows[i].cells[0].innerHTML == pcb.PID
+        // ) {
+        //   rows[i].cells[9].innerHTML = pcb.state;
+        //   break;
+        // }
+      }
+    }
+
+    
+    public deleteRowPcb(pcb): void {
+      //load program to memory
+      //this.loadProgToMem();
+
+      //get Memory table and upadte memory cells
+      let pcbTable: HTMLTableElement = <HTMLTableElement>(
+        document.getElementById("pcbTabDisplay")
+      );
+      let rows = pcbTable.getElementsByTagName("tr");
+
+      for (let i = 1; i < rows.length; i++) {
+        let cells = rows[i].cells;
+        console.log(cells);
+
+        if (rows[i].cells[0].innerHTML == pcb.PID) {
+          rows[i].remove();
           break;
         }
+      }
+    }
+
+    // Clear a section of memory
+    public resetMem() {
+      var index = _CurrentProgram.base;
+      console.log("Index " + index);
+      for (var i = 0; i < _ProgramSize; i++) {
+        _MemoryArray[index] = "00";
+        index++;
       }
     }
 

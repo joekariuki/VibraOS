@@ -76,6 +76,9 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellQuantum, "quantum", "<int> - sets the quantum for round robin.");
             this.commandList[this.commandList.length] = sc;
             // ps  - list the running processes and their IDs
+            //Active pids
+            sc = new TSOS.ShellCommand(this.shellActivePids, "ps", "Displays all acive pids.");
+            this.commandList[this.commandList.length] = sc;
             // kill <id> - kills the specified process id.
             // Display the initial prompt.
             this.putPrompt();
@@ -280,6 +283,9 @@ var TSOS;
                     case "quantum":
                         _StdOut.putText("Sets the quantum number for Round Robin");
                         break;
+                    case "ps":
+                        _StdOut.putText("Displys all active pids");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -392,7 +398,7 @@ var TSOS;
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
-                if (programInput.length / 2 < 256 && _MemoryArray[_BASE] == "00") {
+                if (programInput.length / 2 < _ProgramSize && _MemoryArray[_BASE] == "00") {
                     // Add new memory instance
                     _MemoryManager = new TSOS.MemoryManager();
                     //load program to memory
@@ -435,6 +441,7 @@ var TSOS;
                     }
                 }
                 if (_CurrentProgram.state != PS_TERMINATED) {
+                    _CPU.startIndex = _CurrentProgram.base;
                     _StdOut.putText("Running PID " + pid);
                     if (document.getElementById("singleStep")
                         .disabled == true) {
@@ -481,12 +488,13 @@ var TSOS;
                     //Update PCB Table
                     _MemoryManager.updatePcbTable(_CurrentProgram);
                     _CurrentProgram = _ReadyQueue[0];
+                    _CPU.startIndex = _CurrentProgram.base;
                     // _CurrentProgram.state = PS_READY;
                     // _ReadyQueue.push(_CurrentProgram);
                     // _MemoryManager.updatePcbTable(_CurrentProgram);
                 }
                 if (_CurrentProgram.state != PS_TERMINATED) {
-                    _StdOut.putText("Running PID: " + _CurrentProgram.PID);
+                    _StdOut.putText("Running all Programs...");
                     if (document.getElementById("singleStep")
                         .disabled == true) {
                         _CPU.cycle();
@@ -508,6 +516,18 @@ var TSOS;
             }
             else {
                 _StdOut.putText("Please enter an integer");
+            }
+        };
+        Shell.prototype.shellActivePids = function (args) {
+            if (_ReadyQueue.length != 0) {
+                alert("ReadyQueue " + _ReadyQueue.length);
+                for (var i = 0; i < _ReadyQueue.length; i++) {
+                    _StdOut.putText("Active PID :: " + _ReadyQueue[i].PID);
+                    _StdOut.advanceLine();
+                }
+            }
+            else {
+                _StdOut.putText("There are no active pids");
             }
         };
         return Shell;

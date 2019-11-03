@@ -14,7 +14,7 @@ var TSOS;
 (function (TSOS) {
     var Cpu = /** @class */ (function () {
         function Cpu(startIndex, PC, IR, Acc, Xreg, Yreg, Zflag, isExecuting) {
-            if (startIndex === void 0) { startIndex = _BaseProgram; }
+            if (startIndex === void 0) { startIndex = 0; }
             if (PC === void 0) { PC = 0; }
             if (IR === void 0) { IR = _IR; }
             if (Acc === void 0) { Acc = 0; }
@@ -32,7 +32,7 @@ var TSOS;
             this.isExecuting = isExecuting;
         }
         Cpu.prototype.init = function () {
-            this.startIndex = _BaseProgram;
+            // this.startIndex = _BaseProgram;
             this.PC = 0;
             this.IR = _IR;
             this.Acc = 0;
@@ -234,33 +234,55 @@ var TSOS;
                 // Update CPU table
                 _MemoryManager.updateCpuTable();
             }
-            else if (_MemoryManager.fetch(this.startIndex) == "00") {
+            else {
+                //else if (_MemoryManager.fetch(this.startIndex) == "00") {
+                /*
                 if (_BaseProgram != 512) {
-                    _BaseProgram = _BaseProgram + 256;
-                    this.startIndex = _BaseProgram;
+                  _BaseProgram = _BaseProgram + 256;
+                  this.startIndex = _BaseProgram;
                 }
+                */
                 // Update CPU execution
                 this.isExecuting = false;
                 // Update index for programs
-                _BaseProgram = _BaseProgram + 256;
+                // _BaseProgram = _BaseProgram + 256;
                 // Set program state to terminated
                 _CurrentProgram.state = PS_TERMINATED;
                 // Update PCB table with current program
                 _MemoryManager.updatePcbTable(_CurrentProgram);
-                if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+                //remove program from ready queue
+                for (var i = 0; i < _ReadyQueue.length; i++) {
+                    if (_ReadyQueue[i].PID == _CurrentProgram.PID) {
+                        _ReadyQueue.splice(i, 1);
+                        _MemoryManager.deleteRowPcb(_CurrentProgram);
+                        break;
+                    }
+                }
+                if (_RunAll == true) {
                     this.isExecuting = true;
                     for (var i = 0; i < _ReadyQueue.length; i++) {
                         if (_ReadyQueue[i].state != PS_TERMINATED) {
                             _CurrentProgram = _ReadyQueue[i];
-                            _CurrentProgram.state = PS_RUNNING;
-                            this.cycle();
-                            break;
+                            this.startIndex = _CurrentProgram.base;
+                            if (_MemoryManager.fetch(this.startIndex) != "00") {
+                                _CurrentProgram.state = PS_RUNNING;
+                                this.cycle();
+                                break;
+                            }
                         }
                     }
                 }
-            }
-            else {
-                // Do nothing
+                // if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+                //   this.isExecuting = true;
+                //   for (var i = 0; i < _ReadyQueue.length; i++) {
+                //     if (_ReadyQueue[i].state != PS_TERMINATED) {
+                //       _CurrentProgram = _ReadyQueue[i];
+                //       _CurrentProgram.state = PS_RUNNING;
+                //       this.cycle();
+                //       break;
+                //     }
+                //   }
+                // }
             }
         };
         return Cpu;

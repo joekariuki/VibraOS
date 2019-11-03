@@ -4,7 +4,7 @@ var TSOS;
         function PCB(PC, PID, base, Acc, Xreg, Yreg, limit, IR, pcbProgram, Zflag, startIndex, state) {
             if (PC === void 0) { PC = 0; }
             if (PID === void 0) { PID = _PID; }
-            if (base === void 0) { base = _BASE; }
+            if (base === void 0) { base = 0; }
             if (Acc === void 0) { Acc = _Acc; }
             if (Xreg === void 0) { Xreg = _Xreg; }
             if (Yreg === void 0) { Yreg = _Yreg; }
