@@ -169,7 +169,6 @@ module TSOS {
       this.commandList[this.commandList.length] = sc;
 
       // ps  - list the running processes and their IDs
-      //Active pids
       sc = new ShellCommand(
         this.shellActivePids,
         "ps",
@@ -178,6 +177,12 @@ module TSOS {
       this.commandList[this.commandList.length] = sc;
 
       // kill <id> - kills the specified process id.
+      sc = new ShellCommand(
+        this.shellKill,
+        "kill",
+        "<pid> to kill a specific process."
+      );
+      this.commandList[this.commandList.length] = sc;
 
       // Display the initial prompt.
       this.putPrompt();
@@ -409,6 +414,9 @@ module TSOS {
           case "ps":
             _StdOut.putText("Displys all active pids");
             break;
+          case "kill":
+            _StdOut.putText("Kills a specified process");
+            break;
           default:
             _StdOut.putText("No manual entry for " + args[0] + ".");
         }
@@ -533,7 +541,10 @@ module TSOS {
         _Console.advanceLine();
 
         var programInput = _ProgramInput.replace(/[\s]/g, "");
-        if (programInput.length / 2 < _ProgramSize && _MemoryArray[_BASE] == "00") {
+        if (
+          programInput.length / 2 < _ProgramSize &&
+          _MemoryArray[_BASE] == "00"
+        ) {
           // Add new memory instance
           _MemoryManager = new MemoryManager();
           //load program to memory
@@ -663,21 +674,45 @@ module TSOS {
         _StdOut.putText("Please enter an integer");
       }
     }
-    
+
     public shellActivePids(args) {
-        if (_ReadyQueue.length != 0){
-            alert("ReadyQueue " + _ReadyQueue.length)
-            for (var i = 0; i<_ReadyQueue.length; i++){
-                 _StdOut.putText("Active PID :: " + _ReadyQueue[i].PID);
-                 _StdOut.advanceLine();
-            }
-
+      if (_ReadyQueue.length != 0) {
+        console.log("ReadyQueue " + _ReadyQueue.length);
+        for (let i = 0; i < _ReadyQueue.length; i++) {
+          _StdOut.putText(`Active PID : ${_ReadyQueue[i].PID}`);
+          _StdOut.advanceLine();
         }
-        else{
-             _StdOut.putText("There are no active pids");
+      } else {
+        _StdOut.putText("There are no active pids");
+      }
+    }
+    public shellKill(args) {
+      let pid = -1;
+      if (args.length == 0) {
+        _StdOut.putText("Empty PID... Please enter PID");
+      } else {
+        for (var i = 0; i < _ReadyQueue.length; i++) {
+          if (args == _ReadyQueue[i].PID) {
+            pid = _ReadyQueue[i].PID;
+
+            //remove process from ready queue
+            _CurrentProgram = _ReadyQueue[i];
+            _CurrentProgram.state = PS_TERMINATED;
+            _ReadyQueue.splice(i, 1);
+
+            _CPU.isExecuting = false;
+            //update pcb table
+            _MemoryManager.deleteRowPcb(_CurrentProgram);
+            break;
+          }
         }
 
-
-   }
+        if (pid == -1) {
+          _StdOut.putText(
+            "[ERROR] INVALID PID! The pid you entered is not active"
+          );
+        }
+      }
+    }
   }
 }

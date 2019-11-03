@@ -59,6 +59,9 @@ var PS_TERMINATED: string = "Terminated";
 
 // Run all
 var _RunAll: Boolean = false;
+// Reset Memory
+var _ResetMem: Boolean = false;
+
 
 
 // Declare default base memory

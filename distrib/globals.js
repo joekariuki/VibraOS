@@ -46,6 +46,8 @@ var PS_WAITING = "Waiting";
 var PS_TERMINATED = "Terminated";
 // Run all
 var _RunAll = false;
+// Reset Memory
+var _ResetMem = false;
 // Declare default base memory
 var _BASE = 0;
 // Declare current memory index
