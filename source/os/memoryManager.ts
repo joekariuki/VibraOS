@@ -128,15 +128,9 @@ module TSOS {
       // Add table rows
       let rows = memoryTab.getElementsByTagName("tr");
 
-      // debug
-      console.log(`current base: ${_BASE}`);
       // Declare previous base
       let prevBase = _BASE - 256;
       let startRowIndex = 0;
-
-      // debug
-      console.log(`Prev base: ${prevBase}`);
-      console.log(_MemoryArray[prevBase]);
 
       // Check if base is not empty
       if (_MemoryArray[prevBase] != "00") {

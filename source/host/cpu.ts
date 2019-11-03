@@ -14,7 +14,7 @@
 module TSOS {
   export class Cpu {
     constructor(
-      public startIndex = _BaseProgram,
+      // public startIndex = _BaseProgram,
       public PC: number = 0,
       public IR: string = _IR,
       public Acc: number = 0,
@@ -25,7 +25,7 @@ module TSOS {
     ) {}
 
     public init(): void {
-      this.startIndex = _BaseProgram;
+      // this.startIndex = _BaseProgram;
       this.PC = 0;
       this.IR = _IR;
       this.Acc = 0;
@@ -35,14 +35,24 @@ module TSOS {
       this.isExecuting = false;
     }
 
+    public loadAcc() {
+      //Load the accumulator with constant
+
+      //Get Next byte from memory
+      let memAddress = _MemoryManager.fetch(++this.PC);
+
+      //convert constant from hex to base 10 and set it to accumulator
+      this.Acc = parseInt(memAddress, 16);
+      _Acc = this.Acc;
+    }
 
     public programExecute(opCode) {
       if (opCode == "A9") {
         //Load the accumulator with constant
         _IR = opCode;
         //Get Next byte from memory
-        this.PC++;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
+        // this.PC++;
+        let memAddress = _MemoryManager.fetch(++this.PC);
         // Convert constant from hex to base 10
         this.Acc = parseInt(memAddress, 16);
         // Set constant to accumulator
@@ -51,9 +61,9 @@ module TSOS {
         // Load the acccumulator from memory
         _IR = opCode;
         // Load the the next two bytes and switch them
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
         let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
         this.Acc = parseInt(getAcc, 16);
         _Acc = parseInt(getAcc, 16);
@@ -61,9 +71,9 @@ module TSOS {
         //Store accumulator in memory
         _IR = opCode;
         // Load the the next two bytes
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
         let destAddress = parseInt(memAddress, 16);
         if (destAddress <= _CurrentProgram.limit) {
           _MemoryArray[destAddress] = this.Acc.toString(16);
@@ -72,17 +82,17 @@ module TSOS {
         // Load the X resgister with a constant
         _IR = opCode;
         // Load the the next byte
-        this.PC++;
-        let numVal = _MemoryManager.fetch(++this.startIndex);
+        // this.PC++;
+        let numVal = _MemoryManager.fetch(++this.PC);
         this.Xreg = parseInt(numVal, 16);
         _Xreg = parseInt(numVal, 16);
       } else if (opCode == "6D") {
         //Add with carry
         _IR = opCode;
         // Load the the next two bytes
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
         let val = _MemoryManager.fetch(parseInt(memAddress, 16));
         this.Acc = this.Acc + parseInt(val, 16);
         _Acc = this.Acc + parseInt(val, 16);
@@ -90,9 +100,9 @@ module TSOS {
         _IR = opCode;
         //Load the X register from memory
         // Load the the next two bytes
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
 
         let val = _MemoryManager.fetch(parseInt(memAddress, 16));
         this.Xreg = parseInt(val, 16);
@@ -101,9 +111,9 @@ module TSOS {
         // Load Y register from memory
         _IR = opCode;
         // Load the the next two bytes
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
         let val = _MemoryManager.fetch(parseInt(memAddress, 16));
 
         this.Yreg = parseInt(val, 16);
@@ -113,7 +123,7 @@ module TSOS {
         _IR = opCode;
         // Load the the next byte
         this.PC++;
-        let numVal = _MemoryManager.fetch(++this.startIndex);
+        let numVal = _MemoryManager.fetch(++this.PC);
         this.Yreg = parseInt(numVal, 16);
         _Yreg = parseInt(numVal, 16);
       } else if (opCode == "EA") {
@@ -121,8 +131,6 @@ module TSOS {
         _IR = opCode;
       } else if (opCode == "00") {
         _IR = opCode;
-        //Break
-        _CurrentProgram.startIndex = this.startIndex;
         _CurrentProgram.PC = this.PC;
         _CurrentProgram.Acc = this.Acc;
         _CurrentProgram.Xreg = this.Xreg;
@@ -132,12 +140,11 @@ module TSOS {
         _IR = opCode;
 
         // Load the the next two bytes
-        this.PC += 2;
-        var memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        var memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
 
         let val = _MemoryManager.fetch(parseInt(memAddress, 16));
-        let newVal = _MemoryManager.fetch(parseInt(memAddress, 16));
         let xVal = parseInt(val, 16);
 
         if (xVal == this.Xreg) {
@@ -149,36 +156,35 @@ module TSOS {
         }
       } else if (opCode == "D0") {
         _IR = opCode;
+        // Get branch
+        let branch = parseInt(_MemoryManager.fetch(++this.PC), 16);
         // Check if Z flag branch bytes is zero
         if (this.Zflag == 0) {
-          this.PC++;
-          // Get branch
-          let branch = parseInt(_MemoryManager.fetch(++this.startIndex), 16);
-          // Fetch the next byte and Branch
-          let nextAddr = this.startIndex + branch;
+          // this.PC++;
+          let memAddr = this.PC + branch;
 
-          if (nextAddr > _CurrentProgram.limit) {
-            nextAddr = nextAddr - (_CurrentProgram.limit + 1);
+          if (memAddr > _ProgramSize) {
+            memAddr = memAddr - _ProgramSize;
           }
-          this.startIndex = nextAddr;
-          this.PC = nextAddr;
-        } else {
-          this.startIndex++;
-          this.PC++;
-        }
+          this.PC = memAddr;
+        } //else {
+          // this.startIndex++;
+          //this.PC++;
+        //}
       } else if (opCode == "EE") {
         _IR = opCode;
         // Increment byte value
-        this.PC += 2;
-        let memAddress = _MemoryManager.fetch(++this.startIndex);
-        memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
+        // this.PC += 2;
+        let memAddress = _MemoryManager.fetch(++this.PC);
+        memAddress = _MemoryManager.fetch(++this.PC) + memAddress;
         let address = parseInt(memAddress, 16);
 
-        let val = _MemoryArray[address];
-        let newVal = parseInt(val, 16) + 1;
-        if (address <= _CurrentProgram.limit) {
-          val = newVal.toString(16);
-        }
+        let val = _MemoryManager.fetch(address);
+        _MemoryArray[address] = (parseInt(val, 16) + 1).toString(16);
+        // let newVal = parseInt(val, 16) + 1;
+        // if (address <= _CurrentProgram.limit) {
+        //   val = newVal.toString(16);
+        // }
       } else if (opCode == "FF") {
         _IR = opCode;
 
@@ -196,11 +202,9 @@ module TSOS {
         }
       } else {
         // End program
-        _StdOut.putText("[ERROR] Invalid OPCODE, not a valid program");
+        // _StdOut.putText("[ERROR] Invalid OPCODE, not a valid program");
       }
-
       this.PC++;
-      this.startIndex++;
     }
 
     public cycle(): void {
@@ -208,8 +212,8 @@ module TSOS {
       // TODO: Accumulate CPU usage and profiling statistics here.
       // Do the real work here. Be sure to set this.isExecuting appropriately.
 
-      if (_MemoryManager.fetch(this.startIndex) != "00") {
-        this.programExecute(_MemoryManager.fetch(this.startIndex));
+      if (_MemoryManager.fetch(this.PC) != "00") {
+        this.programExecute(_MemoryManager.fetch(this.PC));
         _CurrentProgram.state = PS_RUNNING;
 
         // Update PCB table with current program

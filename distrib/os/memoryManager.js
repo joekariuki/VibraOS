@@ -106,14 +106,9 @@ var TSOS;
             var memoryTab = (document.getElementById("memoryTabDisplay"));
             // Add table rows
             var rows = memoryTab.getElementsByTagName("tr");
-            // debug
-            console.log("current base: " + _BASE);
             // Declare previous base
             var prevBase = _BASE - 256;
             var startRowIndex = 0;
-            // debug
-            console.log("Prev base: " + prevBase);
-            console.log(_MemoryArray[prevBase]);
             // Check if base is not empty
             if (_MemoryArray[prevBase] != "00") {
                 startRowIndex = _RowNum;

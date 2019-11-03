@@ -164,9 +164,9 @@ var TSOS;
             document.getElementById("execStep").disabled = false;
         };
         Control.hostBtnExecStepOS_click = function (btn) {
-            if (_CPU.startIndex > 0) {
-                if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
-                    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
+            if (_CPU.PC > 0) {
+                if (_MemoryManager.fetch(_CPU.PC) != "00") {
+                    _StdOut.putText(_MemoryManager.fetch(_CPU.PC) + " ");
                     _CPU.cycle();
                 }
                 else {
