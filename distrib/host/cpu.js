@@ -173,8 +173,8 @@ var TSOS;
                     var branch = parseInt(_MemoryManager.fetch(++this.startIndex), 16);
                     //  Get next byte and branch
                     var nextAddr = this.startIndex + branch;
-                    if (nextAddr > _CurrentProgram.limit) {
-                        nextAddr = nextAddr - (_CurrentProgram.limit - 1);
+                    if (nextAddr > _ProgramSize) {
+                        nextAddr = nextAddr - _ProgramSize;
                     }
                     this.startIndex = nextAddr;
                     this.PC = nextAddr;
@@ -234,7 +234,11 @@ var TSOS;
                 // Update CPU table
                 _MemoryManager.updateCpuTable();
             }
-            else {
+            else if (_MemoryManager.fetch(this.startIndex) == "00") {
+                if (_BaseProgram != 512) {
+                    _BaseProgram = _BaseProgram + 256;
+                    this.startIndex = _BaseProgram;
+                }
                 // Update CPU execution
                 this.isExecuting = false;
                 // Update index for programs
@@ -243,6 +247,20 @@ var TSOS;
                 _CurrentProgram.state = PS_TERMINATED;
                 // Update PCB table with current program
                 _MemoryManager.updatePcbTable(_CurrentProgram);
+                if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+                    this.isExecuting = true;
+                    for (var i = 0; i < _ReadyQueue.length; i++) {
+                        if (_ReadyQueue[i].state != PS_TERMINATED) {
+                            _CurrentProgram = _ReadyQueue[i];
+                            _CurrentProgram.state = PS_RUNNING;
+                            this.cycle();
+                            break;
+                        }
+                    }
+                }
+            }
+            else {
+                // Do nothing
             }
         };
         return Cpu;

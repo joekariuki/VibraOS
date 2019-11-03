@@ -391,11 +391,18 @@ var TSOS;
             if (hexCode.match(regex)) {
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
-                // Add new memory instance
-                _MemoryManager = new TSOS.MemoryManager();
-                //load program to memory
-                // Update Memory Table with current program
-                _MemoryManager.updateMemTable();
+                var programInput = _ProgramInput.replace(/[\s]/g, "");
+                if (programInput.length / 2 < 256 && _MemoryArray[_BASE] == "00") {
+                    // Add new memory instance
+                    _MemoryManager = new TSOS.MemoryManager();
+                    //load program to memory
+                    // Update Memory Table with current program
+                    _MemoryManager.updateMemTable();
+                }
+                else {
+                    // Error if program is bigger than or equal to 256 bytes
+                    _StdOut.putText("Program too Large.. ");
+                }
             }
             else {
                 _StdOut.putText("[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!");
@@ -404,6 +411,8 @@ var TSOS;
             }
         };
         Shell.prototype.shellRun = function (args) {
+            //set Runall to false for running a specific program
+            _RunAll = false;
             // Check if args is 0
             if (args.length == 0) {
                 _StdOut.putText("Empty PID... Please enter a PID");
@@ -457,17 +466,24 @@ var TSOS;
             _StdOut.advanceLine();
         };
         Shell.prototype.shellRunAll = function (args) {
-            // Check if resident queue is empty 
+            _RunAll = true;
+            // Check if resident queue is empty
             if (_ResidentQueue.length > 0) {
+                var resLength = _ResidentQueue.length;
                 //   Run programs in resident queue
-                for (var i = 0; i < _ResidentQueue.length; i++) {
-                    if (_ResidentQueue[i] !== undefined &&
-                        _ResidentQueue[i].state !== PS_TERMINATED) {
-                        _CurrentProgram = _ResidentQueue[i];
-                        _CurrentProgram.state = PS_READY;
-                        _ReadyQueue.push(_CurrentProgram);
-                        _MemoryManager.updatePcbTable(_CurrentProgram);
-                    }
+                for (var i = resLength; i > 0; i--) {
+                    // Remove process from resident queue and push it to ready queue
+                    _ResidentQueue[0].state = PS_READY;
+                    _CurrentProgram = _ResidentQueue[0];
+                    _ResidentQueue.splice(0, 1);
+                    // Add to PCB
+                    _ReadyQueue.push(_CurrentProgram);
+                    //Update PCB Table
+                    _MemoryManager.updatePcbTable(_CurrentProgram);
+                    _CurrentProgram = _ReadyQueue[0];
+                    // _CurrentProgram.state = PS_READY;
+                    // _ReadyQueue.push(_CurrentProgram);
+                    // _MemoryManager.updatePcbTable(_CurrentProgram);
                 }
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running PID: " + _CurrentProgram.PID);
@@ -487,10 +503,12 @@ var TSOS;
         };
         Shell.prototype.shellQuantum = function (args) {
             //Sets quantum number for round robin
-            if (args == parseInt(args, 10))
+            if (args == parseInt(args, 10)) {
                 _Quantum = args;
-            else
-                _StdOut.putText("Please enter an inter");
+            }
+            else {
+                _StdOut.putText("Please enter an integer");
+            }
         };
         return Shell;
     }());

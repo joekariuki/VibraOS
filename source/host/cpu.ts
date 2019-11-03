@@ -119,7 +119,6 @@ module TSOS {
 
         this.Yreg = parseInt(val, 16);
         _Yreg = parseInt(val, 16);
-
       } else if (opCode == "A0") {
         //Load Y register with a constant
         _IR = opCode;
@@ -159,18 +158,18 @@ module TSOS {
         }
       } else if (opCode == "D0") {
         _IR = opCode;
-        
+
         // Check if Z flag branch bytes is zero
         if (this.Zflag == 0) {
           this.PC++;
           // Get branch
           let branch = parseInt(_MemoryManager.fetch(++this.startIndex), 16);
-          
+
           //  Get next byte and branch
           let nextAddr = this.startIndex + branch;
 
-          if (nextAddr > _CurrentProgram.limit) {
-            nextAddr = nextAddr - (_CurrentProgram.limit - 1);
+          if (nextAddr > _ProgramSize) {
+            nextAddr = nextAddr - _ProgramSize;
           }
           this.startIndex = nextAddr;
           this.PC = nextAddr;
@@ -229,7 +228,11 @@ module TSOS {
         _MemoryManager.updatePcbTable(_CurrentProgram);
         // Update CPU table
         _MemoryManager.updateCpuTable();
-      } else {
+      } else if (_MemoryManager.fetch(this.startIndex) == "00") {
+        if (_BaseProgram != 512) {
+          _BaseProgram = _BaseProgram + 256;
+          this.startIndex = _BaseProgram;
+        }
         // Update CPU execution
         this.isExecuting = false;
         // Update index for programs
@@ -238,6 +241,19 @@ module TSOS {
         _CurrentProgram.state = PS_TERMINATED;
         // Update PCB table with current program
         _MemoryManager.updatePcbTable(_CurrentProgram);
+        if (_MemoryManager.fetch(this.startIndex) != "00" && _RunAll == true) {
+          this.isExecuting = true;
+          for (var i = 0; i < _ReadyQueue.length; i++) {
+            if (_ReadyQueue[i].state != PS_TERMINATED) {
+              _CurrentProgram = _ReadyQueue[i];
+              _CurrentProgram.state = PS_RUNNING
+              this.cycle();
+              break;
+            }
+          }
+        }
+      } else {
+        // Do nothing
       }
     }
   }

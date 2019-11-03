@@ -6,25 +6,19 @@ module TSOS {
     public loadProgToMem(programInput) {
       // Remove spaces from input
       programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
-        //debug
-        console.log(`Program Input length: ${programInput.length}`);
-        console.log(`Program Size: ${_ProgramSize}`);
-        console.log(`Current Base: ${_BASE}`);
-
+      
       let Base = _BASE;
 
-      console.log(`Base var: ${Base}`);
-
-      if (programInput.length/2 < 256) {
-        for (let i = 0; i < programInput.length; i++) {
-          _MemoryArray[Base] = programInput[i] + programInput[i + 1];
-          Base++;
-          i++;
-        }
-      } else {
-        //Error if program is greater than or equal to 256
-        _StdOut.putText("Program too Large.. ");
+      // if (programInput.length/2 < 256) {
+      for (let i = 0; i < programInput.length; i++) {
+        _MemoryArray[Base] = programInput[i] + programInput[i + 1];
+        Base++;
+        i++;
       }
+      // } else {
+      //   //Error if program is greater than or equal to 256
+      //   _StdOut.putText("Program too Large.. ");
+      // }
 
       _PID++;
       _CurrentProgram = new PCB();
@@ -114,8 +108,10 @@ module TSOS {
       //Create CPU log
       this.cpuTableLog();
 
-      // Get new base
-      _BASE = _BASE + 256;
+      //Get new base
+      if (_BASE != 512) {
+        _BASE = _BASE + 256;
+      }
     }
 
     public updateMemTable(): void {
@@ -142,7 +138,6 @@ module TSOS {
       let memIndex = prevBase;
 
       for (let i = startRowIndex; i < _RowNum; i++) {
-
         let cells = rows[i].cells;
 
         for (let j = 1; j < cells.length; j++) {

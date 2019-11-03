@@ -57,6 +57,10 @@ var PS_RUNNING: string = "Running";
 var PS_WAITING: string = "Waiting";
 var PS_TERMINATED: string = "Terminated";
 
+// Run all
+var _RunAll: Boolean = false;
+
+
 // Declare default base memory
 var _BASE: number = 0;
 // Declare current memory index

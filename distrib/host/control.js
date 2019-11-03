@@ -166,7 +166,7 @@ var TSOS;
         Control.hostBtnExecStepOS_click = function (btn) {
             if (_CPU.startIndex > 0) {
                 if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
-                    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
+                    //    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
                     _CPU.cycle();
                 }
                 else {

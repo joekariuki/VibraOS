@@ -8,23 +8,17 @@ var TSOS;
         MemoryManager.prototype.loadProgToMem = function (programInput) {
             // Remove spaces from input
             programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
-            //debug
-            console.log("Program Input length: " + programInput.length);
-            console.log("Program Size: " + _ProgramSize);
-            console.log("Current Base: " + _BASE);
             var Base = _BASE;
-            console.log("Base var: " + Base);
-            if (programInput.length / 2 < 256) {
-                for (var i = 0; i < programInput.length; i++) {
-                    _MemoryArray[Base] = programInput[i] + programInput[i + 1];
-                    Base++;
-                    i++;
-                }
+            // if (programInput.length/2 < 256) {
+            for (var i = 0; i < programInput.length; i++) {
+                _MemoryArray[Base] = programInput[i] + programInput[i + 1];
+                Base++;
+                i++;
             }
-            else {
-                //Error if program is greater than or equal to 256
-                _StdOut.putText("Program too Large.. ");
-            }
+            // } else {
+            //   //Error if program is greater than or equal to 256
+            //   _StdOut.putText("Program too Large.. ");
+            // }
             _PID++;
             _CurrentProgram = new TSOS.PCB();
             _CurrentProgram.pcbProgram = programInput;
@@ -96,8 +90,10 @@ var TSOS;
             newCell10.appendChild(stateNode);
             //Create CPU log
             this.cpuTableLog();
-            // Get new base
-            _BASE = _BASE + 256;
+            //Get new base
+            if (_BASE != 512) {
+                _BASE = _BASE + 256;
+            }
         };
         MemoryManager.prototype.updateMemTable = function () {
             // Load Program to Memory
