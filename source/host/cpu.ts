@@ -261,7 +261,8 @@ module TSOS {
       if (_MemoryManager.fetch(this.startIndex) != "00" && _DONE != true) {
         this.programExecute(_MemoryManager.fetch(this.startIndex));
         _CurrentProgram.state = PS_RUNNING;
-
+        // Update memory table with current program
+        _MemoryManager.updateMemTable(_CurrentProgram);
         // Update PCB table with current program
         _MemoryManager.updatePcbTable(_CurrentProgram);
         // Update CPU table

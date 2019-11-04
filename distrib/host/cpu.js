@@ -248,23 +248,6 @@ var TSOS;
             else if (opCode == "FF") {
                 _IR = opCode;
                 _Kernel.krnInterruptHandler(SYSCALL_IRQ, this.Xreg);
-                // if (this.Xreg == 1) {
-                //   _StdOut.putText(_CPU.Yreg.toString());
-                // } else if (this.Xreg == 2) {
-                //   let str = "";
-                //   let address = _CPU.Yreg;
-                //   if (_CurrentProgram.base == 256) {
-                //     address = address + 256;
-                //   } else if (_CurrentProgram.base == 512) {
-                //     address = address + 512;
-                //   }
-                //   while (_MemoryManager.fetch(address) !== "00") {
-                //     let charAsc = parseInt(_MemoryManager.fetch(address), 16);
-                //     str += String.fromCharCode(charAsc);
-                //     address++;
-                //   }
-                //   _StdOut.putText(str);
-                // }
             }
             else {
                 // End program
@@ -283,6 +266,8 @@ var TSOS;
             if (_MemoryManager.fetch(this.startIndex) != "00" && _DONE != true) {
                 this.programExecute(_MemoryManager.fetch(this.startIndex));
                 _CurrentProgram.state = PS_RUNNING;
+                // Update memory table with current program
+                _MemoryManager.updateMemTable(_CurrentProgram);
                 // Update PCB table with current program
                 _MemoryManager.updatePcbTable(_CurrentProgram);
                 // Update CPU table
@@ -309,16 +294,13 @@ var TSOS;
                 _MemoryManager.updatePcbTable(_CurrentProgram);
                 if ((_RunAll == true && _DONE != true) || _ReadyQueue.length > 1) {
                     TSOS.CpuScheduler.roundRobin();
-                    // alert(`1 length = ${_ReadyQueue.length}`);
                     if (_MemoryManager.fetch(this.startIndex) != "00" &&
                         _CurrentProgram.state != PS_RUNNING) {
                         this.startIndex = _CurrentProgram.startIndex;
-                        // alert(`Round Robin Switching to ${_CurrentProgram.PID}`);
                         _CurrentProgram.state = PS_RUNNING;
                         this.isExecuting = true;
                     }
                     _ClockTicks = 1;
-                    // }
                     this.cycle();
                 }
                 else {
@@ -329,6 +311,7 @@ var TSOS;
                     _StdOut.advanceLine();
                     _StdOut.putText(">");
                     this.init();
+                    _IR = "NA";
                     _MemoryManager.updateCpuTable();
                     _DONE = true;
                 }
