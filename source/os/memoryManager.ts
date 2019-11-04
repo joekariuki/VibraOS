@@ -3,120 +3,170 @@
 
 module TSOS {
   export class MemoryManager {
-    public loadProgToMem(programInput) {
+    constructor() {}
+    public loadProgToMem() {
       // Remove spaces from input
-      programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
+      let programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
 
-      let Base = _BASE;
+      let base = -20;
 
-      // if (programInput.length/2 < 256) {
-      for (let i = 0; i < programInput.length; i++) {
-        _MemoryArray[Base] = programInput[i] + programInput[i + 1];
-        Base++;
-        i++;
+      // Get new base
+      for (let i = 0; i <= 512; i += 256) {
+        if (_MemoryArray[i] == "00") {
+          base = i;
+          break;
+        }
       }
-      // } else {
-      //   //Error if program is greater than or equal to 256
-      //   _StdOut.putText("Program too Large.. ");
-      // }
 
-      _PID++;
-      _CurrentProgram = new PCB();
-      _CurrentProgram.pcbProgram = programInput;
-      _CurrentProgram.base = _BASE;
-      _CurrentProgram.state = PS_NEW;
-      _ResidentQueue.push(_CurrentProgram);
+      if (base != -20) {
+        var j = base;
 
-      _StdOut.putText(`"PID ${_PID} Loaded"`);
+        for (var i = 0; i < programInput.length; i++) {
+          _MemoryArray[j] = programInput[i] + programInput[i + 1];
+          j++;
+          i++;
+        }
+        _PID++;
+        _CurrentProgram = new PCB();
+        _CurrentProgram.init();
+        _CurrentProgram.pcbProgram = programInput;
+        _CurrentProgram.startIndex = base;
 
-      //Create row and insert into PCB table
-      let pcbTab: HTMLTableElement = <HTMLTableElement>(
-        document.getElementById("pcbTabDisplay")
+        _CurrentProgram.limit = base + _ProgramSize - 1;
+        // _CurrentProgram.base = _BASE;
+        _CurrentProgram.base = base;
+        _CurrentProgram.state = PS_NEW;
+        _ResidentQueue.push(_CurrentProgram);
+
+        _StdOut.putText(`"PID ${_PID} Loaded"`);
+
+        //Create row and insert into PCB table
+        let pcbTab: HTMLTableElement = <HTMLTableElement>(
+          document.getElementById("pcbTabDisplay")
+        );
+        let newRow = pcbTab.insertRow(pcbTab.rows.length);
+
+        // Insert a cell in the row at index 0
+        let newCell1 = newRow.insertCell(0);
+        // Create PID text node
+        let pidNode = document.createTextNode(`${_CurrentProgram.PID}`);
+        // Append PID node to the cell
+        newCell1.appendChild(pidNode);
+
+        // Insert a cell in the row at index 1
+        let newCell2 = newRow.insertCell(1);
+        // Create PC text node
+        let pcNode = document.createTextNode(`${_CurrentProgram.PC}`);
+        // Append PC text node to the cell
+        newCell2.appendChild(pcNode);
+
+        // Insert a cell in the row at index 2
+        let newCell3 = newRow.insertCell(2);
+        // Create IR text node
+        let IRNode = document.createTextNode(`${_CurrentProgram.IR}`);
+        // Append a IR node to the cell
+        newCell3.appendChild(IRNode);
+
+        // Insert a cell in the row at index 4
+        let newCell4 = newRow.insertCell(3);
+        // Create Acc text node
+        let AccNode = document.createTextNode(`${_CurrentProgram.Acc}`);
+        // Append a Acc node to the cell
+        newCell4.appendChild(AccNode);
+
+        // Insert a cell in the row at index 5
+        let newCell5 = newRow.insertCell(4);
+        // Create Xreg text node
+        let XregNode = document.createTextNode(`${_CurrentProgram.Xreg}`);
+        // Append a Xreg text node to the cell
+        newCell5.appendChild(XregNode);
+
+        // Insert a cell in the row at index 6
+        let newCell6 = newRow.insertCell(5);
+        // Create Yreg text node
+        let YregNode = document.createTextNode(`${_CurrentProgram.Yreg}`);
+        // Append a Yreg text node to the cell
+        newCell6.appendChild(YregNode);
+
+        // Insert a cell in the row at index 7
+        let newCell7 = newRow.insertCell(6);
+        // Create Zflag text node
+        let ZflagNode = document.createTextNode(`${_CurrentProgram.Zflag}`);
+        // Append a Zflag text node to the cell
+        newCell7.appendChild(ZflagNode);
+
+        // Insert a cell in the row at index 8
+        let newCell8 = newRow.insertCell(7);
+        // Create a base text node
+        let baseNode = document.createTextNode(`${_CurrentProgram.base}`);
+        // Append base text node to the cell
+        newCell8.appendChild(baseNode);
+
+        // Insert a cell in the row at index 9
+        let newCell9 = newRow.insertCell(8);
+        //  Create limit text node
+        let limitNode = document.createTextNode(`${_CurrentProgram.limit}`);
+        // Append a limit text node to the cell
+        newCell9.appendChild(limitNode);
+
+        // Insert a cell in the row at index 10
+        let newCell10 = newRow.insertCell(9);
+        // Create state text node
+        let stateNode = document.createTextNode(`${_CurrentProgram.state}`);
+        // Append a state node to the cell
+        newCell10.appendChild(stateNode);
+
+        //Create CPU log
+        this.cpuTableLog();
+
+        //Get new base
+        // if (_BASE != 512) {
+        //   _BASE = _BASE + 256;
+        // }
+      } else {
+        _StdOut.putText("Memory Full... Can't load Program ");
+      }
+    }
+    public updateCell(index) {
+      var memoryTable: HTMLTableElement = <HTMLTableElement>(
+        document.getElementById("memoryTabDisplay")
       );
-      let newRow = pcbTab.insertRow(pcbTab.rows.length);
+      let rows = memoryTable.getElementsByTagName("tr");
+      let data = memoryTable.getElementsByTagName("td");
 
-      // Insert a cell in the row at index 0
-      let newCell1 = newRow.insertCell(0);
-      // Create PID text node
-      let pidNode = document.createTextNode(`${_CurrentProgram.PID}`);
-      // Append PID node to the cell
-      newCell1.appendChild(pidNode);
+      var pcb = new PCB();
+      pcb = _CurrentProgram;
 
-      // Insert a cell in the row at index 1
-      let newCell2 = newRow.insertCell(1);
-      // Create PC text node
-      let pcNode = document.createTextNode(`${_CurrentProgram.PC}`);
-      // Append PC text node to the cell
-      newCell2.appendChild(pcNode);
+      //var prevBase = base;
+      var startRow = 0;
+      var endRow = 0;
+      if (pcb.base == 0) {
+        startRow = 0;
+        endRow = startRow + 32;
+      } else if (pcb.base == 256) {
+        startRow = 32;
+        endRow = startRow + 32;
+      } else {
+        startRow = 64;
+        endRow = startRow + 32;
+      }
 
-      // Insert a cell in the row at index 2
-      let newCell3 = newRow.insertCell(2);
-      // Create IR text node
-      let IRNode = document.createTextNode(`${_CurrentProgram.IR}`);
-      // Append a IR node to the cell
-      newCell3.appendChild(IRNode);
+      //To DO : Error if Base is greater than 512
+      var memIndex = pcb.base;
 
-      // Insert a cell in the row at index 4
-      let newCell4 = newRow.insertCell(3);
-      // Create Acc text node
-      let AccNode = document.createTextNode(`${_CurrentProgram.Acc}`);
-      // Append a Acc node to the cell
-      newCell4.appendChild(AccNode);
-
-      // Insert a cell in the row at index 5
-      let newCell5 = newRow.insertCell(4);
-      // Create Xreg text node
-      let XregNode = document.createTextNode(`${_CurrentProgram.Xreg}`);
-      // Append a Xreg text node to the cell
-      newCell5.appendChild(XregNode);
-
-      // Insert a cell in the row at index 6
-      let newCell6 = newRow.insertCell(5);
-      // Create Yreg text node
-      let YregNode = document.createTextNode(`${_CurrentProgram.Yreg}`);
-      // Append a Yreg text node to the cell
-      newCell6.appendChild(YregNode);
-
-      // Insert a cell in the row at index 7
-      let newCell7 = newRow.insertCell(6);
-      // Create Zflag text node
-      let ZflagNode = document.createTextNode(`${_CurrentProgram.Zflag}`);
-      // Append a Zflag text node to the cell
-      newCell7.appendChild(ZflagNode);
-
-      // Insert a cell in the row at index 8
-      let newCell8 = newRow.insertCell(7);
-      // Create a base text node
-      let baseNode = document.createTextNode(`${_CurrentProgram.base}`);
-      // Append base text node to the cell
-      newCell8.appendChild(baseNode);
-
-      // Insert a cell in the row at index 9
-      let newCell9 = newRow.insertCell(8);
-      //  Create limit text node
-      let limitNode = document.createTextNode(`${_CurrentProgram.limit}`);
-      // Append a limit text node to the cell
-      newCell9.appendChild(limitNode);
-
-      // Insert a cell in the row at index 10
-      let newCell10 = newRow.insertCell(9);
-      // Create state text node
-      let stateNode = document.createTextNode(`${_CurrentProgram.state}`);
-      // Append a state node to the cell
-      newCell10.appendChild(stateNode);
-
-      //Create CPU log
-      this.cpuTableLog();
-
-      //Get new base
-      if (_BASE != 512) {
-        _BASE = _BASE + 256;
+      for (var i = startRow; i < endRow; i++) {
+        var cells = rows[i].cells;
+        for (var j = 1; j < cells.length; j++) {
+          rows[i].cells[j].innerHTML = _MemoryArray[memIndex];
+          memIndex++;
+        }
       }
     }
 
-    public updateMemTable(): void {
+    public updateMemTable(pcb): void {
       // Load Program to Memory
-      this.loadProgToMem(_ProgramInput);
+      // this.loadProgToMem(_ProgramInput);
+      this.loadProgToMem();
       // Get memory table
       let memoryTab: HTMLTableElement = <HTMLTableElement>(
         document.getElementById("memoryTabDisplay")
@@ -124,27 +174,31 @@ module TSOS {
       // Add table rows
       let rows = memoryTab.getElementsByTagName("tr");
 
-      // Declare previous base
-      let prevBase = _BASE - 256;
-      let startRowIndex = 0;
-
-      // Check if base is not empty
-      if (_MemoryArray[prevBase] != "00") {
-        startRowIndex = _RowNum;
-        _RowNum = _RowNum + 32;
+      var startRow = 0;
+      let endRow = 0;
+      if (pcb.base == 0) {
+        startRow = 0;
+        endRow = startRow + 32;
+      } else if (pcb.base == 256) {
+        startRow = 32;
+        endRow = startRow + 32;
+      } else {
+        startRow = 64;
+        endRow = startRow + 32;
       }
 
       // Error if base is greater than 512
-      let memIndex = prevBase;
+      let memIndex = pcb.base;
 
-      for (let i = startRowIndex; i < _RowNum; i++) {
-        let cells = rows[i].cells;
-
-        for (let j = 1; j < cells.length; j++) {
+      for (var i = startRow; i < endRow; i++) {
+        var cells = rows[i].cells;
+        for (var j = 1; j < cells.length; j++) {
           rows[i].cells[j].innerHTML = _MemoryArray[memIndex];
           memIndex++;
         }
       }
+
+
     }
 
     public clearMemLog() {
@@ -161,6 +215,21 @@ module TSOS {
           rows[i].cells[j].innerHTML = _MemoryArray[memIndex];
           memIndex++;
         }
+      }
+    }
+
+    public storeValue(value, targetAddress) {
+      value = value.toString();
+
+      //pad value with 0 if length is 1
+      if (value.length == 1) {
+        value = "0" + value;
+      }
+
+      if (targetAddress <= _CurrentProgram.limit) {
+        _MemoryArray[targetAddress] = value.toUpperCase();
+      } else {
+        //TO DO :: Throw an error or kill current program and move to next one
       }
     }
 
@@ -261,20 +330,10 @@ module TSOS {
           rows[i].cells[9].innerHTML = `${pcb.state}`;
           break;
         }
-
-        // Check if pcb state is terminated
-        // if (
-        //   pcb.state == PS_TERMINATED &&
-        //   rows[i].cells[0].innerHTML == pcb.PID
-        // ) {
-        //   rows[i].cells[9].innerHTML = pcb.state;
-        //   break;
-        // }
       }
     }
 
     public deleteRowPcb(pcb): void {
-
       //get Memory table and upadte memory cells
       let pcbTable: HTMLTableElement = <HTMLTableElement>(
         document.getElementById("pcbTabDisplay")
@@ -282,8 +341,12 @@ module TSOS {
       let rows = pcbTable.getElementsByTagName("tr");
 
       for (let i = 1; i < rows.length; i++) {
-        // let cells = rows[i].cells;
-        if (rows[i].cells[0].innerHTML == pcb.PID) {
+        let cells = rows[i].cells;
+        if (
+          rows[i].cells[0].innerHTML == pcb.PID &&
+          pcb.state == PS_TERMINATED
+        ) {
+          alert(`PID = ${pcb.PID} is terminated! Removing process`);
           rows[i].remove();
           break;
         }
@@ -299,12 +362,10 @@ module TSOS {
     }
 
     // Clear a section of memory
-    public resetMem() {
-      var index = _CurrentProgram.base;
-      console.log("Index " + index);
-      for (var i = 0; i < _ProgramSize; i++) {
-        _MemoryArray[index] = "00";
-        index++;
+    public resetPartition(pcb) {
+      var index = pcb.base;
+      for (var i = 0; i <= pcb.limit; i++) {
+        _MemoryArray[i] = "00";
       }
     }
 

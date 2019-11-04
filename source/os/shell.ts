@@ -548,8 +548,10 @@ module TSOS {
           // Add new memory instance
           _MemoryManager = new MemoryManager();
           //load program to memory
+          //   _MemoryManager.loadProgToMem(programInput);
+          _MemoryManager.loadProgToMem();
           // Update Memory Table with current program
-          _MemoryManager.updateMemTable();
+          _MemoryManager.updateMemTable(_CurrentProgram);
         } else {
           // Error if program is bigger than or equal to 256 bytes
           _StdOut.putText("Program too Large.. ");
@@ -566,6 +568,7 @@ module TSOS {
       //set Runall to false for running a specific program
       _DONE = false;
       _RunAll = false;
+      _CPU.isExecuting = false;
       // Check if args is 0
       if (args.length == 0) {
         _StdOut.putText("Empty PID... Please enter a PID");
@@ -573,12 +576,16 @@ module TSOS {
         let pid = -1;
         let index = -1;
 
+        let activeProg = new PCB();
+        activeProg = _CurrentProgram;
+
         for (index = 0; index < _ResidentQueue.length; index++) {
           if (args == _ResidentQueue[index].PID) {
             pid = _ResidentQueue[index].PID;
             // Set process to ready
-            _ResidentQueue[index].state = PS_READY;
+            // _ResidentQueue[index].state = PS_READY;
             _CurrentProgram = _ResidentQueue[index];
+            _CurrentProgram.state = PS_READY;
             _ResidentQueue.splice(index, 1);
 
             // Add program to ready queue
@@ -588,21 +595,35 @@ module TSOS {
             break;
           }
         }
-        if (_CurrentProgram.state != PS_TERMINATED) {
-          _CPU.startIndex = _CurrentProgram.base;
+        if (_CurrentProgram.state == PS_READY) {
           _StdOut.putText(`Running PID ${pid}`);
           if (
             (<HTMLButtonElement>document.getElementById("singleStep"))
               .disabled == true
           ) {
-            // Run CPU cylce
-            _CPU.cycle();
-          } else {
-            // Initialize CPU
             _CPU.init();
-            // Update CPU execution
-            _CPU.isExecuting = true;
+            _CPU.startIndex = _CurrentProgram.startIndex;
+           
+          } else {
+            if (_ReadyQueue.length > 1) {
+              _CurrentProgram = activeProg;
+             
+              _ClockTicks++;
+              _RunAll = true;
+              _CPU.isExecuting = true;
+            } else {
+              //base to start running program
+              _CPU.init();
+              _CPU.startIndex = _CurrentProgram.startIndex;
+              
+              _CPU.isExecuting = true;
+            }
           }
+        } else if (pid == -1) {
+          pid = args;
+          _StdOut.putText(
+            `PID ${pid} does not exist... please enter a valid pid to run program`
+          );
         } else {
           _StdOut.putText(
             `PID ${pid} is terminated. You cannot run this process`
@@ -645,10 +666,6 @@ module TSOS {
 
           _CurrentProgram = _ReadyQueue[0];
           _CPU.startIndex = _CurrentProgram.base;
-
-          // _CurrentProgram.state = PS_READY;
-          // _ReadyQueue.push(_CurrentProgram);
-          // _MemoryManager.updatePcbTable(_CurrentProgram);
         }
         if (_CurrentProgram.state != PS_TERMINATED) {
           _StdOut.putText(`Running all Programs...`);
@@ -731,21 +748,6 @@ module TSOS {
             }
           }
         }
-        // for (var i = 0; i < _ReadyQueue.length; i++) {
-        //   if (args == _ReadyQueue[i].PID) {
-        //     pid = _ReadyQueue[i].PID;
-
-        //     //remove process from ready queue
-        //     _CurrentProgram = _ReadyQueue[i];
-        //     _CurrentProgram.state = PS_TERMINATED;
-        //     _ReadyQueue.splice(i, 1);
-
-        //     _CPU.isExecuting = false;
-        //     //update pcb table
-        //     _MemoryManager.deleteRowPcb(_CurrentProgram);
-        //     break;
-        //   }
-        // }
 
         if (pid == -1) {
           _StdOut.putText(
