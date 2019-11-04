@@ -719,7 +719,6 @@ module TSOS {
     }
     public shellKill(args) {
       _CPU.isExecuting = false;
-      let deadProg = new PCB();
       let pid = -1;
       if (args.length == 0) {
         _StdOut.putText("Empty PID... Please enter PID");
@@ -730,6 +729,8 @@ module TSOS {
           for (var i = 0; i < _ReadyQueue.length; i++) {
             if (args == _ReadyQueue[i].PID) {
               pid = _ReadyQueue[i].PID;
+              let deadProg = new PCB();
+
 
               //remove process from ready queue
               if (_ReadyQueue.length > 1) {
@@ -744,14 +745,18 @@ module TSOS {
 
                 _ReadyQueue.splice(i, 1);
                 _CPU.isExecuting = true;
-                _CPU.cycle();
+                // _CPU.cycle();
               } else {
                 deadProg = _ReadyQueue[i];
                 deadProg.state = PS_TERMINATED;
                 _ReadyQueue.splice(i, 1);
               }
+              // Reset memory at partition
+              _MemoryManager.resetPartition(deadProg);
+              // Update memory table
+              _MemoryManager.updateMemTable(deadProg);
 
-              //update pcb table
+              // Update PCB table
               _MemoryManager.deleteRowPcb(deadProg);
               break;
             }
@@ -761,6 +766,10 @@ module TSOS {
           _StdOut.putText(
             "[ERROR] INVALID PID! The pid you entered is not active"
           );
+          // Run other programs in the ready queue
+          if (_ReadyQueue.length > 0) {
+            _CPU.isExecuting = true;
+           }
         }
       }
     }

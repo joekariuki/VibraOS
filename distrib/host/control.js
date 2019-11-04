@@ -160,13 +160,21 @@ var TSOS;
             // page from its cache, which is not what we want.
         };
         Control.hostBtnSingleStepOS_click = function (btn) {
-            document.getElementById("singleStep").disabled = true;
-            document.getElementById("execStep").disabled = false;
+            if (document.getElementById("singleStep").value != "Exit") {
+                document.getElementById("execStep").disabled = false;
+                document.getElementById("singleStep").style.backgroundColor = "red";
+                document.getElementById("singleStep").value = "Exit";
+                _CPU.isExecuting = false;
+            }
+            else {
+                document.getElementById("singleStep").disabled = true;
+                document.getElementById("singleStep").value = "Single Step";
+                _CPU.isExecuting = true;
+            }
         };
         Control.hostBtnExecStepOS_click = function (btn) {
             if (_CPU.startIndex > 0) {
                 if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
-                    //    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
                     _CPU.cycle();
                 }
                 else {

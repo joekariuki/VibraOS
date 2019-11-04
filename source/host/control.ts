@@ -188,15 +188,23 @@ module TSOS {
         }
 
         public static hostBtnSingleStepOS_click(btn): void {
+          if ((<HTMLButtonElement>document.getElementById("singleStep")).value != "Exit") {
+            (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
+            (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "red";
+            (<HTMLButtonElement>document.getElementById("singleStep")).value = "Exit";
 
-          (<HTMLButtonElement>document.getElementById("singleStep")).disabled = true;
-          (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
+            _CPU.isExecuting = false;
+          } else {
+            (<HTMLButtonElement>document.getElementById("singleStep")).disabled = true;
+            (<HTMLButtonElement>document.getElementById("singleStep")).value = "Single Step";
+            _CPU.isExecuting = true;
+
+          }
        }
 
        public static hostBtnExecStepOS_click(btn): void {
            if (_CPU.startIndex > 0) {
                if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
-                //    _StdOut.putText(_MemoryManager.fetch(_CPU.startIndex) + " ");
                    _CPU.cycle();
                } else {
                    _CPU.cycle();

@@ -565,7 +565,6 @@ var TSOS;
         };
         Shell.prototype.shellKill = function (args) {
             _CPU.isExecuting = false;
-            var deadProg = new TSOS.PCB();
             var pid = -1;
             if (args.length == 0) {
                 _StdOut.putText("Empty PID... Please enter PID");
@@ -578,6 +577,7 @@ var TSOS;
                     for (var i = 0; i < _ReadyQueue.length; i++) {
                         if (args == _ReadyQueue[i].PID) {
                             pid = _ReadyQueue[i].PID;
+                            var deadProg = new TSOS.PCB();
                             //remove process from ready queue
                             if (_ReadyQueue.length > 1) {
                                 deadProg = _ReadyQueue[i];
@@ -590,14 +590,18 @@ var TSOS;
                                 }
                                 _ReadyQueue.splice(i, 1);
                                 _CPU.isExecuting = true;
-                                _CPU.cycle();
+                                // _CPU.cycle();
                             }
                             else {
                                 deadProg = _ReadyQueue[i];
                                 deadProg.state = PS_TERMINATED;
                                 _ReadyQueue.splice(i, 1);
                             }
-                            //update pcb table
+                            // Reset memory at partition
+                            _MemoryManager.resetPartition(deadProg);
+                            // Update memory table
+                            _MemoryManager.updateMemTable(deadProg);
+                            // Update PCB table
                             _MemoryManager.deleteRowPcb(deadProg);
                             break;
                         }
@@ -605,6 +609,10 @@ var TSOS;
                 }
                 if (pid == -1) {
                     _StdOut.putText("[ERROR] INVALID PID! The pid you entered is not active");
+                    // Run other programs in the ready queue
+                    if (_ReadyQueue.length > 0) {
+                        _CPU.isExecuting = true;
+                    }
                 }
             }
         };
