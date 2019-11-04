@@ -162,7 +162,7 @@ var TSOS;
         Control.hostBtnSingleStepOS_click = function (btn) {
             if (document.getElementById("singleStep").value != "Exit") {
                 document.getElementById("execStep").disabled = false;
-                document.getElementById("singleStep").style.backgroundColor = "red";
+                document.getElementById("singleStep").style.backgroundColor = "blue";
                 document.getElementById("singleStep").value = "Exit";
                 _CPU.isExecuting = false;
             }
@@ -179,7 +179,9 @@ var TSOS;
                 }
                 else {
                     _CPU.cycle();
-                    document.getElementById("singleStep").disabled = false;
+                    //    (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "green";
+                    document.getElementById("singleStep").value = "Single Step";
+                    //    (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
                     document.getElementById("execStep").disabled = true;
                 }
             }

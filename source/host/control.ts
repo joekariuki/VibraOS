@@ -190,7 +190,7 @@ module TSOS {
         public static hostBtnSingleStepOS_click(btn): void {
           if ((<HTMLButtonElement>document.getElementById("singleStep")).value != "Exit") {
             (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
-            (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "red";
+            (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "blue";
             (<HTMLButtonElement>document.getElementById("singleStep")).value = "Exit";
 
             _CPU.isExecuting = false;
@@ -208,7 +208,9 @@ module TSOS {
                    _CPU.cycle();
                } else {
                    _CPU.cycle();
-                   (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
+                //    (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "green";
+                   (<HTMLButtonElement>document.getElementById("singleStep")).value = "Single Step";
+                //    (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
                    (<HTMLButtonElement>document.getElementById("execStep")).disabled = true;
                }
 
