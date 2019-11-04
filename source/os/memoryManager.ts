@@ -109,20 +109,28 @@ module TSOS {
         // Append a limit text node to the cell
         newCell9.appendChild(limitNode);
 
-        // Insert a cell in the row at index 10
-        let newCell10 = newRow.insertCell(9);
+         // Insert a cell in the row at index 10
+         var newCell10 = newRow.insertCell(9);
+         // Append a text node to the cell
+         var newText = document.createTextNode(_CurrentProgram.waitTime + "");
+         newCell10.appendChild(newText);
+
+         // Insert a cell in the row at index 11
+         var newCell11 = newRow.insertCell(10);
+         // Append a text node to the cell
+         var newText = document.createTextNode(_CurrentProgram.taTime + "");
+         newCell11.appendChild(newText);
+
+        // Insert a cell in the row at index 12
+        let newCell12 = newRow.insertCell(11);
         // Create state text node
         let stateNode = document.createTextNode(`${_CurrentProgram.state}`);
         // Append a state node to the cell
-        newCell10.appendChild(stateNode);
+        newCell12.appendChild(stateNode);
 
         //Create CPU log
         this.cpuTableLog();
 
-        //Get new base
-        // if (_BASE != 512) {
-        //   _BASE = _BASE + 256;
-        // }
       } else {
         _StdOut.putText("Memory Full... Can't load Program ");
       }
@@ -314,8 +322,6 @@ module TSOS {
       for (let i = 1; i < rows.length; i++) {
         let cells = rows[i].cells;
 
-        // Check if pcb state is running
-        // if (pcb.state == PS_RUNNING && rows[i].cells[0].innerHTML == pcb.PID) {
         if (rows[i].cells[0].innerHTML == pcb.PID) {
           // Update memory cells
           rows[i].cells[0].innerHTML = `${pcb.PID}`;
@@ -327,7 +333,9 @@ module TSOS {
           rows[i].cells[6].innerHTML = `${_CPU.Zflag}`;
           rows[i].cells[7].innerHTML = `${pcb.base}`;
           rows[i].cells[8].innerHTML = `${pcb.limit}`;
-          rows[i].cells[9].innerHTML = `${pcb.state}`;
+          rows[i].cells[9].innerHTML = `${pcb.waitTime}`;
+          rows[i].cells[10].innerHTML = `${pcb.taTime}`;
+          rows[i].cells[11].innerHTML = `${pcb.state}`;
           break;
         }
       }
@@ -346,7 +354,6 @@ module TSOS {
           rows[i].cells[0].innerHTML == pcb.PID &&
           pcb.state == PS_TERMINATED
         ) {
-          alert(`PID = ${pcb.PID} is terminated! Removing process`);
           rows[i].remove();
           break;
         }

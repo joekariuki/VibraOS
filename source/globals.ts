@@ -48,6 +48,8 @@ var _Zflag: number = 0;
 
 var _Quantum: number = 6; //Default Quantum number
 var _ClockTicks: number = 0; // Number of clock ticks
+var _WaitTime: number = 1;   // Initialize wait time
+var _TaTime: number = 1;    // Initialize turn around time
 
 // PCB process states
 var PS_NEW: string = "New";

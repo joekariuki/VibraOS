@@ -2,16 +2,36 @@ module TSOS {
   export class CpuScheduler {
     constructor() {}
     public static roundRobin() {
+      let nextProgram = new PCB();
+
       if (_CurrentProgram.state != PS_TERMINATED) {
         if (_ClockTicks < _Quantum) {
           _ClockTicks++;
+          // Increase waitime
+          _WaitTime++;
         } else {
+          //set current's program's time
+          nextProgram = this.getNextprogram();
+          nextProgram.waitTime = _CurrentProgram.waitTime + _WaitTime;
+          _MemoryManager.updatePcbTable(nextProgram);
+
+          this.contextSwitch();
+
           //set clockTicks to 1
           _ClockTicks = 1;
-          this.contextSwitch();
+          //Reset wait time
+          _WaitTime = 1;
         }
       } else {
+        // Set current's program's time
+        nextProgram = this.getNextprogram();
+        nextProgram.waitTime = _CurrentProgram.waitTime + _WaitTime;
+        _MemoryManager.updatePcbTable(nextProgram);
+
         this.contextSwitch();
+
+        // Reset wait time
+        _WaitTime = 1;
       }
     }
 
@@ -81,6 +101,7 @@ module TSOS {
             // Set next program to the program in the begining of the queue if the
             if (i == _ReadyQueue.length - 1) {
               nextProgram = _ReadyQueue[0];
+              _WaitTime = 0;
             } else {
               nextProgram = _ReadyQueue[i + 1];
             }

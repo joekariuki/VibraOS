@@ -545,13 +545,24 @@ module TSOS {
           programInput.length / 2 < _ProgramSize &&
           _MemoryArray[_BASE] == "00"
         ) {
-          // Add new memory instance
-          _MemoryManager = new MemoryManager();
-          //load program to memory
-          //   _MemoryManager.loadProgToMem(programInput);
-          _MemoryManager.loadProgToMem();
-          // Update Memory Table with current program
-          _MemoryManager.updateMemTable(_CurrentProgram);
+          if (_CPU.isExecuting != true) {
+            // Add new memory instance
+            _MemoryManager = new MemoryManager();
+            //load program to memory
+            _MemoryManager.loadProgToMem();
+            // Update Memory Table with current program
+            _MemoryManager.updateMemTable(_CurrentProgram);
+          } else {
+            let newprog = new PCB();
+            newprog = _CurrentProgram;
+
+            _MemoryManager = new MemoryManager();
+            //load program to memory
+            _MemoryManager.loadProgToMem();
+            _MemoryManager.updateMemTable(_CurrentProgram);
+
+            _CurrentProgram = newprog;
+          }
         } else {
           // Error if program is bigger than or equal to 256 bytes
           _StdOut.putText("Program too Large.. ");
@@ -603,11 +614,10 @@ module TSOS {
           ) {
             _CPU.init();
             _CPU.startIndex = _CurrentProgram.startIndex;
-           
           } else {
             if (_ReadyQueue.length > 1) {
               _CurrentProgram = activeProg;
-             
+
               _ClockTicks++;
               _RunAll = true;
               _CPU.isExecuting = true;
@@ -615,7 +625,7 @@ module TSOS {
               //base to start running program
               _CPU.init();
               _CPU.startIndex = _CurrentProgram.startIndex;
-              
+
               _CPU.isExecuting = true;
             }
           }
@@ -699,7 +709,6 @@ module TSOS {
 
     public shellActivePids(args) {
       if (_ReadyQueue.length != 0) {
-        console.log("ReadyQueue " + _ReadyQueue.length);
         for (let i = 0; i < _ReadyQueue.length; i++) {
           _StdOut.putText(`Active PID : ${_ReadyQueue[i].PID}`);
           _StdOut.advanceLine();
@@ -748,7 +757,6 @@ module TSOS {
             }
           }
         }
-
         if (pid == -1) {
           _StdOut.putText(
             "[ERROR] INVALID PID! The pid you entered is not active"

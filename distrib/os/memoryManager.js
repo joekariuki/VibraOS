@@ -93,16 +93,22 @@ var TSOS;
                 newCell9.appendChild(limitNode);
                 // Insert a cell in the row at index 10
                 var newCell10 = newRow.insertCell(9);
+                // Append a text node to the cell
+                var newText = document.createTextNode(_CurrentProgram.waitTime + "");
+                newCell10.appendChild(newText);
+                // Insert a cell in the row at index 11
+                var newCell11 = newRow.insertCell(10);
+                // Append a text node to the cell
+                var newText = document.createTextNode(_CurrentProgram.taTime + "");
+                newCell11.appendChild(newText);
+                // Insert a cell in the row at index 12
+                var newCell12 = newRow.insertCell(11);
                 // Create state text node
                 var stateNode = document.createTextNode("" + _CurrentProgram.state);
                 // Append a state node to the cell
-                newCell10.appendChild(stateNode);
+                newCell12.appendChild(stateNode);
                 //Create CPU log
                 this.cpuTableLog();
-                //Get new base
-                // if (_BASE != 512) {
-                //   _BASE = _BASE + 256;
-                // }
             }
             else {
                 _StdOut.putText("Memory Full... Can't load Program ");
@@ -161,14 +167,6 @@ var TSOS;
                 startRow = 64;
                 endRow = startRow + 32;
             }
-            // Declare previous base
-            // let prevBase = _BASE - 256;
-            // let startRowIndex = 0;
-            // Check if base is not empty
-            // if (_MemoryArray[prevBase] != "00") {
-            //   startRowIndex = _RowNum;
-            //   _RowNum = _RowNum + 32;
-            // }
             // Error if base is greater than 512
             var memIndex = pcb.base;
             for (var i = startRow; i < endRow; i++) {
@@ -178,13 +176,6 @@ var TSOS;
                     memIndex++;
                 }
             }
-            // for (let i = startRowIndex; i < _RowNum; i++) {
-            //   let cells = rows[i].cells;
-            //   for (let j = 1; j < cells.length; j++) {
-            //     rows[i].cells[j].innerHTML = _MemoryArray[memIndex];
-            //     memIndex++;
-            //   }
-            // }
         };
         MemoryManager.prototype.clearMemLog = function () {
             var memoryTable = (document.getElementById("memoryTabDisplay"));
@@ -274,8 +265,6 @@ var TSOS;
             var rows = pcbTab.getElementsByTagName("tr");
             for (var i = 1; i < rows.length; i++) {
                 var cells = rows[i].cells;
-                // Check if pcb state is running
-                // if (pcb.state == PS_RUNNING && rows[i].cells[0].innerHTML == pcb.PID) {
                 if (rows[i].cells[0].innerHTML == pcb.PID) {
                     // Update memory cells
                     rows[i].cells[0].innerHTML = "" + pcb.PID;
@@ -287,7 +276,9 @@ var TSOS;
                     rows[i].cells[6].innerHTML = "" + _CPU.Zflag;
                     rows[i].cells[7].innerHTML = "" + pcb.base;
                     rows[i].cells[8].innerHTML = "" + pcb.limit;
-                    rows[i].cells[9].innerHTML = "" + pcb.state;
+                    rows[i].cells[9].innerHTML = "" + pcb.waitTime;
+                    rows[i].cells[10].innerHTML = "" + pcb.taTime;
+                    rows[i].cells[11].innerHTML = "" + pcb.state;
                     break;
                 }
             }
@@ -300,7 +291,6 @@ var TSOS;
                 var cells = rows[i].cells;
                 if (rows[i].cells[0].innerHTML == pcb.PID &&
                     pcb.state == PS_TERMINATED) {
-                    alert("PID = " + pcb.PID + " is terminated! Removing process");
                     rows[i].remove();
                     break;
                 }

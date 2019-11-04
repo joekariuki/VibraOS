@@ -39,6 +39,8 @@ var _Yreg = 0;
 var _Zflag = 0;
 var _Quantum = 6; //Default Quantum number
 var _ClockTicks = 0; // Number of clock ticks
+var _WaitTime = 1; // Initialize wait time
+var _TaTime = 1; // Initialize turn around time
 // PCB process states
 var PS_NEW = "New";
 var PS_READY = "Ready";

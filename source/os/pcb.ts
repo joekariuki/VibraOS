@@ -9,12 +9,13 @@ module TSOS {
                     public Acc: number = _Acc,
                     public Xreg: number = _Xreg,
                     public Yreg: number = _Yreg,
-                    // public limit: number = (_BASE + _ProgramSize - 1),
                     public limit: number = 0,
                     public IR: string = _IR,
                     public pcbProgram :string = "",
                     public Zflag: number = _Zflag,
                     public startIndex: number = 0,
+                    public waitTime: number = 0,
+                    public taTime: number = 0,
                     public state: string = PS_NEW) {
         }
         public init(){

@@ -404,13 +404,23 @@ var TSOS;
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
                 if (programInput.length / 2 < _ProgramSize &&
                     _MemoryArray[_BASE] == "00") {
-                    // Add new memory instance
-                    _MemoryManager = new TSOS.MemoryManager();
-                    //load program to memory
-                    //   _MemoryManager.loadProgToMem(programInput);
-                    _MemoryManager.loadProgToMem();
-                    // Update Memory Table with current program
-                    _MemoryManager.updateMemTable(_CurrentProgram);
+                    if (_CPU.isExecuting != true) {
+                        // Add new memory instance
+                        _MemoryManager = new TSOS.MemoryManager();
+                        //load program to memory
+                        _MemoryManager.loadProgToMem();
+                        // Update Memory Table with current program
+                        _MemoryManager.updateMemTable(_CurrentProgram);
+                    }
+                    else {
+                        var newprog = new TSOS.PCB();
+                        newprog = _CurrentProgram;
+                        _MemoryManager = new TSOS.MemoryManager();
+                        //load program to memory
+                        _MemoryManager.loadProgToMem();
+                        _MemoryManager.updateMemTable(_CurrentProgram);
+                        _CurrentProgram = newprog;
+                    }
                 }
                 else {
                     // Error if program is bigger than or equal to 256 bytes
@@ -544,7 +554,6 @@ var TSOS;
         };
         Shell.prototype.shellActivePids = function (args) {
             if (_ReadyQueue.length != 0) {
-                console.log("ReadyQueue " + _ReadyQueue.length);
                 for (var i = 0; i < _ReadyQueue.length; i++) {
                     _StdOut.putText("Active PID : " + _ReadyQueue[i].PID);
                     _StdOut.advanceLine();
