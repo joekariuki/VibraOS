@@ -84,9 +84,7 @@ var TSOS;
                 else if (_CurrentProgram.base == 512) {
                     destAddress = destAddress + 512;
                 }
-                if (destAddress <= _CurrentProgram.limit) {
-                    _MemoryArray[destAddress] = this.Acc.toString(16);
-                }
+                _MemoryManager.storeValue(this.Acc.toString(16), destAddress);
             }
             else if (opCode == "A2") {
                 // Load the X resgister with a constant
@@ -266,6 +264,10 @@ var TSOS;
             if (_MemoryManager.fetch(this.startIndex) != "00" && _DONE != true) {
                 this.programExecute(_MemoryManager.fetch(this.startIndex));
                 _CurrentProgram.state = PS_RUNNING;
+                //Increase turn around time for all programs in ready queue
+                for (var i = 0; i < _ReadyQueue.length; i++) {
+                    _ReadyQueue[i].taTime++;
+                }
                 // Update memory table with current program
                 _MemoryManager.updateMemTable(_CurrentProgram);
                 // Update PCB table with current program
@@ -275,10 +277,6 @@ var TSOS;
                 //Perform round robbin if ready queue is greater than 0
                 if (_ReadyQueue.length > 1) {
                     TSOS.CpuScheduler.roundRobin();
-                }
-                //Increase turn around time for all programs in ready queue
-                for (var i = 0; i < _ReadyQueue.length; i++) {
-                    _ReadyQueue[i].taTime++;
                 }
             }
             else {

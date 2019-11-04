@@ -540,7 +540,7 @@ module TSOS {
         _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
         _Console.advanceLine();
 
-        var programInput = _ProgramInput.replace(/[\s]/g, "");
+        let programInput = _ProgramInput.replace(/[\s]/g, "");
         if (
           programInput.length / 2 <= _ProgramSize &&
           _MemoryArray[_BASE] == "00"
@@ -610,7 +610,7 @@ module TSOS {
           _StdOut.putText(`Running PID ${pid}`);
           if (
             (<HTMLButtonElement>document.getElementById("singleStep"))
-              .disabled == true
+              .value == "Exit"
           ) {
             _CPU.init();
             _CPU.startIndex = _CurrentProgram.startIndex;
@@ -690,7 +690,7 @@ module TSOS {
           _StdOut.putText(`Running all Programs...`);
           if (
             (<HTMLButtonElement>document.getElementById("singleStep"))
-              .disabled == true
+              .value == "Exit"
           ) {
             _ClockTicks++;
             _CPU.cycle();
@@ -735,7 +735,7 @@ module TSOS {
         if (_ReadyQueue.length == 0) {
           _StdOut.putText("There are no active PIDs to Kill");
         } else {
-          for (var i = 0; i < _ReadyQueue.length; i++) {
+          for (let i = 0; i < _ReadyQueue.length; i++) {
             if (args == _ReadyQueue[i].PID) {
               pid = _ReadyQueue[i].PID;
               let deadProg = new PCB();

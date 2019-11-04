@@ -79,10 +79,7 @@ module TSOS {
         } else if (_CurrentProgram.base == 512) {
           destAddress = destAddress + 512;
         }
-
-        if (destAddress <= _CurrentProgram.limit) {
-          _MemoryArray[destAddress] = this.Acc.toString(16);
-        }
+        _MemoryManager.storeValue(this.Acc.toString(16), destAddress);
       } else if (opCode == "A2") {
         // Load the X resgister with a constant
         _IR = opCode;
@@ -241,7 +238,7 @@ module TSOS {
       } else if (opCode == "FF") {
         _IR = opCode;
 
-        _Kernel.krnInterruptHandler(SYSCALL_IRQ, this.Xreg)
+        _Kernel.krnInterruptHandler(SYSCALL_IRQ, this.Xreg);
       } else {
         // End program
         _StdOut.putText("[ERROR] Invalid OPCODE, not a valid program");
@@ -261,6 +258,12 @@ module TSOS {
       if (_MemoryManager.fetch(this.startIndex) != "00" && _DONE != true) {
         this.programExecute(_MemoryManager.fetch(this.startIndex));
         _CurrentProgram.state = PS_RUNNING;
+
+        //Increase turn around time for all programs in ready queue
+        for (let i = 0; i < _ReadyQueue.length; i++) {
+          _ReadyQueue[i].taTime++;
+        }
+
         // Update memory table with current program
         _MemoryManager.updateMemTable(_CurrentProgram);
         // Update PCB table with current program
@@ -271,10 +274,6 @@ module TSOS {
         //Perform round robbin if ready queue is greater than 0
         if (_ReadyQueue.length > 1) {
           CpuScheduler.roundRobin();
-        }
-        //Increase turn around time for all programs in ready queue
-        for (var i = 0; i < _ReadyQueue.length; i++) {
-          _ReadyQueue[i].taTime++;
         }
       } else {
         // Update CPU execution

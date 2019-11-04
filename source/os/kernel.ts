@@ -120,7 +120,7 @@ module TSOS {
         }
         let str = "";
         while (_MemoryManager.fetch(address) !== "00") {
-          var charAscii = parseInt(_MemoryManager.fetch(address), 16);
+          let charAscii = parseInt(_MemoryManager.fetch(address), 16);
           str += String.fromCharCode(charAscii);
           address++;
         }

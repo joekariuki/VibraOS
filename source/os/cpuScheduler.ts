@@ -79,7 +79,7 @@ module TSOS {
 
     // Get next program in memory
     public static getNextprogram() {
-      var nextProgram = new PCB();
+      let nextProgram = new PCB();
 
       if (_ReadyQueue.length == 1) {
         if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
@@ -89,7 +89,7 @@ module TSOS {
           _CPU.cycle();
         }
       } else {
-        for (var i = 0; i < _ReadyQueue.length; i++) {
+        for (let i = 0; i < _ReadyQueue.length; i++) {
           // Get next program in queue
           if (_CurrentProgram.PID == _ReadyQueue[i].PID) {
             // Set next program to the program in the begining of the queue if the

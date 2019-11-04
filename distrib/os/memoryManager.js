@@ -10,9 +10,9 @@ var TSOS;
             var programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
             var base = -20;
             // Get new base
-            for (var i_1 = 0; i_1 <= 512; i_1 += 256) {
-                if (_MemoryArray[i_1] == "00") {
-                    base = i_1;
+            for (var i = 0; i <= 512; i += 256) {
+                if (_MemoryArray[i] == "00") {
+                    base = i;
                     break;
                 }
             }
@@ -29,11 +29,10 @@ var TSOS;
                 _CurrentProgram.pcbProgram = programInput;
                 _CurrentProgram.startIndex = base;
                 _CurrentProgram.limit = base + _ProgramSize - 1;
-                // _CurrentProgram.base = _BASE;
                 _CurrentProgram.base = base;
                 _CurrentProgram.state = PS_NEW;
                 _ResidentQueue.push(_CurrentProgram);
-                _StdOut.putText("\"PID " + _PID + " Loaded\"");
+                _StdOut.putText("PID " + _PID + " Loaded");
                 //Create row and insert into PCB table
                 var pcbTab = (document.getElementById("pcbTabDisplay"));
                 var newRow = pcbTab.insertRow(pcbTab.rows.length);
@@ -93,14 +92,14 @@ var TSOS;
                 newCell9.appendChild(limitNode);
                 // Insert a cell in the row at index 10
                 var newCell10 = newRow.insertCell(9);
-                // Append a text node to the cell
-                var newText = document.createTextNode(_CurrentProgram.waitTime + "");
-                newCell10.appendChild(newText);
+                // Append a wait node to the cell
+                var waitNode = document.createTextNode("" + _CurrentProgram.waitTime);
+                newCell10.appendChild(waitNode);
                 // Insert a cell in the row at index 11
                 var newCell11 = newRow.insertCell(10);
-                // Append a text node to the cell
-                var newText = document.createTextNode(_CurrentProgram.taTime + "");
-                newCell11.appendChild(newText);
+                // Append a tatime node to the cell
+                var taTime = document.createTextNode("" + _CurrentProgram.taTime);
+                newCell11.appendChild(taTime);
                 // Insert a cell in the row at index 12
                 var newCell12 = newRow.insertCell(11);
                 // Create state text node
@@ -120,7 +119,6 @@ var TSOS;
             var data = memoryTable.getElementsByTagName("td");
             var pcb = new TSOS.PCB();
             pcb = _CurrentProgram;
-            //var prevBase = base;
             var startRow = 0;
             var endRow = 0;
             if (pcb.base == 0) {

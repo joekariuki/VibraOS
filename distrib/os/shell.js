@@ -465,7 +465,7 @@ var TSOS;
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
                     if (document.getElementById("singleStep")
-                        .disabled == true) {
+                        .value == "Exit") {
                         _CPU.init();
                         _CPU.startIndex = _CurrentProgram.startIndex;
                     }
@@ -535,7 +535,7 @@ var TSOS;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
                     if (document.getElementById("singleStep")
-                        .disabled == true) {
+                        .value == "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }
