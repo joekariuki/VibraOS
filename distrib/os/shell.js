@@ -402,7 +402,7 @@ var TSOS;
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
-                if (programInput.length / 2 < _ProgramSize &&
+                if (programInput.length / 2 <= _ProgramSize &&
                     _MemoryArray[_BASE] == "00") {
                     if (_CPU.isExecuting != true) {
                         // Add new memory instance
@@ -504,6 +504,13 @@ var TSOS;
             _MemoryManager.clearMemLog();
             _StdOut.putText("[SUCCESS] Memory cleared.");
             _StdOut.advanceLine();
+            // Clear pcb log
+            var pcbTable = (document.getElementById("pcbTabDisplay"));
+            var rows = pcbTable.getElementsByTagName("tr");
+            //Clear pcb table
+            while (rows.length > 1) {
+                pcbTable.deleteRow(1);
+            }
         };
         Shell.prototype.shellRunAll = function (args) {
             _RunAll = true;
@@ -590,12 +597,14 @@ var TSOS;
                                 }
                                 _ReadyQueue.splice(i, 1);
                                 _CPU.isExecuting = true;
-                                // _CPU.cycle();
                             }
                             else {
                                 deadProg = _ReadyQueue[i];
                                 deadProg.state = PS_TERMINATED;
                                 _ReadyQueue.splice(i, 1);
+                                _CPU.init();
+                                _IR = "NA";
+                                _MemoryManager.updateCpuTable();
                             }
                             // Reset memory at partition
                             _MemoryManager.resetPartition(deadProg);

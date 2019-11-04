@@ -542,7 +542,7 @@ module TSOS {
 
         var programInput = _ProgramInput.replace(/[\s]/g, "");
         if (
-          programInput.length / 2 < _ProgramSize &&
+          programInput.length / 2 <= _ProgramSize &&
           _MemoryArray[_BASE] == "00"
         ) {
           if (_CPU.isExecuting != true) {
@@ -625,7 +625,6 @@ module TSOS {
               //base to start running program
               _CPU.init();
               _CPU.startIndex = _CurrentProgram.startIndex;
-
               _CPU.isExecuting = true;
             }
           }
@@ -652,6 +651,16 @@ module TSOS {
       _MemoryManager.clearMemLog();
       _StdOut.putText("[SUCCESS] Memory cleared.");
       _StdOut.advanceLine();
+
+      // Clear pcb log
+      let pcbTable: HTMLTableElement = <HTMLTableElement>(
+        document.getElementById("pcbTabDisplay")
+      );
+      let rows = pcbTable.getElementsByTagName("tr");
+      //Clear pcb table
+      while (rows.length > 1) {
+        pcbTable.deleteRow(1);
+      }
     }
 
     public shellRunAll(args) {
@@ -731,7 +740,6 @@ module TSOS {
               pid = _ReadyQueue[i].PID;
               let deadProg = new PCB();
 
-
               //remove process from ready queue
               if (_ReadyQueue.length > 1) {
                 deadProg = _ReadyQueue[i];
@@ -745,17 +753,21 @@ module TSOS {
 
                 _ReadyQueue.splice(i, 1);
                 _CPU.isExecuting = true;
-                // _CPU.cycle();
+
+               
               } else {
                 deadProg = _ReadyQueue[i];
                 deadProg.state = PS_TERMINATED;
                 _ReadyQueue.splice(i, 1);
+
+                _CPU.init();
+                _IR = "NA";
+                _MemoryManager.updateCpuTable();
               }
               // Reset memory at partition
               _MemoryManager.resetPartition(deadProg);
               // Update memory table
               _MemoryManager.updateMemTable(deadProg);
-
               // Update PCB table
               _MemoryManager.deleteRowPcb(deadProg);
               break;
@@ -769,7 +781,7 @@ module TSOS {
           // Run other programs in the ready queue
           if (_ReadyQueue.length > 0) {
             _CPU.isExecuting = true;
-           }
+          }
         }
       }
     }

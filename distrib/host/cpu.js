@@ -247,29 +247,31 @@ var TSOS;
             }
             else if (opCode == "FF") {
                 _IR = opCode;
-                if (this.Xreg == 1) {
-                    _StdOut.putText(_CPU.Yreg.toString());
-                }
-                else if (this.Xreg == 2) {
-                    var str = "";
-                    var address = _CPU.Yreg;
-                    if (_CurrentProgram.base == 256) {
-                        address = address + 256;
-                    }
-                    else if (_CurrentProgram.base == 512) {
-                        address = address + 512;
-                    }
-                    while (_MemoryManager.fetch(address) !== "00") {
-                        var charAsc = parseInt(_MemoryManager.fetch(address), 16);
-                        str += String.fromCharCode(charAsc);
-                        address++;
-                    }
-                    _StdOut.putText(str);
-                }
+                _Kernel.krnInterruptHandler(SYSCALL_IRQ, this.Xreg);
+                // if (this.Xreg == 1) {
+                //   _StdOut.putText(_CPU.Yreg.toString());
+                // } else if (this.Xreg == 2) {
+                //   let str = "";
+                //   let address = _CPU.Yreg;
+                //   if (_CurrentProgram.base == 256) {
+                //     address = address + 256;
+                //   } else if (_CurrentProgram.base == 512) {
+                //     address = address + 512;
+                //   }
+                //   while (_MemoryManager.fetch(address) !== "00") {
+                //     let charAsc = parseInt(_MemoryManager.fetch(address), 16);
+                //     str += String.fromCharCode(charAsc);
+                //     address++;
+                //   }
+                //   _StdOut.putText(str);
+                // }
             }
             else {
                 // End program
                 _StdOut.putText("[ERROR] Invalid OPCODE, not a valid program");
+                _Kernel.krnInterruptHandler(INVALIDOPCODE_IRQ, _CurrentProgram.PID);
+                _StdOut.advanceLine();
+                _StdOut.putText(">");
             }
             this.startIndex++;
             this.PC++;

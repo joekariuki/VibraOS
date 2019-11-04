@@ -63,14 +63,8 @@ module TSOS {
           _MemoryManager.updatePcbTable(nextProgram);
         }
       } else {
-        _CurrentProgram.startIndex = _CPU.startIndex;
-        _CurrentProgram.PC = _CPU.PC;
-        _CurrentProgram.Acc = _CPU.Acc;
-        _CurrentProgram.Xreg = _CPU.Xreg;
-        _CurrentProgram.Yreg = _CPU.Yreg;
-        _CurrentProgram.Zflag = _CPU.Zflag;
-        _CurrentProgram.state = PS_READY;
-        _MemoryManager.updatePcbTable(_CurrentProgram);
+        //Break and save all cpu values to current program
+        _Kernel.krnInterruptHandler(BREAK_IRQ, "");
       }
 
       //Load next program
