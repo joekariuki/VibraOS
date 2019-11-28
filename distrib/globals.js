@@ -32,9 +32,9 @@ var _ProgramSize = 256;
 var _MemorySize = _ProgramSize * 3;
 var _MemoryArray = [];
 // PCB
-var _PCB;
+// var _PCB: TSOS.PCB;
 var _PID = -1;
-var _IR = "0";
+var _IR = "NA";
 var _Acc = 0;
 var _PC = 0;
 var _Xreg = 0;

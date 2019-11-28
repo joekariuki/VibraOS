@@ -1,17 +1,15 @@
 module TSOS {
+  export class MemoryAccessor {
+    constructor() {}
 
-    export class MemoryAccessor {
-        constructor () {}
-
-        public readMemory(address) {
-            // read memory
-            console.log(address);
-        }
-
-        public writeMemory(address, data) {
-            //  write memory
-            console.log(address, data);
-
-        }
+    public readMemory(address) {
+      // read memory
+      console.log(address);
     }
+
+    public writeMemory(address, data) {
+      //  write memory
+      console.log(address, data);
+    }
+  }
 }

@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/cpuScheduler.ts" />
 /* ------------
      CPU.ts
 
@@ -53,15 +55,16 @@ module TSOS {
 
         let memAddress = _MemoryManager.fetch(++this.startIndex);
         memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
-
         let address = parseInt(memAddress, 16);
+
         if (_CurrentProgram.base == 256) {
           address = address + 256;
         } else if (_CurrentProgram.base == 512) {
           address = address + 512;
         }
 
-        let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+        // let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+        let getAcc = _MemoryManager.fetch(address);
         this.Acc = parseInt(getAcc, 16);
         _Acc = parseInt(getAcc, 16);
       } else if (opCode == "8D") {
@@ -80,14 +83,6 @@ module TSOS {
           destAddress = destAddress + 512;
         }
         _MemoryManager.storeValue(this.Acc.toString(16), destAddress);
-      } else if (opCode == "A2") {
-        // Load the X resgister with a constant
-        _IR = opCode;
-        // Load the the next byte
-        this.PC++;
-        let numVal = _MemoryManager.fetch(++this.PC);
-        this.Xreg = parseInt(numVal, 16);
-        _Xreg = parseInt(numVal, 16);
       } else if (opCode == "6D") {
         _IR = opCode;
         // Load the the next two bytes
@@ -104,6 +99,15 @@ module TSOS {
         let val = _MemoryManager.fetch(address);
         this.Acc = this.Acc + parseInt(val, 16);
         _Acc = this.Acc + parseInt(val, 16);
+      } else if (opCode == "A2") {
+        // Load the X resgister with a constant
+        _IR = opCode;
+        // Load the the next byte
+        this.PC++;
+        // let numVal = _MemoryManager.fetch(++this.PC);
+        let numVal = _MemoryManager.fetch(++this.startIndex);
+        this.Xreg = parseInt(numVal, 16);
+        _Xreg = parseInt(numVal, 16);
       } else if (opCode == "AE") {
         _IR = opCode;
         //Load the X register from memory
@@ -113,6 +117,7 @@ module TSOS {
         memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
 
         let address = parseInt(memAddress, 16);
+
         if (_CurrentProgram.base == 256) {
           address = address + 256;
         } else if (_CurrentProgram.base == 512) {
@@ -138,7 +143,6 @@ module TSOS {
         }
 
         let val = _MemoryManager.fetch(address);
-
         this.Yreg = parseInt(val, 16);
         _Yreg = parseInt(val, 16);
       } else if (opCode == "A0") {
@@ -175,7 +179,7 @@ module TSOS {
         } else if (_CurrentProgram.base == 512) {
           address = address + 512;
         }
-
+        // Possible bug here
         let val = _MemoryManager.fetch(address);
         let newVal = _MemoryManager.fetch(parseInt(memAddress, 16));
         let xVal = parseInt(val, 16);
@@ -199,7 +203,10 @@ module TSOS {
           //  Get next byte and branch
           let nextAddr = this.startIndex + branch;
 
-          if (nextAddr > _ProgramSize) {
+          // if (nextAddr > _ProgramSize) {
+          //   nextAddr = nextAddr - _ProgramSize;
+          // }
+          if (nextAddr >= _CurrentProgram.limit + 1) {
             nextAddr = nextAddr - _ProgramSize;
           }
           this.startIndex = nextAddr;
@@ -246,8 +253,8 @@ module TSOS {
         _StdOut.advanceLine();
         _StdOut.putText(">");
       }
-      this.startIndex++;
       this.PC++;
+      this.startIndex++;
     }
 
     public cycle(): void {
@@ -289,7 +296,6 @@ module TSOS {
 
         if ((_RunAll == true && _DONE != true) || _ReadyQueue.length > 1) {
           CpuScheduler.roundRobin();
-
           if (
             _MemoryManager.fetch(this.startIndex) != "00" &&
             _CurrentProgram.state != PS_RUNNING

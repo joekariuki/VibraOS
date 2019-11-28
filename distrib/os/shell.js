@@ -1,3 +1,9 @@
+///<reference path="../globals.ts" />
+///<reference path="../utils.ts" />
+///<reference path="shellCommand.ts" />
+///<reference path="userCommand.ts" />
+///<reference path="pcb.ts" />
+///<reference path="memoryManager.ts" />
 /* ------------
    Shell.ts
 
@@ -401,9 +407,10 @@ var TSOS;
             if (hexCode.match(regex)) {
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
+                console.log(hexCode);
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
-                if (programInput.length / 2 <= _ProgramSize &&
-                    _MemoryArray[_BASE] == "00") {
+                var programLength = programInput.length / 2;
+                if (programLength <= _ProgramSize) {
                     if (_CPU.isExecuting != true) {
                         // Add new memory instance
                         _MemoryManager = new TSOS.MemoryManager();
@@ -464,10 +471,9 @@ var TSOS;
                 }
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
-                        _CPU.init();
-                        _CPU.startIndex = _CurrentProgram.startIndex;
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
+                        _CPU.cycle();
                     }
                     else {
                         if (_ReadyQueue.length > 1) {
@@ -495,7 +501,7 @@ var TSOS;
         };
         Shell.prototype.shellClearMem = function (args) {
             // Clear memory and update memory log
-            _BASE = 0;
+            // _BASE = 0;
             _BaseProgram = 0;
             _ResidentQueue = [];
             _ReadyQueue = [];
@@ -529,13 +535,13 @@ var TSOS;
                     _ReadyQueue.push(_CurrentProgram);
                     //Update PCB Table
                     _MemoryManager.updatePcbTable(_CurrentProgram);
-                    _CurrentProgram = _ReadyQueue[0];
-                    _CPU.startIndex = _CurrentProgram.base;
                 }
+                _CurrentProgram = _ReadyQueue[0];
+                _CPU.startIndex = _CurrentProgram.base;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }
@@ -596,6 +602,7 @@ var TSOS;
                                     _CurrentProgram = _ReadyQueue[i + 1];
                                 }
                                 _ReadyQueue.splice(i, 1);
+                                _CPU.startIndex = _CurrentProgram.startIndex;
                                 _CPU.isExecuting = true;
                             }
                             else {

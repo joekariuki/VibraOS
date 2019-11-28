@@ -1,3 +1,6 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/pcb.ts" />
+
 module TSOS {
   export class CpuScheduler {
     constructor() {}

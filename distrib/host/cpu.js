@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/cpuScheduler.ts" />
 /* ------------
      CPU.ts
 
@@ -66,7 +68,8 @@ var TSOS;
                 else if (_CurrentProgram.base == 512) {
                     address = address + 512;
                 }
-                var getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+                // let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+                var getAcc = _MemoryManager.fetch(address);
                 this.Acc = parseInt(getAcc, 16);
                 _Acc = parseInt(getAcc, 16);
             }
@@ -86,15 +89,6 @@ var TSOS;
                 }
                 _MemoryManager.storeValue(this.Acc.toString(16), destAddress);
             }
-            else if (opCode == "A2") {
-                // Load the X resgister with a constant
-                _IR = opCode;
-                // Load the the next byte
-                this.PC++;
-                var numVal = _MemoryManager.fetch(++this.PC);
-                this.Xreg = parseInt(numVal, 16);
-                _Xreg = parseInt(numVal, 16);
-            }
             else if (opCode == "6D") {
                 _IR = opCode;
                 // Load the the next two bytes
@@ -111,6 +105,16 @@ var TSOS;
                 var val = _MemoryManager.fetch(address);
                 this.Acc = this.Acc + parseInt(val, 16);
                 _Acc = this.Acc + parseInt(val, 16);
+            }
+            else if (opCode == "A2") {
+                // Load the X resgister with a constant
+                _IR = opCode;
+                // Load the the next byte
+                this.PC++;
+                // let numVal = _MemoryManager.fetch(++this.PC);
+                var numVal = _MemoryManager.fetch(++this.startIndex);
+                this.Xreg = parseInt(numVal, 16);
+                _Xreg = parseInt(numVal, 16);
             }
             else if (opCode == "AE") {
                 _IR = opCode;
@@ -183,6 +187,7 @@ var TSOS;
                 else if (_CurrentProgram.base == 512) {
                     address = address + 512;
                 }
+                // Possible bug here
                 var val = _MemoryManager.fetch(address);
                 var newVal = _MemoryManager.fetch(parseInt(memAddress, 16));
                 var xVal = parseInt(val, 16);
@@ -204,7 +209,10 @@ var TSOS;
                     var branch = parseInt(_MemoryManager.fetch(++this.startIndex), 16);
                     //  Get next byte and branch
                     var nextAddr = this.startIndex + branch;
-                    if (nextAddr > _ProgramSize) {
+                    // if (nextAddr > _ProgramSize) {
+                    //   nextAddr = nextAddr - _ProgramSize;
+                    // }
+                    if (nextAddr >= _CurrentProgram.limit + 1) {
                         nextAddr = nextAddr - _ProgramSize;
                     }
                     this.startIndex = nextAddr;
@@ -254,8 +262,8 @@ var TSOS;
                 _StdOut.advanceLine();
                 _StdOut.putText(">");
             }
-            this.startIndex++;
             this.PC++;
+            this.startIndex++;
         };
         Cpu.prototype.cycle = function () {
             _Kernel.krnTrace("CPU cycle");

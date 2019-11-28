@@ -1,3 +1,9 @@
+///<reference path="../globals.ts" />
+///<reference path="../utils.ts" />
+///<reference path="shellCommand.ts" />
+///<reference path="userCommand.ts" />
+///<reference path="pcb.ts" />
+///<reference path="memoryManager.ts" />
 /* ------------
    Shell.ts
 
@@ -539,12 +545,11 @@ module TSOS {
       if (hexCode.match(regex)) {
         _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
         _Console.advanceLine();
+        console.log(hexCode);
 
         let programInput = _ProgramInput.replace(/[\s]/g, "");
-        if (
-          programInput.length / 2 <= _ProgramSize &&
-          _MemoryArray[_BASE] == "00"
-        ) {
+        let programLength = programInput.length / 2;
+        if (programLength <= _ProgramSize) {
           if (_CPU.isExecuting != true) {
             // Add new memory instance
             _MemoryManager = new MemoryManager();
@@ -555,12 +560,10 @@ module TSOS {
           } else {
             let newprog = new PCB();
             newprog = _CurrentProgram;
-
             _MemoryManager = new MemoryManager();
             //load program to memory
             _MemoryManager.loadProgToMem();
             _MemoryManager.updateMemTable(_CurrentProgram);
-
             _CurrentProgram = newprog;
           }
         } else {
@@ -575,6 +578,7 @@ module TSOS {
         _ProgramInput = "";
       }
     }
+
     public shellRun(args) {
       //set Runall to false for running a specific program
       _DONE = false;
@@ -609,11 +613,10 @@ module TSOS {
         if (_CurrentProgram.state == PS_READY) {
           _StdOut.putText(`Running PID ${pid}`);
           if (
-            (<HTMLButtonElement>document.getElementById("singleStep"))
-              .value == "Exit"
+            (<HTMLButtonElement>document.getElementById("singleStep")).value ==
+            "Exit"
           ) {
-            _CPU.init();
-            _CPU.startIndex = _CurrentProgram.startIndex;
+            _CPU.cycle();
           } else {
             if (_ReadyQueue.length > 1) {
               _CurrentProgram = activeProg;
@@ -642,7 +645,7 @@ module TSOS {
     }
     public shellClearMem(args) {
       // Clear memory and update memory log
-      _BASE = 0;
+      // _BASE = 0;
       _BaseProgram = 0;
       _ResidentQueue = [];
       _ReadyQueue = [];
@@ -682,15 +685,16 @@ module TSOS {
 
           //Update PCB Table
           _MemoryManager.updatePcbTable(_CurrentProgram);
-
-          _CurrentProgram = _ReadyQueue[0];
-          _CPU.startIndex = _CurrentProgram.base;
         }
+
+        _CurrentProgram = _ReadyQueue[0];
+        _CPU.startIndex = _CurrentProgram.base;
+
         if (_CurrentProgram.state != PS_TERMINATED) {
           _StdOut.putText(`Running all Programs...`);
           if (
-            (<HTMLButtonElement>document.getElementById("singleStep"))
-              .value == "Exit"
+            (<HTMLButtonElement>document.getElementById("singleStep")).value ==
+            "Exit"
           ) {
             _ClockTicks++;
             _CPU.cycle();
@@ -752,9 +756,8 @@ module TSOS {
                 }
 
                 _ReadyQueue.splice(i, 1);
+                _CPU.startIndex = _CurrentProgram.startIndex;
                 _CPU.isExecuting = true;
-
-               
               } else {
                 deadProg = _ReadyQueue[i];
                 deadProg.state = PS_TERMINATED;

@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/pcb.ts" />
 var TSOS;
 (function (TSOS) {
     var CpuScheduler = /** @class */ (function () {

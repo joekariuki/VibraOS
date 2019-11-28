@@ -39,9 +39,9 @@ var _MemorySize: number = _ProgramSize * 3;
 var _MemoryArray = [];
 
 // PCB
-var _PCB: TSOS.PCB;
+// var _PCB: TSOS.PCB;
 var _PID: number = -1;
-var _IR: string = "0";
+var _IR: string = "NA";
 var _Acc: number = 0;
 var _PC: number = 0;
 var _Xreg: number = 0;
@@ -50,8 +50,8 @@ var _Zflag: number = 0;
 
 var _Quantum: number = 6; //Default Quantum number
 var _ClockTicks: number = 0; // Number of clock ticks
-var _WaitTime: number = 1;   // Initialize wait time
-var _TaTime: number = 1;    // Initialize turn around time
+var _WaitTime: number = 1; // Initialize wait time
+var _TaTime: number = 1; // Initialize turn around time
 
 // PCB process states
 var PS_NEW: string = "New";

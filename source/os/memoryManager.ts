@@ -6,12 +6,12 @@ module TSOS {
     constructor() {}
     public loadProgToMem() {
       // Remove spaces from input
-      let programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
+      let programInput = _ProgramInput.replace(/[\s]/g, "");
 
       let base = -20;
 
       // Get new base
-      for (let i = 0; i <= 512; i += 256) {
+      for (let i = 0; i <= 768; i += 256) {
         if (_MemoryArray[i] == "00") {
           base = i;
           break;
@@ -31,13 +31,11 @@ module TSOS {
         _CurrentProgram.init();
         _CurrentProgram.pcbProgram = programInput;
         _CurrentProgram.startIndex = base;
+        _CurrentProgram.limit = base + (_ProgramSize - 1);
 
-        _CurrentProgram.limit = base + _ProgramSize - 1;
         _CurrentProgram.base = base;
         _CurrentProgram.state = PS_NEW;
         _ResidentQueue.push(_CurrentProgram);
-
-        _StdOut.putText(`PID ${_PID} Loaded`);
 
         //Create row and insert into PCB table
         let pcbTab: HTMLTableElement = <HTMLTableElement>(
@@ -108,17 +106,17 @@ module TSOS {
         // Append a limit text node to the cell
         newCell9.appendChild(limitNode);
 
-         // Insert a cell in the row at index 10
-         let newCell10 = newRow.insertCell(9);
-         // Append a wait node to the cell
-         let waitNode = document.createTextNode(`${_CurrentProgram.waitTime}`);
-         newCell10.appendChild(waitNode);
+        // Insert a cell in the row at index 10
+        let newCell10 = newRow.insertCell(9);
+        // Append a wait node to the cell
+        let waitNode = document.createTextNode(`${_CurrentProgram.waitTime}`);
+        newCell10.appendChild(waitNode);
 
-         // Insert a cell in the row at index 11
-         let newCell11 = newRow.insertCell(10);
-         // Append a tatime node to the cell
-         let taTime = document.createTextNode(`${_CurrentProgram.taTime}`);
-         newCell11.appendChild(taTime);
+        // Insert a cell in the row at index 11
+        let newCell11 = newRow.insertCell(10);
+        // Append a tatime node to the cell
+        let taTime = document.createTextNode(`${_CurrentProgram.taTime}`);
+        newCell11.appendChild(taTime);
 
         // Insert a cell in the row at index 12
         let newCell12 = newRow.insertCell(11);
@@ -129,9 +127,9 @@ module TSOS {
 
         //Create CPU log
         this.cpuTableLog();
-
+        _StdOut.putText(`PID ${_PID} Loaded`);
       } else {
-        _StdOut.putText("Memory Full... Can't load Program ");
+        // _StdOut.putText("Memory Full... Can't load Program");
       }
     }
     public updateCell(index) {
@@ -203,8 +201,6 @@ module TSOS {
           memIndex++;
         }
       }
-
-
     }
 
     public clearMemLog() {
@@ -227,7 +223,7 @@ module TSOS {
     public storeValue(value, targetAddress) {
       value = value.toString();
 
-      //pad value with 0 if length is 1
+      // pad value with 0 if length is 1
       if (value.length == 1) {
         value = "0" + value;
       }
@@ -358,18 +354,18 @@ module TSOS {
       }
     }
 
-    public deleteRowCpu(): void {
-      let cpuTable: HTMLTableElement = <HTMLTableElement>(
-        document.getElementById("cpuTabDisplay")
-      );
-      let row = cpuTable.getElementsByTagName("tr")[1];
-      row.remove();
-    }
+    // public deleteRowCpu(): void {
+    //   let cpuTable: HTMLTableElement = <HTMLTableElement>(
+    //     document.getElementById("cpuTabDisplay")
+    //   );
+    //   let row = cpuTable.getElementsByTagName("tr")[1];
+    //   row.remove();
+    // }
 
     // Clear a section of memory
     public resetPartition(pcb) {
       let index = pcb.base;
-      for (let i = 0; i <= pcb.limit; i++) {
+      for (let i = index; i <= pcb.limit; i++) {
         _MemoryArray[i] = "00";
       }
     }
