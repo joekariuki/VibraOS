@@ -51,7 +51,7 @@ var TSOS;
                             _ReadyQueue.splice(i, 1);
                             _MemoryManager.resetPartition(_CurrentProgram);
                             _MemoryManager.updateMemTable(_CurrentProgram);
-                            _MemoryManager.deleteRowPcb(_CurrentProgram);
+                            // _MemoryManager.deleteRowPcb(_CurrentProgram);
                             break;
                         }
                     }
@@ -80,14 +80,14 @@ var TSOS;
                     nextProgram = _CurrentProgram;
                     _RunAll = false;
                     _DONE = true;
-                    _CPU.cycle();
+                    // _CPU.cycle();
                 }
             }
             else {
                 for (var i = 0; i < _ReadyQueue.length; i++) {
                     // Get next program in queue
                     if (_CurrentProgram.PID == _ReadyQueue[i].PID) {
-                        // Set next program to the program in the begining of the queue if the
+                        // Set next program to the program in the begining of the queue
                         if (i == _ReadyQueue.length - 1) {
                             nextProgram = _ReadyQueue[0];
                             _WaitTime = 0;

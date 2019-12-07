@@ -545,7 +545,6 @@ module TSOS {
       if (hexCode.match(regex)) {
         _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
         _Console.advanceLine();
-        console.log(hexCode);
 
         let programInput = _ProgramInput.replace(/[\s]/g, "");
         let programLength = programInput.length / 2;
@@ -553,8 +552,10 @@ module TSOS {
           if (_CPU.isExecuting != true) {
             // Add new memory instance
             _MemoryManager = new MemoryManager();
+
             //load program to memory
             _MemoryManager.loadProgToMem();
+
             // Update Memory Table with current program
             _MemoryManager.updateMemTable(_CurrentProgram);
           } else {
@@ -563,6 +564,7 @@ module TSOS {
             _MemoryManager = new MemoryManager();
             //load program to memory
             _MemoryManager.loadProgToMem();
+            // Update memory table
             _MemoryManager.updateMemTable(_CurrentProgram);
             _CurrentProgram = newprog;
           }
@@ -620,7 +622,6 @@ module TSOS {
           } else {
             if (_ReadyQueue.length > 1) {
               _CurrentProgram = activeProg;
-
               _ClockTicks++;
               _RunAll = true;
               _CPU.isExecuting = true;

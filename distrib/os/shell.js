@@ -407,7 +407,6 @@ var TSOS;
             if (hexCode.match(regex)) {
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
-                console.log(hexCode);
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
                 var programLength = programInput.length / 2;
                 if (programLength <= _ProgramSize) {
@@ -425,6 +424,7 @@ var TSOS;
                         _MemoryManager = new TSOS.MemoryManager();
                         //load program to memory
                         _MemoryManager.loadProgToMem();
+                        // Update memory table
                         _MemoryManager.updateMemTable(_CurrentProgram);
                         _CurrentProgram = newprog;
                     }

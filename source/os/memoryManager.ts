@@ -11,7 +11,7 @@ module TSOS {
       let base = -20;
 
       // Get new base
-      for (let i = 0; i <= 768; i += 256) {
+      for (let i = 0; i <= 512; i += 256) {
         if (_MemoryArray[i] == "00") {
           base = i;
           break;
@@ -26,6 +26,7 @@ module TSOS {
           j++;
           i++;
         }
+
         _PID++;
         _CurrentProgram = new PCB();
         _CurrentProgram.init();
@@ -36,6 +37,8 @@ module TSOS {
         _CurrentProgram.base = base;
         _CurrentProgram.state = PS_NEW;
         _ResidentQueue.push(_CurrentProgram);
+
+        _StdOut.putText(`PID ${_PID} Loaded`);
 
         //Create row and insert into PCB table
         let pcbTab: HTMLTableElement = <HTMLTableElement>(
@@ -127,9 +130,8 @@ module TSOS {
 
         //Create CPU log
         this.cpuTableLog();
-        _StdOut.putText(`PID ${_PID} Loaded`);
       } else {
-        // _StdOut.putText("Memory Full... Can't load Program");
+        _StdOut.putText("Memory Full... Can't load Program");
       }
     }
     public updateCell(index) {
@@ -170,7 +172,7 @@ module TSOS {
     public updateMemTable(pcb): void {
       // Load Program to Memory
       // this.loadProgToMem(_ProgramInput);
-      this.loadProgToMem();
+      // this.loadProgToMem();
       // Get memory table
       let memoryTab: HTMLTableElement = <HTMLTableElement>(
         document.getElementById("memoryTabDisplay")
@@ -353,14 +355,6 @@ module TSOS {
         }
       }
     }
-
-    // public deleteRowCpu(): void {
-    //   let cpuTable: HTMLTableElement = <HTMLTableElement>(
-    //     document.getElementById("cpuTabDisplay")
-    //   );
-    //   let row = cpuTable.getElementsByTagName("tr")[1];
-    //   row.remove();
-    // }
 
     // Clear a section of memory
     public resetPartition(pcb) {

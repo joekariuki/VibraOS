@@ -10,7 +10,7 @@ var TSOS;
             var programInput = _ProgramInput.replace(/[\s]/g, "");
             var base = -20;
             // Get new base
-            for (var i = 0; i <= 768; i += 256) {
+            for (var i = 0; i <= 512; i += 256) {
                 if (_MemoryArray[i] == "00") {
                     base = i;
                     break;
@@ -32,6 +32,7 @@ var TSOS;
                 _CurrentProgram.base = base;
                 _CurrentProgram.state = PS_NEW;
                 _ResidentQueue.push(_CurrentProgram);
+                _StdOut.putText("PID " + _PID + " Loaded");
                 //Create row and insert into PCB table
                 var pcbTab = (document.getElementById("pcbTabDisplay"));
                 var newRow = pcbTab.insertRow(pcbTab.rows.length);
@@ -107,10 +108,9 @@ var TSOS;
                 newCell12.appendChild(stateNode);
                 //Create CPU log
                 this.cpuTableLog();
-                _StdOut.putText("PID " + _PID + " Loaded");
             }
             else {
-                // _StdOut.putText("Memory Full... Can't load Program");
+                _StdOut.putText("Memory Full... Can't load Program");
             }
         };
         MemoryManager.prototype.updateCell = function (index) {
@@ -146,7 +146,7 @@ var TSOS;
         MemoryManager.prototype.updateMemTable = function (pcb) {
             // Load Program to Memory
             // this.loadProgToMem(_ProgramInput);
-            this.loadProgToMem();
+            // this.loadProgToMem();
             // Get memory table
             var memoryTab = (document.getElementById("memoryTabDisplay"));
             // Add table rows
@@ -294,13 +294,6 @@ var TSOS;
                 }
             }
         };
-        // public deleteRowCpu(): void {
-        //   let cpuTable: HTMLTableElement = <HTMLTableElement>(
-        //     document.getElementById("cpuTabDisplay")
-        //   );
-        //   let row = cpuTable.getElementsByTagName("tr")[1];
-        //   row.remove();
-        // }
         // Clear a section of memory
         MemoryManager.prototype.resetPartition = function (pcb) {
             var index = pcb.base;
