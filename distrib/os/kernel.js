@@ -15,6 +15,7 @@ var TSOS;
         // OS Startup and Shutdown Routines
         //
         Kernel.prototype.krnBootstrap = function () {
+            // Page 8. {
             TSOS.Control.hostLog("bootstrap", "host"); // Use hostLog because we ALWAYS want this, even if _Trace is off.
             // Initialize our global queues.
             _KernelInterruptQueue = new TSOS.Queue(); // A (currently) non-priority queue for interrupt requests (IRQs).
@@ -64,10 +65,10 @@ var TSOS;
         };
         Kernel.prototype.krnOnCPUClockPulse = function () {
             /* This gets called from the host hardware simulation every time there is a hardware clock pulse.
-               This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
-               This, on the other hand, is the clock pulse from the hardware / VM / host that tells the kernel
-               that it has to look for interrupts and process them if it finds any.
-            */
+                     This is NOT the same as a TIMER, which causes an interrupt and is handled like other interrupts.
+                     This, on the other hand, is the clock pulse from the hardware / VM / host that tells the kernel
+                     that it has to look for interrupts and process them if it finds any.
+                  */
             // Check for an interrupt, if there are any. Page 560
             if (_KernelInterruptQueue.getSize() > 0) {
                 // Process the first interrupt on the interrupt queue.
@@ -75,10 +76,12 @@ var TSOS;
                 var interrupt = _KernelInterruptQueue.dequeue();
                 this.krnInterruptHandler(interrupt.irq, interrupt.params);
             }
-            else if (_CPU.isExecuting) { // If there are no interrupts then run one CPU cycle if there is anything being processed.
+            else if (_CPU.isExecuting) {
+                // If there are no interrupts then run one CPU cycle if there is anything being processed.
                 _CPU.cycle();
             }
-            else { // If there are no interrupts and there is nothing being executed then just be idle.
+            else {
+                // If there are no interrupts and there is nothing being executed then just be idle.
                 this.krnTrace("Idle");
             }
         };
@@ -95,6 +98,37 @@ var TSOS;
             TSOS.Devices.hostDisableKeyboardInterrupt();
             // Put more here.
         };
+        Kernel.prototype.krnSyscall = function (param) {
+            if (param == 1) {
+                _StdOut.putText(_CPU.Yreg.toString());
+            }
+            else if (param == 2) {
+                var address = _CPU.Yreg;
+                if (_CurrentProgram.base == 256) {
+                    address = address + 256;
+                }
+                else if (_CurrentProgram.base == 512) {
+                    address = address + 512;
+                }
+                var str = "";
+                while (_MemoryManager.fetch(address) !== "00") {
+                    var charAscii = parseInt(_MemoryManager.fetch(address), 16);
+                    str += String.fromCharCode(charAscii);
+                    address++;
+                }
+                _StdOut.putText(str);
+            }
+        };
+        Kernel.prototype.krnBreak = function () {
+            _CurrentProgram.startIndex = _CPU.startIndex;
+            _CurrentProgram.PC = _CPU.PC;
+            _CurrentProgram.Acc = _CPU.Acc;
+            _CurrentProgram.Xreg = _CPU.Xreg;
+            _CurrentProgram.Yreg = _CPU.Yreg;
+            _CurrentProgram.Zflag = _CPU.Zflag;
+            _CurrentProgram.state = PS_READY;
+            _MemoryManager.updatePcbTable(_CurrentProgram);
+        };
         Kernel.prototype.krnInterruptHandler = function (irq, params) {
             // This is the Interrupt Handler Routine.  See pages 8 and 560.
             // Trace our entrance here so we can compute Interrupt Latency by analyzing the log file later on. Page 766.
@@ -110,6 +144,15 @@ var TSOS;
                 case KEYBOARD_IRQ:
                     _krnKeyboardDriver.isr(params); // Kernel mode device driver
                     _StdIn.handleInput();
+                    break;
+                case SYSCALL_IRQ: // syscall interrupt
+                    this.krnSyscall(params);
+                    break;
+                case BREAK_IRQ: // break and save all cpu to current program
+                    this.krnBreak();
+                    break;
+                case INVALIDOPCODE_IRQ: // kill a particuall process if there is an invalid opcode
+                    _OsShell.shellKill(params);
                     break;
                 default:
                     this.krnTrapError("Invalid Interrupt Request. irq=" + irq + " params=[" + params + "]");

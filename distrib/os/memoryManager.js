@@ -7,12 +7,12 @@ var TSOS;
         }
         MemoryManager.prototype.loadProgToMem = function () {
             // Remove spaces from input
-            var programInput = _ProgramInput.replace(/[\s]/g, "").toUpperCase();
+            var programInput = _ProgramInput.replace(/[\s]/g, "");
             var base = -20;
             // Get new base
-            for (var i_1 = 0; i_1 <= 512; i_1 += 256) {
-                if (_MemoryArray[i_1] == "00") {
-                    base = i_1;
+            for (var i = 0; i <= 512; i += 256) {
+                if (_MemoryArray[i] == "00") {
+                    base = i;
                     break;
                 }
             }
@@ -28,12 +28,11 @@ var TSOS;
                 _CurrentProgram.init();
                 _CurrentProgram.pcbProgram = programInput;
                 _CurrentProgram.startIndex = base;
-                _CurrentProgram.limit = base + _ProgramSize - 1;
-                // _CurrentProgram.base = _BASE;
+                _CurrentProgram.limit = base + (_ProgramSize - 1);
                 _CurrentProgram.base = base;
                 _CurrentProgram.state = PS_NEW;
                 _ResidentQueue.push(_CurrentProgram);
-                _StdOut.putText("\"PID " + _PID + " Loaded\"");
+                _StdOut.putText("PID " + _PID + " Loaded");
                 //Create row and insert into PCB table
                 var pcbTab = (document.getElementById("pcbTabDisplay"));
                 var newRow = pcbTab.insertRow(pcbTab.rows.length);
@@ -93,14 +92,14 @@ var TSOS;
                 newCell9.appendChild(limitNode);
                 // Insert a cell in the row at index 10
                 var newCell10 = newRow.insertCell(9);
-                // Append a text node to the cell
-                var newText = document.createTextNode(_CurrentProgram.waitTime + "");
-                newCell10.appendChild(newText);
+                // Append a wait node to the cell
+                var waitNode = document.createTextNode("" + _CurrentProgram.waitTime);
+                newCell10.appendChild(waitNode);
                 // Insert a cell in the row at index 11
                 var newCell11 = newRow.insertCell(10);
-                // Append a text node to the cell
-                var newText = document.createTextNode(_CurrentProgram.taTime + "");
-                newCell11.appendChild(newText);
+                // Append a tatime node to the cell
+                var taTime = document.createTextNode("" + _CurrentProgram.taTime);
+                newCell11.appendChild(taTime);
                 // Insert a cell in the row at index 12
                 var newCell12 = newRow.insertCell(11);
                 // Create state text node
@@ -111,7 +110,7 @@ var TSOS;
                 this.cpuTableLog();
             }
             else {
-                _StdOut.putText("Memory Full... Can't load Program ");
+                _StdOut.putText("Memory Full... Can't load Program");
             }
         };
         MemoryManager.prototype.updateCell = function (index) {
@@ -120,7 +119,6 @@ var TSOS;
             var data = memoryTable.getElementsByTagName("td");
             var pcb = new TSOS.PCB();
             pcb = _CurrentProgram;
-            //var prevBase = base;
             var startRow = 0;
             var endRow = 0;
             if (pcb.base == 0) {
@@ -148,7 +146,7 @@ var TSOS;
         MemoryManager.prototype.updateMemTable = function (pcb) {
             // Load Program to Memory
             // this.loadProgToMem(_ProgramInput);
-            this.loadProgToMem();
+            // this.loadProgToMem();
             // Get memory table
             var memoryTab = (document.getElementById("memoryTabDisplay"));
             // Add table rows
@@ -191,7 +189,7 @@ var TSOS;
         };
         MemoryManager.prototype.storeValue = function (value, targetAddress) {
             value = value.toString();
-            //pad value with 0 if length is 1
+            // pad value with 0 if length is 1
             if (value.length == 1) {
                 value = "0" + value;
             }
@@ -296,15 +294,10 @@ var TSOS;
                 }
             }
         };
-        MemoryManager.prototype.deleteRowCpu = function () {
-            var cpuTable = (document.getElementById("cpuTabDisplay"));
-            var row = cpuTable.getElementsByTagName("tr")[1];
-            row.remove();
-        };
         // Clear a section of memory
         MemoryManager.prototype.resetPartition = function (pcb) {
             var index = pcb.base;
-            for (var i = 0; i <= pcb.limit; i++) {
+            for (var i = index; i <= pcb.limit; i++) {
                 _MemoryArray[i] = "00";
             }
         };

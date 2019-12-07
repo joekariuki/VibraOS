@@ -1,3 +1,4 @@
+///<reference path="../globals.ts" />
 var TSOS;
 (function (TSOS) {
     var PCB = /** @class */ (function () {
@@ -5,13 +6,13 @@ var TSOS;
             if (PC === void 0) { PC = 0; }
             if (PID === void 0) { PID = _PID; }
             if (base === void 0) { base = 0; }
-            if (Acc === void 0) { Acc = _Acc; }
-            if (Xreg === void 0) { Xreg = _Xreg; }
-            if (Yreg === void 0) { Yreg = _Yreg; }
+            if (Acc === void 0) { Acc = 0; }
+            if (Xreg === void 0) { Xreg = 0; }
+            if (Yreg === void 0) { Yreg = 0; }
             if (limit === void 0) { limit = 0; }
             if (IR === void 0) { IR = _IR; }
             if (pcbProgram === void 0) { pcbProgram = ""; }
-            if (Zflag === void 0) { Zflag = _Zflag; }
+            if (Zflag === void 0) { Zflag = 0; }
             if (startIndex === void 0) { startIndex = 0; }
             if (waitTime === void 0) { waitTime = 0; }
             if (taTime === void 0) { taTime = 0; }

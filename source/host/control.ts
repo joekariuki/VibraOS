@@ -19,204 +19,227 @@
 // Control Services
 //
 module TSOS {
+  export class Control {
+    public static hostInit(): void {
+      // This is called from index.html's onLoad event via the onDocumentLoad function pointer.
 
-    export class Control {
+      // Get a global reference to the canvas.  TODO: Should we move this stuff into a Display Device Driver?
+      _Canvas = <HTMLCanvasElement>document.getElementById("display");
 
-        public static hostInit(): void {
-            // This is called from index.html's onLoad event via the onDocumentLoad function pointer.
+      // Get a global reference to the drawing context.
+      _DrawingContext = _Canvas.getContext("2d");
 
-            // Get a global reference to the canvas.  TODO: Should we move this stuff into a Display Device Driver?
-            _Canvas = <HTMLCanvasElement>document.getElementById('display');
+      // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
+      CanvasTextFunctions.enable(_DrawingContext); // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun, so we'll keep it.
 
-            // Get a global reference to the drawing context.
-            _DrawingContext = _Canvas.getContext("2d");
+      // Clear the log text box.
+      // Use the TypeScript cast to HTMLInputElement
+      (<HTMLInputElement>document.getElementById("taHostLog")).value = "";
 
-            // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
-            CanvasTextFunctions.enable(_DrawingContext);   // Text functionality is now built in to the HTML5 canvas. But this is old-school, and fun, so we'll keep it.
+      // Set focus on the start button.
+      // Use the TypeScript cast to HTMLInputElement
+      (<HTMLInputElement>document.getElementById("btnStartOS")).focus();
 
-            // Clear the log text box.
-            // Use the TypeScript cast to HTMLInputElement
-            (<HTMLInputElement> document.getElementById("taHostLog")).value="";
+      // Check for our testing and enrichment core, which
+      // may be referenced here (from index.html) as function Glados().
+      if (typeof Glados === "function") {
+        // function Glados() is here, so instantiate Her into
+        // the global (and properly capitalized) _GLaDOS variable.
+        _GLaDOS = new Glados();
+        _GLaDOS.init();
+      }
+    }
 
-            // Set focus on the start button.
-            // Use the TypeScript cast to HTMLInputElement
-            (<HTMLInputElement> document.getElementById("btnStartOS")).focus();
+    public static hostLog(msg: string, source: string = "?"): void {
+      // Note the OS CLOCK.
+      var clock: number = _OSclock;
 
-            // Check for our testing and enrichment core, which
-            // may be referenced here (from index.html) as function Glados().
-            if (typeof Glados === "function") {
-                // function Glados() is here, so instantiate Her into
-                // the global (and properly capitalized) _GLaDOS variable.
-                _GLaDOS = new Glados();
-                _GLaDOS.init();
-            }
-        }
+      // Note the REAL clock in milliseconds since January 1, 1970.
+      var now: number = new Date().getTime();
 
-        public static hostLog(msg: string, source: string = "?"): void {
-            // Note the OS CLOCK.
-            var clock: number = _OSclock;
+      // Build the log string.
+      var str: string =
+        "({ clock:" +
+        clock +
+        ", source:" +
+        source +
+        ", msg:" +
+        msg +
+        ", now:" +
+        now +
+        " })" +
+        "\n";
 
-            // Note the REAL clock in milliseconds since January 1, 1970.
-            var now: number = new Date().getTime();
+      // Update the log console.
+      var taLog = <HTMLInputElement>document.getElementById("taHostLog");
+      taLog.value = str + taLog.value;
 
-            // Build the log string.
-            var str: string = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now  + " })"  + "\n";
+      // TODO in the future: Optionally update a log database or some streaming service.
+    }
 
-            // Update the log console.
-            var taLog = <HTMLInputElement> document.getElementById("taHostLog");
-            taLog.value = str + taLog.value;
+    // Display current date
+    public static hostDisplayDate(): void {
+      // Get current date
+      let currentDate = new Date();
+      // Display current date in task bar
+      document.getElementById("taskBarDate").innerHTML = ` | ${currentDate}`;
+    }
 
-            // TODO in the future: Optionally update a log database or some streaming service.
-        }
+    //  Set host status
+    public static hostSetStatus(msg: string): void {
+      // Display host status in task bar
+      document.getElementById("taskBarStatus").innerHTML = `[Status]: ${msg}`;
+    }
 
-        // Display current date
-        public static hostDisplayDate(): void {
-            // Get current date
-            let currentDate = new Date();
-            // Display current date in task bar
-            document.getElementById("taskBarDate").innerHTML= ` | ${currentDate}`;
-         }
+    // Display BSOD
+    public static hostDisplayBSOD(): void {
+      // Change background color
+      _Canvas.style.backgroundColor = "blue";
+      // Call the OS shutdown routine.
+      _Kernel.krnShutdown();
+      // Stop the clock
+      clearInterval(_hardwareClockID);
+    }
 
+    // Memory Manager Table
+    public static memoryManagerTable(): void {
+      // Create new memory
+      _Memory = new Memory();
+      //  Initialize memory
+      _Memory.init();
+      for (var i = 0; i < _MemoryArray.length; i++) {
+        // Check if memory array has 8 cells
+        if (i % 8 === 0) {
+          // Create table row element
+          let row = document.createElement("tr");
+          // Add new row element to memory table
+          document.getElementById("memoryTabDisplay").appendChild(row);
 
-        //  Set host status
-        public static hostSetStatus(msg: string): void {
-            // Display host status in task bar
-            document.getElementById("taskBarStatus").innerHTML = `[Status]: ${msg}`;
-        }
+          // Create table cell
+          let cell = document.createElement("td");
+          // Convert i to hex string
+          let hexStr = i.toString(16);
 
-        // Display BSOD
-        public static hostDisplayBSOD(): void {
-            // Change background color
-            _Canvas.style.backgroundColor = "blue"
-             // Call the OS shutdown routine.
-             _Kernel.krnShutdown();
-             // Stop the clock
-             clearInterval(_hardwareClockID);
-        }
-
-        // Memory Manager Table
-        public static memoryManagerTable():void {
-            // Create new memory
-            _Memory = new Memory();
-            //  Initialize memory
-            _Memory.init();
-
-              for (var i = 0; i < _MemoryArray.length; i++) {
-                // Check if memory array has 8 cells
-                 if (i % 8 === 0) {
-                   // Create table row element
-                   let row = document.createElement("tr");
-                   // Add new row element to memory table
-                   document.getElementById("memoryTabDisplay").appendChild(row);
-
-                   // Create table cell
-                   let cell = document.createElement("td");
-                   // Convert i to hex string
-                   let hexStr = i.toString(16);
-
-                   while (hexStr.length < 3) {
-                     hexStr = `0${hexStr}`;
-                   }
-                   //  Create data from hex
-                   let data = document.createTextNode(`0x${hexStr.toUpperCase()}`);
-                   // Add data to cell
-                   cell.appendChild(data);
-                   // Add cell to table row
-                   row.appendChild(cell);
-                 }
-                 //  Create data from memory arrat
-                 let data = document.createTextNode(_MemoryArray[i]);
-                 //  Create table cell
-                 let cell = document.createElement("td");
-                 // Create rows
-                 let rows = document.getElementById("memoryTabDisplay").getElementsByTagName("tr");
-                 // Delcare last row in table
-                 let lastRow = rows[rows.length - 1];
-                 // Add data to cell in table
-                 cell.appendChild(data);
-                 // Add cell to last row in table
-                 lastRow.appendChild(cell);
-               }
-        }
-
-        //
-        // Host Events
-        //
-        public static hostBtnStartOS_click(btn): void {
-            // Disable the (passed-in) start button...
-            btn.disabled = true;
-
-            // .. enable the Halt and Reset buttons ...
-            (<HTMLButtonElement>document.getElementById("btnHaltOS")).disabled = false;
-            (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
-
-            // Display status bar
-            document.getElementById('taskBar').style.display = "block";
-
-            // .. set focus on the OS console display ...
-            document.getElementById("display").focus();
-
-            // ... Create and initialize the CPU (because it's part of the hardware)  ...
-            _CPU = new Cpu();  // Note: We could simulate multi-core systems by instantiating more than one instance of the CPU here.
-            _CPU.init();       //       There's more to do, like dealing with scheduling and such, but this would be a start. Pretty cool.
-
-            // ... then set the host clock pulse ...
-            _hardwareClockID = setInterval(Devices.hostClockPulse, CPU_CLOCK_INTERVAL);
-            // .. and call the OS Kernel Bootstrap routine.
-            _Kernel = new Kernel();
-            _Kernel.krnBootstrap();  // _GLaDOS.afterStartup() will get called in there, if configured.
-
-            this.memoryManagerTable();
-        }
-
-        public static hostBtnHaltOS_click(btn): void {
-            Control.hostLog("Emergency halt", "host");
-            Control.hostLog("Attempting Kernel shutdown.", "host");
-            // Call the OS shutdown routine.
-            _Kernel.krnShutdown();
-            // Stop the interval that's simulating our clock pulse.
-            clearInterval(_hardwareClockID);
-            // TODO: Is there anything else we need to do here?
-        }
-
-        public static hostBtnReset_click(btn): void {
-            // The easiest and most thorough way to do this is to reload (not refresh) the document.
-            location.reload(true);
-            // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
-            // be reloaded from the server. If it is false or not specified the browser may reload the
-            // page from its cache, which is not what we want.
-        }
-
-        public static hostBtnSingleStepOS_click(btn): void {
-          if ((<HTMLButtonElement>document.getElementById("singleStep")).value != "Exit") {
-            (<HTMLButtonElement>document.getElementById("execStep")).disabled = false;
-            (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "blue";
-            (<HTMLButtonElement>document.getElementById("singleStep")).value = "Exit";
-
-            _CPU.isExecuting = false;
-          } else {
-            (<HTMLButtonElement>document.getElementById("singleStep")).disabled = true;
-            (<HTMLButtonElement>document.getElementById("singleStep")).value = "Single Step";
-            _CPU.isExecuting = true;
-
+          while (hexStr.length < 3) {
+            hexStr = `0${hexStr}`;
           }
-       }
+          //  Create data from hex
+          let data = document.createTextNode(`0x${hexStr.toUpperCase()}`);
+          // Add data to cell
+          cell.appendChild(data);
+          // Add cell to table row
+          row.appendChild(cell);
+        }
+        //  Create data from memory arrat
+        let data = document.createTextNode(_MemoryArray[i]);
+        //  Create table cell
+        let cell = document.createElement("td");
+        // Create rows
+        let rows = document
+          .getElementById("memoryTabDisplay")
+          .getElementsByTagName("tr");
+        // Delcare last row in table
+        let lastRow = rows[rows.length - 1];
+        // Add data to cell in table
+        cell.appendChild(data);
+        // Add cell to last row in table
+        lastRow.appendChild(cell);
+      }
+    }
 
-       public static hostBtnExecStepOS_click(btn): void {
-           if (_CPU.startIndex > 0) {
-               if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
-                   _CPU.cycle();
-               } else {
-                   _CPU.cycle();
-                //    (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "green";
-                   (<HTMLButtonElement>document.getElementById("singleStep")).value = "Single Step";
-                //    (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
-                   (<HTMLButtonElement>document.getElementById("execStep")).disabled = true;
-               }
+    //
+    // Host Events
+    //
+    public static hostBtnStartOS_click(btn): void {
+      // Disable the (passed-in) start button...
+      btn.disabled = true;
 
-           }
+      // .. enable the Halt and Reset buttons ...
+      (<HTMLButtonElement>(
+        document.getElementById("btnHaltOS")
+      )).disabled = false;
+      (<HTMLButtonElement>document.getElementById("btnReset")).disabled = false;
 
+      // Display status bar
+      document.getElementById("taskBar").style.display = "block";
 
-       }
-     }
+      // .. set focus on the OS console display ...
+      document.getElementById("display").focus();
+
+      // ... Create and initialize the CPU (because it's part of the hardware)  ...
+      _CPU = new Cpu(); // Note: We could simulate multi-core systems by instantiating more than one instance of the CPU here.
+      _CPU.init(); //       There's more to do, like dealing with scheduling and such, but this would be a start. Pretty cool.
+
+      // ... then set the host clock pulse ...
+      _hardwareClockID = setInterval(
+        Devices.hostClockPulse,
+        CPU_CLOCK_INTERVAL
+      );
+      // .. and call the OS Kernel Bootstrap routine.
+      _Kernel = new Kernel();
+      _Kernel.krnBootstrap(); // _GLaDOS.afterStartup() will get called in there, if configured.
+
+      this.memoryManagerTable();
+    }
+
+    public static hostBtnHaltOS_click(btn): void {
+      Control.hostLog("Emergency halt", "host");
+      Control.hostLog("Attempting Kernel shutdown.", "host");
+      // Call the OS shutdown routine.
+      _Kernel.krnShutdown();
+      // Stop the interval that's simulating our clock pulse.
+      clearInterval(_hardwareClockID);
+      // TODO: Is there anything else we need to do here?
+    }
+
+    public static hostBtnReset_click(btn): void {
+      // The easiest and most thorough way to do this is to reload (not refresh) the document.
+      location.reload(true);
+      // That boolean parameter is the 'forceget' flag. When it is true it causes the page to always
+      // be reloaded from the server. If it is false or not specified the browser may reload the
+      // page from its cache, which is not what we want.
+    }
+
+    public static hostBtnSingleStepOS_click(btn): void {
+      if (
+        (<HTMLButtonElement>document.getElementById("singleStep")).value !=
+        "Exit"
+      ) {
+        (<HTMLButtonElement>(
+          document.getElementById("execStep")
+        )).disabled = false;
+        (<HTMLButtonElement>(
+          document.getElementById("singleStep")
+        )).style.backgroundColor = "blue";
+        (<HTMLButtonElement>document.getElementById("singleStep")).value =
+          "Exit";
+
+        _CPU.isExecuting = false;
+      } else {
+        (<HTMLButtonElement>(
+          document.getElementById("singleStep")
+        )).disabled = true;
+        (<HTMLButtonElement>document.getElementById("singleStep")).value =
+          "Single Step";
+        _CPU.isExecuting = true;
+      }
+    }
+
+    public static hostBtnExecStepOS_click(btn): void {
+      if (_CPU.startIndex > 0) {
+        if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
+          _CPU.cycle();
+        } else {
+          _CPU.cycle();
+          //    (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "green";
+          (<HTMLButtonElement>document.getElementById("singleStep")).value =
+            "Single Step";
+          //    (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
+          (<HTMLButtonElement>(
+            document.getElementById("execStep")
+          )).disabled = true;
+        }
+      }
+    }
+  }
 }

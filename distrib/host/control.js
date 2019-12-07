@@ -25,7 +25,7 @@ var TSOS;
         Control.hostInit = function () {
             // This is called from index.html's onLoad event via the onDocumentLoad function pointer.
             // Get a global reference to the canvas.  TODO: Should we move this stuff into a Display Device Driver?
-            _Canvas = document.getElementById('display');
+            _Canvas = document.getElementById("display");
             // Get a global reference to the drawing context.
             _DrawingContext = _Canvas.getContext("2d");
             // Enable the added-in canvas text functions (see canvastext.ts for provenance and details).
@@ -52,7 +52,16 @@ var TSOS;
             // Note the REAL clock in milliseconds since January 1, 1970.
             var now = new Date().getTime();
             // Build the log string.
-            var str = "({ clock:" + clock + ", source:" + source + ", msg:" + msg + ", now:" + now + " })" + "\n";
+            var str = "({ clock:" +
+                clock +
+                ", source:" +
+                source +
+                ", msg:" +
+                msg +
+                ", now:" +
+                now +
+                " })" +
+                "\n";
             // Update the log console.
             var taLog = document.getElementById("taHostLog");
             taLog.value = str + taLog.value;
@@ -111,7 +120,9 @@ var TSOS;
                 //  Create table cell
                 var cell = document.createElement("td");
                 // Create rows
-                var rows = document.getElementById("memoryTabDisplay").getElementsByTagName("tr");
+                var rows = document
+                    .getElementById("memoryTabDisplay")
+                    .getElementsByTagName("tr");
                 // Delcare last row in table
                 var lastRow = rows[rows.length - 1];
                 // Add data to cell in table
@@ -127,10 +138,10 @@ var TSOS;
             // Disable the (passed-in) start button...
             btn.disabled = true;
             // .. enable the Halt and Reset buttons ...
-            document.getElementById("btnHaltOS").disabled = false;
+            (document.getElementById("btnHaltOS")).disabled = false;
             document.getElementById("btnReset").disabled = false;
             // Display status bar
-            document.getElementById('taskBar').style.display = "block";
+            document.getElementById("taskBar").style.display = "block";
             // .. set focus on the OS console display ...
             document.getElementById("display").focus();
             // ... Create and initialize the CPU (because it's part of the hardware)  ...
@@ -160,15 +171,18 @@ var TSOS;
             // page from its cache, which is not what we want.
         };
         Control.hostBtnSingleStepOS_click = function (btn) {
-            if (document.getElementById("singleStep").value != "Exit") {
-                document.getElementById("execStep").disabled = false;
-                document.getElementById("singleStep").style.backgroundColor = "blue";
-                document.getElementById("singleStep").value = "Exit";
+            if (document.getElementById("singleStep").value !=
+                "Exit") {
+                (document.getElementById("execStep")).disabled = false;
+                (document.getElementById("singleStep")).style.backgroundColor = "blue";
+                document.getElementById("singleStep").value =
+                    "Exit";
                 _CPU.isExecuting = false;
             }
             else {
-                document.getElementById("singleStep").disabled = true;
-                document.getElementById("singleStep").value = "Single Step";
+                (document.getElementById("singleStep")).disabled = true;
+                document.getElementById("singleStep").value =
+                    "Single Step";
                 _CPU.isExecuting = true;
             }
         };
@@ -180,9 +194,10 @@ var TSOS;
                 else {
                     _CPU.cycle();
                     //    (<HTMLButtonElement>document.getElementById("singleStep")).style.backgroundColor = "green";
-                    document.getElementById("singleStep").value = "Single Step";
+                    document.getElementById("singleStep").value =
+                        "Single Step";
                     //    (<HTMLButtonElement>document.getElementById("singleStep")).disabled = false;
-                    document.getElementById("execStep").disabled = true;
+                    (document.getElementById("execStep")).disabled = true;
                 }
             }
         };

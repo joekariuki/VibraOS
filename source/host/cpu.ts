@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/cpuScheduler.ts" />
 /* ------------
      CPU.ts
 
@@ -53,15 +55,16 @@ module TSOS {
 
         let memAddress = _MemoryManager.fetch(++this.startIndex);
         memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
-
         let address = parseInt(memAddress, 16);
+
         if (_CurrentProgram.base == 256) {
           address = address + 256;
         } else if (_CurrentProgram.base == 512) {
           address = address + 512;
         }
 
-        let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+        // let getAcc = _MemoryManager.fetch(parseInt(memAddress, 16));
+        let getAcc = _MemoryManager.fetch(address);
         this.Acc = parseInt(getAcc, 16);
         _Acc = parseInt(getAcc, 16);
       } else if (opCode == "8D") {
@@ -79,18 +82,7 @@ module TSOS {
         } else if (_CurrentProgram.base == 512) {
           destAddress = destAddress + 512;
         }
-
-        if (destAddress <= _CurrentProgram.limit) {
-          _MemoryArray[destAddress] = this.Acc.toString(16);
-        }
-      } else if (opCode == "A2") {
-        // Load the X resgister with a constant
-        _IR = opCode;
-        // Load the the next byte
-        this.PC++;
-        let numVal = _MemoryManager.fetch(++this.PC);
-        this.Xreg = parseInt(numVal, 16);
-        _Xreg = parseInt(numVal, 16);
+        _MemoryManager.storeValue(this.Acc.toString(16), destAddress);
       } else if (opCode == "6D") {
         _IR = opCode;
         // Load the the next two bytes
@@ -107,6 +99,15 @@ module TSOS {
         let val = _MemoryManager.fetch(address);
         this.Acc = this.Acc + parseInt(val, 16);
         _Acc = this.Acc + parseInt(val, 16);
+      } else if (opCode == "A2") {
+        // Load the X resgister with a constant
+        _IR = opCode;
+        // Load the the next byte
+        this.PC++;
+        // let numVal = _MemoryManager.fetch(++this.PC);
+        let numVal = _MemoryManager.fetch(++this.startIndex);
+        this.Xreg = parseInt(numVal, 16);
+        _Xreg = parseInt(numVal, 16);
       } else if (opCode == "AE") {
         _IR = opCode;
         //Load the X register from memory
@@ -116,6 +117,7 @@ module TSOS {
         memAddress = _MemoryManager.fetch(++this.startIndex) + memAddress;
 
         let address = parseInt(memAddress, 16);
+
         if (_CurrentProgram.base == 256) {
           address = address + 256;
         } else if (_CurrentProgram.base == 512) {
@@ -141,7 +143,6 @@ module TSOS {
         }
 
         let val = _MemoryManager.fetch(address);
-
         this.Yreg = parseInt(val, 16);
         _Yreg = parseInt(val, 16);
       } else if (opCode == "A0") {
@@ -178,7 +179,7 @@ module TSOS {
         } else if (_CurrentProgram.base == 512) {
           address = address + 512;
         }
-
+        // Possible bug here
         let val = _MemoryManager.fetch(address);
         let newVal = _MemoryManager.fetch(parseInt(memAddress, 16));
         let xVal = parseInt(val, 16);
@@ -202,7 +203,10 @@ module TSOS {
           //  Get next byte and branch
           let nextAddr = this.startIndex + branch;
 
-          if (nextAddr > _ProgramSize) {
+          // if (nextAddr > _ProgramSize) {
+          //   nextAddr = nextAddr - _ProgramSize;
+          // }
+          if (nextAddr >= _CurrentProgram.limit + 1) {
             nextAddr = nextAddr - _ProgramSize;
           }
           this.startIndex = nextAddr;
@@ -241,29 +245,16 @@ module TSOS {
       } else if (opCode == "FF") {
         _IR = opCode;
 
-        if (this.Xreg == 1) {
-          _StdOut.putText(_CPU.Yreg.toString());
-        } else if (this.Xreg == 2) {
-          let str = "";
-          let address = _CPU.Yreg;
-          if (_CurrentProgram.base == 256) {
-            address = address + 256;
-          } else if (_CurrentProgram.base == 512) {
-            address = address + 512;
-          }
-          while (_MemoryManager.fetch(address) !== "00") {
-            let charAsc = parseInt(_MemoryManager.fetch(address), 16);
-            str += String.fromCharCode(charAsc);
-            address++;
-          }
-          _StdOut.putText(str);
-        }
+        _Kernel.krnInterruptHandler(SYSCALL_IRQ, this.Xreg);
       } else {
         // End program
         _StdOut.putText("[ERROR] Invalid OPCODE, not a valid program");
+        _Kernel.krnInterruptHandler(INVALIDOPCODE_IRQ, _CurrentProgram.PID);
+        _StdOut.advanceLine();
+        _StdOut.putText(">");
       }
-      this.startIndex++;
       this.PC++;
+      this.startIndex++;
     }
 
     public cycle(): void {
@@ -275,6 +266,13 @@ module TSOS {
         this.programExecute(_MemoryManager.fetch(this.startIndex));
         _CurrentProgram.state = PS_RUNNING;
 
+        //Increase turn around time for all programs in ready queue
+        for (let i = 0; i < _ReadyQueue.length; i++) {
+          _ReadyQueue[i].taTime++;
+        }
+
+        // Update memory table with current program
+        _MemoryManager.updateMemTable(_CurrentProgram);
         // Update PCB table with current program
         _MemoryManager.updatePcbTable(_CurrentProgram);
         // Update CPU table
@@ -283,10 +281,6 @@ module TSOS {
         //Perform round robbin if ready queue is greater than 0
         if (_ReadyQueue.length > 1) {
           CpuScheduler.roundRobin();
-        }
-        //Increase turn around time for all programs in ready queue
-        for (var i = 0; i < _ReadyQueue.length; i++) {
-          _ReadyQueue[i].taTime++;
         }
       } else {
         // Update CPU execution
@@ -302,19 +296,15 @@ module TSOS {
 
         if ((_RunAll == true && _DONE != true) || _ReadyQueue.length > 1) {
           CpuScheduler.roundRobin();
-          // alert(`1 length = ${_ReadyQueue.length}`);
-
           if (
             _MemoryManager.fetch(this.startIndex) != "00" &&
             _CurrentProgram.state != PS_RUNNING
           ) {
             this.startIndex = _CurrentProgram.startIndex;
-            // alert(`Round Robin Switching to ${_CurrentProgram.PID}`);
             _CurrentProgram.state = PS_RUNNING;
             this.isExecuting = true;
           }
           _ClockTicks = 1;
-          // }
           this.cycle();
         } else {
           _ReadyQueue.splice(0, 1);
@@ -325,6 +315,7 @@ module TSOS {
           _StdOut.putText(">");
 
           this.init();
+          _IR = "NA";
           _MemoryManager.updateCpuTable();
           _DONE = true;
         }

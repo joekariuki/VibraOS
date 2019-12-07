@@ -1,3 +1,6 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/pcb.ts" />
+
 module TSOS {
   export class CpuScheduler {
     constructor() {}
@@ -63,14 +66,8 @@ module TSOS {
           _MemoryManager.updatePcbTable(nextProgram);
         }
       } else {
-        _CurrentProgram.startIndex = _CPU.startIndex;
-        _CurrentProgram.PC = _CPU.PC;
-        _CurrentProgram.Acc = _CPU.Acc;
-        _CurrentProgram.Xreg = _CPU.Xreg;
-        _CurrentProgram.Yreg = _CPU.Yreg;
-        _CurrentProgram.Zflag = _CPU.Zflag;
-        _CurrentProgram.state = PS_READY;
-        _MemoryManager.updatePcbTable(_CurrentProgram);
+        //Break and save all cpu values to current program
+        _Kernel.krnInterruptHandler(BREAK_IRQ, "");
       }
 
       //Load next program
@@ -85,20 +82,20 @@ module TSOS {
 
     // Get next program in memory
     public static getNextprogram() {
-      var nextProgram = new PCB();
+      let nextProgram = new PCB();
 
       if (_ReadyQueue.length == 1) {
         if (_MemoryManager.fetch(_CPU.startIndex) != "00") {
           nextProgram = _CurrentProgram;
           _RunAll = false;
           _DONE = true;
-          _CPU.cycle();
+          // _CPU.cycle();
         }
       } else {
-        for (var i = 0; i < _ReadyQueue.length; i++) {
+        for (let i = 0; i < _ReadyQueue.length; i++) {
           // Get next program in queue
           if (_CurrentProgram.PID == _ReadyQueue[i].PID) {
-            // Set next program to the program in the begining of the queue if the
+            // Set next program to the program in the begining of the queue
             if (i == _ReadyQueue.length - 1) {
               nextProgram = _ReadyQueue[0];
               _WaitTime = 0;

@@ -19,7 +19,9 @@ const CPU_CLOCK_INTERVAL: number = 100; // This is in ms (milliseconds) so 1000 
 const TIMER_IRQ: number = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 const KEYBOARD_IRQ: number = 1;
-
+const SYSCALL_IRQ: number = 2;
+const BREAK_IRQ: number = 3;
+const INVALIDOPCODE_IRQ: number = 4;
 //
 // Global Variables
 // TODO: Make a global object and use that instead of the "_" naming convention in the global namespace.
@@ -37,9 +39,9 @@ var _MemorySize: number = _ProgramSize * 3;
 var _MemoryArray = [];
 
 // PCB
-var _PCB: TSOS.PCB;
+// var _PCB: TSOS.PCB;
 var _PID: number = -1;
-var _IR: string = "0";
+var _IR: string = "NA";
 var _Acc: number = 0;
 var _PC: number = 0;
 var _Xreg: number = 0;
@@ -48,8 +50,8 @@ var _Zflag: number = 0;
 
 var _Quantum: number = 6; //Default Quantum number
 var _ClockTicks: number = 0; // Number of clock ticks
-var _WaitTime: number = 1;   // Initialize wait time
-var _TaTime: number = 1;    // Initialize turn around time
+var _WaitTime: number = 1; // Initialize wait time
+var _TaTime: number = 1; // Initialize turn around time
 
 // PCB process states
 var PS_NEW: string = "New";

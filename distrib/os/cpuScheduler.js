@@ -1,3 +1,5 @@
+///<reference path="../globals.ts" />
+///<reference path="../os/pcb.ts" />
 var TSOS;
 (function (TSOS) {
     var CpuScheduler = /** @class */ (function () {
@@ -58,14 +60,8 @@ var TSOS;
                 }
             }
             else {
-                _CurrentProgram.startIndex = _CPU.startIndex;
-                _CurrentProgram.PC = _CPU.PC;
-                _CurrentProgram.Acc = _CPU.Acc;
-                _CurrentProgram.Xreg = _CPU.Xreg;
-                _CurrentProgram.Yreg = _CPU.Yreg;
-                _CurrentProgram.Zflag = _CPU.Zflag;
-                _CurrentProgram.state = PS_READY;
-                _MemoryManager.updatePcbTable(_CurrentProgram);
+                //Break and save all cpu values to current program
+                _Kernel.krnInterruptHandler(BREAK_IRQ, "");
             }
             //Load next program
             _CurrentProgram = nextProgram;
@@ -84,14 +80,14 @@ var TSOS;
                     nextProgram = _CurrentProgram;
                     _RunAll = false;
                     _DONE = true;
-                    _CPU.cycle();
+                    // _CPU.cycle();
                 }
             }
             else {
                 for (var i = 0; i < _ReadyQueue.length; i++) {
                     // Get next program in queue
                     if (_CurrentProgram.PID == _ReadyQueue[i].PID) {
-                        // Set next program to the program in the begining of the queue if the
+                        // Set next program to the program in the begining of the queue
                         if (i == _ReadyQueue.length - 1) {
                             nextProgram = _ReadyQueue[0];
                             _WaitTime = 0;
