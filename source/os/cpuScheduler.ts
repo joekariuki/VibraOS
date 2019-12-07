@@ -57,7 +57,7 @@ module TSOS {
               _MemoryManager.resetPartition(_CurrentProgram);
               _MemoryManager.updateMemTable(_CurrentProgram);
 
-              _MemoryManager.deleteRowPcb(_CurrentProgram);
+              // _MemoryManager.deleteRowPcb(_CurrentProgram);
               break;
             }
           }
