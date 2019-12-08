@@ -1,5 +1,3 @@
-///<reference path="../globals.ts" />
-///<reference path="../os/pcb.ts" />
 var TSOS;
 (function (TSOS) {
     var MemoryManager = /** @class */ (function () {
@@ -294,6 +292,13 @@ var TSOS;
                 }
             }
         };
+        // public deleteRowCpu(): void {
+        //   let cpuTable: HTMLTableElement = <HTMLTableElement>(
+        //     document.getElementById("cpuTabDisplay")
+        //   );
+        //   let row = cpuTable.getElementsByTagName("tr")[1];
+        //   row.remove();
+        // }
         // Clear a section of memory
         MemoryManager.prototype.resetPartition = function (pcb) {
             var index = pcb.base;

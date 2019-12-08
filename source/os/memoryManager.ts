@@ -1,6 +1,3 @@
-///<reference path="../globals.ts" />
-///<reference path="../os/pcb.ts" />
-
 module TSOS {
   export class MemoryManager {
     constructor() {}
@@ -355,6 +352,14 @@ module TSOS {
         }
       }
     }
+
+    // public deleteRowCpu(): void {
+    //   let cpuTable: HTMLTableElement = <HTMLTableElement>(
+    //     document.getElementById("cpuTabDisplay")
+    //   );
+    //   let row = cpuTable.getElementsByTagName("tr")[1];
+    //   row.remove();
+    // }
 
     // Clear a section of memory
     public resetPartition(pcb) {
