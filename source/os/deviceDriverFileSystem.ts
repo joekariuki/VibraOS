@@ -20,18 +20,18 @@ module TSOS {
         data += "-";
       }
 
-      //intitialize data with 0s
+      // Intitialize data with 0s
       for (let i = 4; i < this.dataSize; i++) {
         data += "0";
       }
       return data;
     }
 
-    //converts the string-data provided to hex
+    // Converts string-data provided to hex
     public convertToHex(data) {
       let hexString = "";
 
-      //converts a char at an index to hex and builds the string
+      // Converts a char at an index to hex and builds the string
       for (let i = 0; i < data.length; i++) {
         hexString += data.charCodeAt(i).toString(16);
       }

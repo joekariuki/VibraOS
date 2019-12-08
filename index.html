@@ -1,150 +1,183 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html lang="en">
-<head>
-   <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-   <meta name="author"             content="Alan G. Labouseur" />
-   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css">
-   <link rel="stylesheet" href="tsos.css" type="text/css" media="screen" />
-   <title>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+    <meta name="author" content="Alan G. Labouseur" />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css"
+    />
+    <link rel="stylesheet" href="tsos.css" type="text/css" media="screen" />
+    <title>
       VibraOS
-   </title>
+    </title>
 
-   <!-- Globals CONSTANTS and _Variables. Must included be first. -->
-   <script type="text/javascript" src="distrib/globals.js"></script>
+    <!-- Globals CONSTANTS and _Variables. Must included be first. -->
+    <script type="text/javascript" src="distrib/globals.js"></script>
 
-   <!-- Host (Virtual Machine / Hardware Simulation) Routines -->
-   <script type="text/javascript" src="distrib/host/memory.js"></script>
-   <script type="text/javascript" src="distrib/host/control.js"></script>
-   <script type="text/javascript" src="distrib/host/devices.js"></script>
-   <script type="text/javascript" src="distrib/host/cpu.js"></script>
+    <!-- Host (Virtual Machine / Hardware Simulation) Routines -->
+    <script type="text/javascript" src="distrib/host/memory.js"></script>
+    <script type="text/javascript" src="distrib/host/control.js"></script>
+    <script type="text/javascript" src="distrib/host/devices.js"></script>
+    <script type="text/javascript" src="distrib/host/cpu.js"></script>
 
-   <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
-   <script type="text/javascript" src="distrib/os/interrupt.js"></script>
-   <script type="text/javascript" src="distrib/os/canvastext.js"></script>
-   <script type="text/javascript" src="distrib/os/console.js"></script>
-   <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
-   <script type="text/javascript" src="distrib/os/deviceDriverKeyboard.js"></script>
-   <script type="text/javascript" src="distrib/os/queue.js"></script>
-   <script type="text/javascript" src="distrib/os/pcb.js"></script>
-   <script type="text/javascript" src="distrib/os/memoryManager.js"></script>
-   <script type="text/javascript" src="distrib/os/shell.js"></script>
-   <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
-   <script type="text/javascript" src="distrib/os/userCommand.js"></script>
-   <script type="text/javascript" src="distrib/os/kernel.js"></script>
-   <script type="text/javascript" src="distrib/os/cpuScheduler.js"></script>
+    <!-- Virtual OS Routines: Make sure Kernel code is last, since it needs those above it. -->
+    <script type="text/javascript" src="distrib/os/interrupt.js"></script>
+    <script type="text/javascript" src="distrib/os/canvastext.js"></script>
+    <script type="text/javascript" src="distrib/os/console.js"></script>
+    <script type="text/javascript" src="distrib/os/deviceDriver.js"></script>
+    <script
+      type="text/javascript"
+      src="distrib/os/deviceDriverKeyboard.js"
+    ></script>
+    <script
+      type="text/javascript"
+      src="distrib/os/deviceDriverFileSystem.js"
+    ></script>
+    <script type="text/javascript" src="distrib/os/queue.js"></script>
+    <script type="text/javascript" src="distrib/os/pcb.js"></script>
+    <script type="text/javascript" src="distrib/os/memoryManager.js"></script>
+    <script type="text/javascript" src="distrib/os/shell.js"></script>
+    <script type="text/javascript" src="distrib/os/shellCommand.js"></script>
+    <script type="text/javascript" src="distrib/os/userCommand.js"></script>
+    <script type="text/javascript" src="distrib/os/kernel.js"></script>
+    <script type="text/javascript" src="distrib/os/cpuScheduler.js"></script>
 
-   <!-- Other Routines -->
-   <script type="text/javascript" src="distrib/utils.js"></script>
-   <!-- Uncomment the line below to enable GLaDOS testing. -->
-   <script type="text/javascript" src="./test/glados-ip3.js"></script>
+    <!-- Other Routines -->
+    <script type="text/javascript" src="distrib/utils.js"></script>
+    <!-- Uncomment the line below to enable GLaDOS testing. -->
+    <script type="text/javascript" src="./test/glados-ip4.js"></script>
+  </head>
 
-</head>
+  <body onload="onDocumentLoad()">
+    <div id="divMain" style="width:100%;">
+      <div id="divButtonBar" style="margin:4px;">
+        <input
+          type="button"
+          id="btnStartOS"
+          name="brnStartOS"
+          class="normal_button btn btn-success"
+          value="Start"
+          tabindex="0"
+          onclick="TSOS.Control.hostBtnStartOS_click(this);"
+        />
 
-<body onload="onDocumentLoad()">
+        <input
+          type="button"
+          id="btnHaltOS"
+          name="brnHaltOS"
+          class="normal_button btn btn-warning"
+          disabled="disabled"
+          value="Halt"
+          tabindex="1"
+          onclick="TSOS.Control.hostBtnHaltOS_click(this);"
+        />
 
-<div id="divMain" style="width:100%;">
+        <input
+          type="button"
+          id="btnReset"
+          name="brnReset"
+          class="normal_button btn btn-danger"
+          disabled="disabled"
+          value="Reset"
+          tabindex="2"
+          onclick="TSOS.Control.hostBtnReset_click(this);"
+        />
 
-   <div id="divButtonBar" style="margin:4px;">
-      <input type="button"
-             id = "btnStartOS"
-             name="brnStartOS"
-             class="normal_button btn btn-success"
-             value="Start"
-             tabindex="0"
-             onclick="TSOS.Control.hostBtnStartOS_click(this);">
+        <input
+          type="button"
+          id="singleStep"
+          name="singleStep"
+          class="normal_button btn btn-secondary"
+          value="Single Step"
+          tabindex="3"
+          onclick="TSOS.Control.hostBtnSingleStepOS_click(this);"
+        />
 
-      <input type="button"
-             id = "btnHaltOS"
-             name="brnHaltOS"
-             class="normal_button btn btn-warning"
-             disabled="disabled"
-             value="Halt"
-             tabindex="1"
-             onclick="TSOS.Control.hostBtnHaltOS_click(this);">
-
-      <input type="button"
-             id = "btnReset"
-             name="brnReset"
-             class="normal_button btn btn-danger"
-             disabled="disabled"
-             value="Reset"
-             tabindex="2"
-             onclick="TSOS.Control.hostBtnReset_click(this);">
-
-      <input type="button"
-             id = "singleStep"
-             name="singleStep"
-             class="normal_button btn btn-secondary"
-             value="Single Step"
-             tabindex="3"
-             onclick="TSOS.Control.hostBtnSingleStepOS_click(this);">
-
-       <input type="button"
-             id = "execStep"
-             name="execStep"
-             class="normal_button btn btn-secondary"
-             disabled="disabled"
-             value="  >  "
-             tabindex="4"
-             onclick="TSOS.Control.hostBtnExecStepOS_click(this);">
-   </div>
-
-   <div id="taskBar" style="display: none;">
-      <p id="taskBarDisplay">
-         <span id="taskBarStatus">
-            <span id="defaultStatus">No current status</span>
-         </span>
-         <span id="taskBarDate"></span>
-      </p>
-   </div>
-
-   <div id="divConsole" style="margin:4px; height: 512px; float:left;">
-      <div id="canvas">
-         <canvas id="display"
-         width="480px"
-         height="500px"
-         tabindex="3">
-         </canvas>
+        <input
+          type="button"
+          id="execStep"
+          name="execStep"
+          class="normal_button btn btn-secondary"
+          disabled="disabled"
+          value="  >  "
+          tabindex="4"
+          onclick="TSOS.Control.hostBtnExecStepOS_click(this);"
+        />
       </div>
-   </div>
 
+      <div id="taskBar" style="display: none;">
+        <p id="taskBarDisplay">
+          <span id="taskBarStatus">
+            <span id="defaultStatus">No current status</span>
+          </span>
+          <span id="taskBarDate"></span>
+        </p>
+      </div>
 
-   <div id="divLog" style="margin-left:520px;">
-      <label>
-         Host Log
-         <br>
-         <textarea name="taHostLog"
-                   id  ="taHostLog"
-                   rows="10"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+      <div id="divConsole" style="margin:4px; height: 512px; float:left;">
+        <div id="canvas">
+          <canvas id="display" width="480px" height="500px" tabindex="3">
+          </canvas>
+        </div>
+      </div>
 
-   <div id="divUserProgramInput" style="margin-left:520px;">
-      <label>
-         User Program Input
-         <br>
-         <textarea name="taProgramInput"
-                   id  ="taProgramInput"
-                   rows="8"
-                   cols="48"
-         ></textarea>
-      </label>
-   </div>
+      <div id="divLog" style="margin-left:520px;">
+        <label>
+          Host Log
+          <br />
+          <textarea
+            name="taHostLog"
+            id="taHostLog"
+            rows="10"
+            cols="48"
+          ></textarea>
+        </label>
+      </div>
 
-<!-- Memory -->
-   <div style="margin-left:520px; width:340px;" >
-      <p>Memory</p>
-      <table border="1" cellpadding="7" id="memoryTabDisplay">
-      </table>
-   </div>
+      <div id="divUserProgramInput" style="margin-left:520px;">
+        <label>
+          User Program Input
+          <br />
+          <textarea
+            name="taProgramInput"
+            id="taProgramInput"
+            rows="8"
+            cols="48"
+          ></textarea>
+        </label>
+      </div>
 
-<!-- CPU  -->
-   <div style="margin-left: 4px; width:213px;"><p>
-     <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="cpuTabDisplay" >
-         <label>CPU</label>
+      <!-- Memory -->
+      <div style="margin-left:520px; width:340px;">
+        <p>Memory</p>
+        <table border="1" cellpadding="7" id="memoryTabDisplay"></table>
+      </div>
+
+      <!-- Hard Disk -->
+      <div style="margin-left: 10px; width:530px; padding-bottom: 20px;">
+        <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="hardDiskTable">
+          <label>Hard Disk</label>
+          <tr>
+            <th class="tsb">TSB</th>
+            <th class="inUse">In Use</th>
+            <th class="headerTSB">Header TSB</th>
+            <th class="data">Data</th>
+          </tr>
+          <tbody id="fsBody"></tbody>
+        </table>
+      </div>
+
+      <!-- CPU  -->
+      <div style="margin-left: 10px; width:213px; padding-bottom: 20px;">
+        <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="cpuTabDisplay">
+          <label>CPU</label>
           <tr>
             <th>PC</th>
             <th>IR</th>
@@ -154,39 +187,39 @@
             <th>Z</th>
           </tr>
         </table>
-        <p>
+      </div>
+      <div style="margin-left: 10px; width:610px; padding-bottom: 20px;">
+        <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="pcbTabDisplay">
+          <label>Processes</label>
+          <tr>
+            <th>PID</th>
+            <th>PC</th>
+            <th>IR</th>
+            <th>Acc</th>
+            <th>X</th>
+            <th>Y</th>
+            <th>Z</th>
+            <th>Base</th>
+            <th>Limit</th>
+            <th>Wait Time</th>
+            <th>Turnaround Time</th>
+            <th>State</th>
+          </tr>
+        </table>
+      </div>
     </div>
-    <div class="Division" style="margin-left: 4px; width:610px;" ><p>
-      <table bgcolor="#FFFFFF" border="1" cellpadding="5" id="pcbTabDisplay">
-        <label>Processes</label>
-         <tr>
-           <th>PID</th>
-           <th>PC</th>
-           <th>IR</th>
-           <th>Acc</th>
-           <th>X</th>
-           <th>Y</th>
-           <th>Z</th>
-           <th>Base</th>
-           <th>Limit</th>
-           <th>Wait Time</th>
-           <th>Turnaround Time</th>
-           <th>State</th>
-         </tr>
-     </table>
-     </p>
-   </div>
-
-</div>
-<footer>
+    <footer>
       <p class="footerText" style="clear:both;">
-            <br>
-            Copyright &copy; 2008 - 2019 No Rights Reserved.
-            <br>
-            Reproduction is inhibited without the express written consent of
-            Ted Codd, Stevie Ray Vaughan, and Ian Fleming.
+        <br />
+        Copyright &copy; 2008 - 2019 No Rights Reserved.
+        <br />
+        Reproduction is inhibited without the express written consent of Ted
+        Codd, Stevie Ray Vaughan, and Ian Fleming.
       </p>
-</footer>
-<script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-</body>
+    </footer>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"
+    ></script>
+  </body>
 </html>

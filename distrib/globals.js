@@ -31,6 +31,7 @@ var _ProgramSize = 256;
 // Memory size
 var _MemorySize = _ProgramSize * 3;
 var _MemoryArray = [];
+var _DeviceDriverFileSystem;
 // PCB
 // var _PCB: TSOS.PCB;
 var _PID = -1;

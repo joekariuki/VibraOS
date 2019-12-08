@@ -147,6 +147,54 @@ module TSOS {
       }
     }
 
+    //Create hard disk table
+    public static hardDiskTable(): void {
+      // Create new instance of DeviceDriverFileSystem
+      _DeviceDriverFileSystem = new DeviceDriverFileSystem();
+
+      // Get hard disk table body
+      let hardDiskHTML = document.getElementById("fsBody");
+      hardDiskHTML.innerHTML = "";
+
+      for (let i = 0; i < _DeviceDriverFileSystem.tracks; i++) {
+        for (let j = 0; j < _DeviceDriverFileSystem.sectors; j++) {
+          for (let k = 0; k < _DeviceDriverFileSystem.blocks; k++) {
+            let key: string = i.toString() + j.toString() + k.toString();
+            let data = _DeviceDriverFileSystem.initializeBlock();
+
+            //  Update hard disk table display
+            var row = document.createElement("tr");
+            hardDiskHTML.appendChild(row);
+
+            var cell = document.createElement("td");
+            cell.className = "tsb";
+            cell.textContent = key;
+            row.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.className = "inUse";
+            cell.textContent = data.substring(0, 1);
+            row.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.className = "headerTSB";
+            cell.textContent = data.substring(
+              1,
+              _DeviceDriverFileSystem.headerSize
+            );
+            row.appendChild(cell);
+
+            var cell = document.createElement("td");
+            cell.className = "data";
+            cell.textContent = data.substring(
+              _DeviceDriverFileSystem.headerSize
+            );
+            row.appendChild(cell);
+          }
+        }
+      }
+    }
+
     //
     // Host Events
     //
@@ -180,6 +228,8 @@ module TSOS {
       _Kernel.krnBootstrap(); // _GLaDOS.afterStartup() will get called in there, if configured.
 
       this.memoryManagerTable();
+
+      this.hardDiskTable();
     }
 
     public static hostBtnHaltOS_click(btn): void {

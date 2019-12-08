@@ -471,8 +471,8 @@ var TSOS;
                 }
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep").value ==
-                        "Exit") {
+                    if (document.getElementById("singleStep")
+                        .value == "Exit") {
                         _CPU.cycle();
                     }
                     else {
@@ -540,8 +540,8 @@ var TSOS;
                 _CPU.startIndex = _CurrentProgram.base;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
-                    if (document.getElementById("singleStep").value ==
-                        "Exit") {
+                    if (document.getElementById("singleStep")
+                        .value == "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }

@@ -37,7 +37,7 @@ h3 {
 }
 
 #display {
-  background-color:#DFDBC3;
+  background-color: #dfdbc3;
   border: 2px solid red;
   cursor: default;
   overflow-x: hidden;
@@ -91,9 +91,17 @@ h3 {
 /* Memory Table */
 
 #memoryTabDisplay {
-  overflow-y: scroll; 
-  height: 100px; 
-  display: block;  
-  border: 1px solid;  
+  overflow-y: scroll;
+  height: 100px;
+  display: block;
+  border: 1px solid;
+  background-color: #ffffff;
+}
+
+#hardDiskTable {
+  overflow-y: scroll;
+  height: 100px;
+  display: block;
+  border: 1px solid;
   background-color: #ffffff;
 }
