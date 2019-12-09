@@ -155,14 +155,18 @@ module TSOS {
       // Get hard disk table body
       let hardDiskHTML = document.getElementById("fsBody");
       hardDiskHTML.innerHTML = "";
+      let key = "";
 
       for (let i = 0; i < _DeviceDriverFileSystem.tracks; i++) {
         for (let j = 0; j < _DeviceDriverFileSystem.sectors; j++) {
           for (let k = 0; k < _DeviceDriverFileSystem.blocks; k++) {
-            let key: string = i.toString() + j.toString() + k.toString();
+            key = i.toString() + j.toString() + k.toString();
             let data = _DeviceDriverFileSystem.initializeBlock();
 
-            //  Update hard disk table display
+            // Save data to session storage
+            sessionStorage.setItem(key, data);
+
+            // Update hard disk table display
             var row = document.createElement("tr");
             hardDiskHTML.appendChild(row);
 

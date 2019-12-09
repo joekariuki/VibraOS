@@ -87,6 +87,9 @@ var TSOS;
             // kill <id> - kills the specified process id.
             sc = new TSOS.ShellCommand(this.shellKill, "kill", "<pid> to kill a specific process.");
             this.commandList[this.commandList.length] = sc;
+            //create file
+            sc = new TSOS.ShellCommand(this.shellCreateFile, "create", " <filename> - Creates a new file on disk.");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         };
@@ -296,6 +299,9 @@ var TSOS;
                     case "kill":
                         _StdOut.putText("Kills a specified process");
                         break;
+                    case "create":
+                        _StdOut.putText("Creates a new file on disk");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -471,8 +477,8 @@ var TSOS;
                 }
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
                         _CPU.cycle();
                     }
                     else {
@@ -540,8 +546,8 @@ var TSOS;
                 _CPU.startIndex = _CurrentProgram.base;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }
@@ -630,6 +636,25 @@ var TSOS;
                         _CPU.isExecuting = true;
                     }
                 }
+            }
+        };
+        // Create file
+        Shell.prototype.shellCreateFile = function (args) {
+            if (args.length == 0) {
+                _StdOut.putText("[ERROR]");
+                _StdOut.advanceLine();
+                _StdOut.putText("Empty file name. Please specify the name of file");
+            }
+            else if (args.length > 1) {
+                //then there is a space in the fileName
+                _StdOut.putText("ERROR");
+                _StdOut.advanceLine();
+                _StdOut.putText("Spaces in file name. File name cannot contain spaces");
+            }
+            else {
+                //Go ahead and try to create file
+                var fileName = args;
+                _DeviceDriverFileSystem.createFile(fileName);
             }
         };
         return Shell;

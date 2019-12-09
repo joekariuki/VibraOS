@@ -133,16 +133,20 @@ var TSOS;
         };
         //Create hard disk table
         Control.hardDiskTable = function () {
-            // make a new instance of DeviceDriverFileSystem
+            // Create new instance of DeviceDriverFileSystem
             _DeviceDriverFileSystem = new TSOS.DeviceDriverFileSystem();
-            //get the tag of the hard disk table body
+            // Get hard disk table body
             var hardDiskHTML = document.getElementById("fsBody");
             hardDiskHTML.innerHTML = "";
+            var key = "";
             for (var i = 0; i < _DeviceDriverFileSystem.tracks; i++) {
                 for (var j = 0; j < _DeviceDriverFileSystem.sectors; j++) {
                     for (var k = 0; k < _DeviceDriverFileSystem.blocks; k++) {
-                        var key = i.toString() + j.toString() + k.toString();
+                        key = i.toString() + j.toString() + k.toString();
                         var data = _DeviceDriverFileSystem.initializeBlock();
+                        //save data to session storage
+                        sessionStorage.setItem(key, data);
+                        //  Update hard disk table display
                         var row = document.createElement("tr");
                         hardDiskHTML.appendChild(row);
                         var cell = document.createElement("td");
