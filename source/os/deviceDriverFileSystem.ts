@@ -296,6 +296,45 @@ module TSOS {
       }
     }
 
+    public deleteFile(fileName) {
+      let dirKey = this.findFilename(fileName);
+      if (dirKey == null) {
+        _StdOut.putText("[ERROR]: File name does not exist");
+        _StdOut.advanceLine();
+      } else {
+        let dirData = sessionStorage.getItem(dirKey);
+        let dataKey = dirData.substring(1, this.headerSize);
+
+        // Reset data in directory
+        sessionStorage.setItem(dirKey, this.initializeBlock());
+        this.updateHardDiskTable(dirKey);
+
+        // Get next data entry
+        let nextDataKey = sessionStorage
+          .getItem(dataKey)
+          .substring(1, this.headerSize);
+
+        // Reset file data
+        sessionStorage.setItem(dataKey, this.initializeBlock());
+        this.updateHardDiskTable(dataKey);
+
+        while (nextDataKey != "---") {
+          // Get next data entry
+          dataKey = sessionStorage
+            .getItem(nextDataKey)
+            .substring(1, this.headerSize);
+
+          // Resetfile data
+          sessionStorage.setItem(nextDataKey, this.initializeBlock());
+          this.updateHardDiskTable(nextDataKey);
+
+          nextDataKey = dataKey;
+        }
+        // Display success message
+        _StdOut.putText(`[SUCCESS]: ${fileName} has been deleted!`);
+      }
+    }
+
     // Get available dir that is not in use
     public getFreeDirEntry() {
       let key = "";

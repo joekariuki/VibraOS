@@ -905,5 +905,17 @@ module TSOS {
                _DeviceDriverFileSystem.readFile(fileName);
            }
          }
+         public shellDeleteFile(args) {
+          if(args.length == 0){
+             _StdOut.putText("[ERROR] Cannot delete file. Empty file name");
+             _StdOut.advanceLine();
+             _StdOut.putText("Please specify name of file");
+         }
+         else{
+             // Proceed to delete file
+             var fileName:string = args + "";
+             _DeviceDriverFileSystem.deleteFile(fileName);
+         }
         }
+      }
 }
