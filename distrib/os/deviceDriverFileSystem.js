@@ -73,6 +73,20 @@ var TSOS;
             }
             return hexString;
         };
+        // Format
+        DeviceDriverFileSystem.prototype.format = function () {
+            for (var i = 0; i < this.tracks; i++) {
+                for (var j = 0; j < this.sectors; j++) {
+                    for (var k = 0; k < this.blocks; k++) {
+                        var key = i.toString() + j.toString() + k.toString();
+                        sessionStorage.setItem(key, this.initializeBlock());
+                        this.updateHardDiskTable(key);
+                    }
+                }
+            }
+            //Display success message
+            _StdOut.putText("Successfully Formatted");
+        };
         // Write data to a specific TSB key
         DeviceDriverFileSystem.prototype.writeData = function (key, data) {
             var hexString = data.substring(0, this.headerSize);
@@ -115,7 +129,6 @@ var TSOS;
                 //Set inUse bit for file/data block to 1
                 dataData = sessionStorage.getItem(dataKey);
                 dataData = "1" + dataData.substr(1);
-                // this.writeData(dataKey, dataData);
                 sessionStorage.setItem(dataKey, dataData);
                 // Update hard  disk with dirKey
                 this.updateHardDiskTable(dirKey);
@@ -217,6 +230,7 @@ var TSOS;
                                     dataKey = this.getFreeDataEntry();
                                     dataData = sessionStorage.getItem(dataKey);
                                     dataData = "1" + dataData.substr(1);
+                                    sessionStorage.setItem(dataKey, dataData);
                                     newDataKey = this.getFreeDataEntry();
                                     headerTSB = newDataKey;
                                     if (newDataKey == null) {

@@ -62,6 +62,21 @@ module TSOS {
       return hexString;
     }
 
+    // Format
+    public format() {
+      for (let i = 0; i < this.tracks; i++) {
+        for (let j = 0; j < this.sectors; j++) {
+          for (let k = 0; k < this.blocks; k++) {
+            let key = i.toString() + j.toString() + k.toString();
+            sessionStorage.setItem(key, this.initializeBlock());
+            this.updateHardDiskTable(key);
+          }
+        }
+      }
+      //Display success message
+      _StdOut.putText("Successfully Formatted");
+    }
+
     // Write data to a specific TSB key
     public writeData(key, data): void {
       let hexString = data.substring(0, this.headerSize);
@@ -111,7 +126,6 @@ module TSOS {
         //Set inUse bit for file/data block to 1
         dataData = sessionStorage.getItem(dataKey);
         dataData = "1" + dataData.substr(1);
-        // this.writeData(dataKey, dataData);
         sessionStorage.setItem(dataKey, dataData);
 
         // Update hard  disk with dirKey
@@ -199,7 +213,7 @@ module TSOS {
         } else if (contents.length > this.dataSize && inUseBit == "1") {
           if (headerTSB == "---") {
             //Get first data to write to file
-            var newDataKey = this.getFreeDataEntry();
+            let newDataKey = this.getFreeDataEntry();
             headerTSB = newDataKey;
 
             if (newDataKey != null) {
@@ -229,6 +243,7 @@ module TSOS {
 
                   dataData = sessionStorage.getItem(dataKey);
                   dataData = "1" + dataData.substr(1);
+                  sessionStorage.setItem(dataKey, dataData);
 
                   newDataKey = this.getFreeDataEntry();
                   headerTSB = newDataKey;

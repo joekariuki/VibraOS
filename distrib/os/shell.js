@@ -96,6 +96,9 @@ var TSOS;
             // find file
             sc = new TSOS.ShellCommand(this.shellReadFile, "read", " <filename> - reads and displays contents of a file name.");
             this.commandList[this.commandList.length] = sc;
+            // format
+            sc = new TSOS.ShellCommand(this.shellFormat, "format", " - Initialize	all	blocks in all sectors in all tracks.");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         };
@@ -312,6 +315,10 @@ var TSOS;
                         _StdOut.putText("Writes data to a specified filename");
                     case "read":
                         _StdOut.putText("reads and displays contents of a filename");
+                        break;
+                    case "format":
+                        _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
+                        break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -723,6 +730,9 @@ var TSOS;
                 var fileName = args + "";
                 _DeviceDriverFileSystem.deleteFile(fileName);
             }
+        };
+        Shell.prototype.shellFormat = function (args) {
+            _DeviceDriverFileSystem.format();
         };
         return Shell;
     }());

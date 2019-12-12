@@ -212,6 +212,12 @@ module TSOS {
                 " <filename> - reads and displays contents of a file name.");
             this.commandList[this.commandList.length] = sc;
 
+             // format
+             sc = new ShellCommand(this.shellFormat,
+              "format",
+              " - Initialize	all	blocks in all sectors in all tracks.");
+            this.commandList[this.commandList.length] = sc;
+
              // Display the initial prompt.
              this.putPrompt();
            }
@@ -458,6 +464,10 @@ module TSOS {
                    _StdOut.putText("Writes data to a specified filename");
                  case "read":
                     _StdOut.putText("reads and displays contents of a filename");
+                    break;
+                    case "format":
+                        _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
+                    break;
                  default:
                    _StdOut.putText("No manual entry for " + args[0] + ".");
                }
@@ -917,5 +927,8 @@ module TSOS {
              _DeviceDriverFileSystem.deleteFile(fileName);
          }
         }
+        public shellFormat(args) {
+          _DeviceDriverFileSystem.format();
+        }	        
       }
 }
