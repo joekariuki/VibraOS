@@ -51,7 +51,7 @@ var TSOS;
         // Converts a hex dtring back to regular string
         DeviceDriverFileSystem.prototype.convertToString = function (data) {
             var str = "";
-            for (var i = 0; i < data.length / 2; i += 2) {
+            for (var i = 0; i < data.length; i += 2) {
                 if (data[i] + data[i + 1] != "00") {
                     return str;
                 }
@@ -191,7 +191,6 @@ var TSOS;
                 else if (contents.length > this.dataSize &&
                     inUseBit == "1" &&
                     headerTSB == "---") {
-                    console.log("2 = " + contents.length);
                     //first data to write to file
                     var newDataKey = this.getFreeDataEntry();
                     headerTSB = newDataKey;
@@ -233,6 +232,43 @@ var TSOS;
                 else {
                     //TO DO:: Error if file is too large
                 }
+            }
+        };
+        DeviceDriverFileSystem.prototype.readFile = function (fileName) {
+            var dirKey = this.findFilename(fileName);
+            if (dirKey == null) {
+                _StdOut.putText("[ERROR]");
+                _StdOut.advanceLine();
+                _StdOut.putText("File name does not exist");
+            }
+            else {
+                var dirData = sessionStorage.getItem(dirKey);
+                var dataKey = dirData.substring(1, this.headerSize);
+                var fileData = "";
+                var nextDataKey = sessionStorage
+                    .getItem(dataKey)
+                    .substring(1, this.headerSize);
+                if (nextDataKey == "---") {
+                    fileData =
+                        fileData +
+                            this.convertToString(sessionStorage.getItem(dataKey).substring(this.headerSize));
+                }
+                else {
+                    fileData =
+                        fileData +
+                            this.convertToString(sessionStorage.getItem(dataKey).substring(this.headerSize));
+                    while (nextDataKey != "---") {
+                        fileData =
+                            fileData +
+                                this.convertToString(sessionStorage.getItem(nextDataKey).substring(this.headerSize));
+                        nextDataKey = sessionStorage
+                            .getItem(nextDataKey)
+                            .substring(1, this.headerSize);
+                    }
+                }
+                _StdOut.putText("[SUCCESS]: Reading " + fileName + " ...");
+                _StdOut.advanceLine();
+                _StdOut.putText(fileData);
             }
         };
         // Get available dir that is not in use
@@ -286,7 +322,7 @@ var TSOS;
                     data = sessionStorage.getItem(key).substring(this.headerSize);
                     inUseBit = sessionStorage.getItem(key).substring(0, 1);
                     // Check if data matches filename
-                    if (data === fileNameHex && inUseBit === "1") {
+                    if (data == fileNameHex && inUseBit == "1") {
                         return key;
                     }
                 }

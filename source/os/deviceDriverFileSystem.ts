@@ -36,7 +36,7 @@ module TSOS {
     public convertToString(data) {
       let str = "";
 
-      for (let i = 0; i < data.length / 2; i += 2) {
+      for (let i = 0; i < data.length; i += 2) {
         if (data[i] + data[i + 1] != "00") {
           return str;
         } else {
@@ -198,7 +198,6 @@ module TSOS {
           inUseBit == "1" &&
           headerTSB == "---"
         ) {
-          console.log("2 = " + contents.length);
           //first data to write to file
           var newDataKey = this.getFreeDataEntry();
           headerTSB = newDataKey;
@@ -247,6 +246,53 @@ module TSOS {
         } else {
           //TO DO:: Error if file is too large
         }
+      }
+    }
+
+    public readFile(fileName) {
+      let dirKey = this.findFilename(fileName);
+      if (dirKey == null) {
+        _StdOut.putText("[ERROR]");
+        _StdOut.advanceLine();
+        _StdOut.putText("File name does not exist");
+      } else {
+        let dirData = sessionStorage.getItem(dirKey);
+        let dataKey = dirData.substring(1, this.headerSize);
+
+        let fileData = "";
+        let nextDataKey = sessionStorage
+          .getItem(dataKey)
+          .substring(1, this.headerSize);
+
+        if (nextDataKey == "---") {
+          fileData =
+            fileData +
+            this.convertToString(
+              sessionStorage.getItem(dataKey).substring(this.headerSize)
+            );
+        } else {
+          fileData =
+            fileData +
+            this.convertToString(
+              sessionStorage.getItem(dataKey).substring(this.headerSize)
+            );
+
+          while (nextDataKey != "---") {
+            fileData =
+              fileData +
+              this.convertToString(
+                sessionStorage.getItem(nextDataKey).substring(this.headerSize)
+              );
+
+            nextDataKey = sessionStorage
+              .getItem(nextDataKey)
+              .substring(1, this.headerSize);
+          }
+        }
+
+        _StdOut.putText(`[SUCCESS]: Reading ${fileName} ...`);
+        _StdOut.advanceLine();
+        _StdOut.putText(fileData);
       }
     }
 

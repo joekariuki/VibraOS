@@ -90,7 +90,11 @@ var TSOS;
             //create file
             sc = new TSOS.ShellCommand(this.shellCreateFile, "create", " <filename> - Creates a new file on disk.");
             this.commandList[this.commandList.length] = sc;
+            // write to file
             sc = new TSOS.ShellCommand(this.shellWriteFile, "write", ' <filename> "data" - writes data to the specified file name.');
+            this.commandList[this.commandList.length] = sc;
+            // find file
+            sc = new TSOS.ShellCommand(this.shellReadFile, "read", " <filename> - reads and displays contents of a file name.");
             this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
@@ -306,6 +310,8 @@ var TSOS;
                         break;
                     case "write":
                         _StdOut.putText("Writes data to a specified filename");
+                    case "read":
+                        _StdOut.putText("reads and displays contents of a filename");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -601,7 +607,7 @@ var TSOS;
                         if (args == _ReadyQueue[i].PID) {
                             pid = _ReadyQueue[i].PID;
                             var deadProg = new TSOS.PCB();
-                            //remove process from ready queue
+                            // Remove process from ready queue
                             if (_ReadyQueue.length > 1) {
                                 deadProg = _ReadyQueue[i];
                                 deadProg.state = PS_TERMINATED;
@@ -687,10 +693,23 @@ var TSOS;
             }
             else {
                 var fileName = args[0];
-                //remove starting and ending commas from data enterred
+                // Remove beginning and ending commas from data enterred
                 var contents = dataString.slice(1, -1);
                 _DeviceDriverFileSystem.writeToFile(fileName, contents);
                 console.log(fileName, contents);
+            }
+        };
+        //  Read file
+        Shell.prototype.shellReadFile = function (args) {
+            if (args.length == 0) {
+                _StdOut.putText("[ERROR]: Empty file name");
+                _StdOut.advanceLine();
+                _StdOut.putText("Please specify name of file");
+            }
+            else {
+                // Proceed to read file
+                var fileName = args + "";
+                _DeviceDriverFileSystem.readFile(fileName);
             }
         };
         return Shell;
