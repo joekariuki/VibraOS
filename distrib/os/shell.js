@@ -90,6 +90,8 @@ var TSOS;
             //create file
             sc = new TSOS.ShellCommand(this.shellCreateFile, "create", " <filename> - Creates a new file on disk.");
             this.commandList[this.commandList.length] = sc;
+            sc = new TSOS.ShellCommand(this.shellWriteFile, "write", ' <filename> "data" - writes data to the specified file name.');
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         };
@@ -302,6 +304,8 @@ var TSOS;
                     case "create":
                         _StdOut.putText("Creates a new file on disk");
                         break;
+                    case "write":
+                        _StdOut.putText("Writes data to a specified filename");
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
                 }
@@ -477,8 +481,8 @@ var TSOS;
                 }
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep").value ==
-                        "Exit") {
+                    if (document.getElementById("singleStep")
+                        .value == "Exit") {
                         _CPU.cycle();
                     }
                     else {
@@ -546,8 +550,8 @@ var TSOS;
                 _CPU.startIndex = _CurrentProgram.base;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
-                    if (document.getElementById("singleStep").value ==
-                        "Exit") {
+                    if (document.getElementById("singleStep")
+                        .value == "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }
@@ -640,21 +644,53 @@ var TSOS;
         };
         // Create file
         Shell.prototype.shellCreateFile = function (args) {
+            // Check if filename is given
             if (args.length == 0) {
-                _StdOut.putText("[ERROR]");
+                _StdOut.putText("[ERROR]: Empty file name. Please specify the name of file");
                 _StdOut.advanceLine();
-                _StdOut.putText("Empty file name. Please specify the name of file");
             }
             else if (args.length > 1) {
-                //then there is a space in the fileName
-                _StdOut.putText("ERROR");
+                // Check if there's spaces in file name
+                _StdOut.putText("[ERROR]: Spaces in file name. Filename cannot contain spaces");
                 _StdOut.advanceLine();
-                _StdOut.putText("Spaces in file name. File name cannot contain spaces");
             }
             else {
-                //Go ahead and try to create file
+                // Create file if checks pass
                 var fileName = args;
                 _DeviceDriverFileSystem.createFile(fileName);
+                console.log(fileName + " from Shell");
+            }
+        };
+        //  Write to file
+        Shell.prototype.shellWriteFile = function (args) {
+            // Handle spaces enterred in data
+            var dataString = "";
+            for (var i = 1; i < args.length; i++) {
+                if (i == (args.length - 1)) {
+                    dataString = dataString + args[i];
+                }
+                else {
+                    dataString = dataString + args[i] + " ";
+                }
+            }
+            if (args.length < 2) {
+                // Error if no create command is missing an operand
+                _StdOut.putText("[ERROR]: Missing operand(s)!");
+                _StdOut.advanceLine();
+                _StdOut.putText("Please specify name of file or the data you want to write");
+            }
+            else if (dataString[0] != "\"" || dataString[dataString.length - 1] != "\"") {
+                // Error if data is incorrectly entered
+                _StdOut.putText("[ERROR]: Missing quotes!");
+                _StdOut.advanceLine();
+                _StdOut.putText("Correct syntax: write <filename> \"data\"");
+            }
+            else {
+                var fileName = args[0];
+                //remove starting and ending commas from data enterred
+                var contents = dataString.slice(1, -1);
+                _DeviceDriverFileSystem.writeToFile(fileName, contents);
+                console.log(fileName, contents);
             }
         };
         return Shell;

@@ -46,8 +46,9 @@ var TSOS;
             var chr = "";
             // Check to see if we even want to deal with the key that was pressed.
             // Letters
-            if (((keyCode >= 65) && (keyCode <= 90)) || // A..Z
-                ((keyCode >= 97) && (keyCode <= 123))) { // a..z {
+            if ((keyCode >= 65 && keyCode <= 90) || // A..Z
+                (keyCode >= 97 && keyCode <= 123)) {
+                // a..z {
                 // Determine the character we want to display.
                 // Assume it's lowercase...
                 chr = String.fromCharCode(keyCode + 32);
@@ -59,7 +60,7 @@ var TSOS;
                 // Refactor code below
                 // Special characters and punctuation
             }
-            else if ((keyCode >= 186) && (keyCode <= 222)) {
+            else if (keyCode >= 186 && keyCode <= 222) {
                 if (isShifted) {
                     switch (keyCode) {
                         case 186:
@@ -93,7 +94,7 @@ var TSOS;
                             chr = "}";
                             break;
                         case 222:
-                            chr = '""';
+                            chr = '"';
                             break;
                         default:
                             chr = String.fromCharCode(keyCode);
@@ -149,11 +150,12 @@ var TSOS;
                 chr = "&darr;";
                 _KernelInputQueue.enqueue(chr);
             }
-            else if (((keyCode >= 48) && (keyCode <= 57)) || // digits
-                (keyCode == 32) || // space
-                (keyCode == 13) || // enter 
-                (keyCode == 8) || // backspace 
-                (keyCode == 9)) { // tab
+            else if ((keyCode >= 48 && keyCode <= 57) || // digits
+                keyCode == 32 || // space
+                keyCode == 13 || // enter
+                keyCode == 8 || // backspace
+                keyCode == 9) {
+                // tab
                 chr = String.fromCharCode(keyCode);
                 // Shifted special number characters and punctiation
                 if (isShifted) {

@@ -156,12 +156,12 @@ module TSOS {
       let hardDiskHTML = document.getElementById("fsBody");
       hardDiskHTML.innerHTML = "";
       let key = "";
+      let data = _DeviceDriverFileSystem.initializeBlock();
 
       for (let i = 0; i < _DeviceDriverFileSystem.tracks; i++) {
         for (let j = 0; j < _DeviceDriverFileSystem.sectors; j++) {
           for (let k = 0; k < _DeviceDriverFileSystem.blocks; k++) {
             key = i.toString() + j.toString() + k.toString();
-            let data = _DeviceDriverFileSystem.initializeBlock();
 
             // Save data to session storage
             sessionStorage.setItem(key, data);
