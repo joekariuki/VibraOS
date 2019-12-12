@@ -124,124 +124,160 @@ module TSOS {
     }
 
     public writeToFile(fileName, contents) {
-      var dirKey = this.findFilename(fileName);
-      console.log(dirKey);
-      console.log(contents);
+      let dirKey = this.findFilename(fileName);
       if (dirKey == null) {
         _StdOut.putText("[ERROR]: File name does not exist");
         _StdOut.advanceLine();
       } else {
-        var dirData = sessionStorage.getItem(dirKey);
-        var dataKey = dirData.substring(1, this.headerSize);
+        let dirData = sessionStorage.getItem(dirKey);
+        let dataKey = dirData.substring(1, this.headerSize);
 
-        var dataData = "";
-        var inUseBit = sessionStorage.getItem(dataKey).substring(0, 1);
-        var headerTSB = sessionStorage
+        let dataData = "";
+        let inUseBit = sessionStorage.getItem(dataKey).substring(0, 1);
+        let headerTSB = sessionStorage
           .getItem(dataKey)
           .substring(1, this.headerSize);
 
-        //write to file if length of data is less than 60 bytes
-        //NOTE: by converting to hex, each character is 2 bytes
+        // Check if length of data is less than 60 byte
         if (contents.length <= this.dataSize && inUseBit == "1") {
-          console.log(`1 = ${contents.length}`);
           if (headerTSB == "---") {
-            var newData = sessionStorage
+            let newData = sessionStorage
               .getItem(dataKey)
               .substring(this.headerSize);
-
-            var prevContents = this.convertToString(newData);
-            var newContents = prevContents + contents;
+            let prevContents = this.convertToString(newData);
+            let newContents = prevContents + contents;
 
             if (newContents.length > this.dataSize) {
               this.writeToFile(fileName, newContents);
             } else {
+              // Write to file
               dataData = inUseBit + headerTSB + newContents;
               sessionStorage.setItem(dataKey, dataData);
               this.writeData(dataKey, dataData);
               this.updateHardDiskTable(dataKey);
 
-              //Display suscces status
-              _StdOut.putText(`[SUCCESS]: ${fileName} has been updated`);
+              // Display success message
+              _StdOut.putText(`[SUCCESS]: ${fileName} has been updated!`);
             }
           } else {
-            //get readerble data from hard disk and append the the new contents to it
+            // Get readable data from disk
             var newData = sessionStorage
               .getItem(dataKey)
               .substring(this.headerSize);
 
-            var prevContents = this.convertToString(newData);
-            var newContents = prevContents;
+            let prevContents = this.convertToString(newData);
+            let newContents = prevContents;
 
-            var newKey = sessionStorage
+            let newKey = sessionStorage
               .getItem(dataKey)
               .substring(1, this.headerSize);
 
+            //Reset header tsb
+            sessionStorage.setItem(dataKey, "1" + "---" + newData);
+
             while (newKey != "---") {
-              //newKey = sessionStorage.getItem(headerTSB).substring(1, this.headerSize);
               newData = sessionStorage
                 .getItem(newKey)
                 .substring(this.headerSize);
-
-              //prevContents = this.convertToString(newData);
-              newContents = newContents + this.convertToString(newData);
-
-              //get next header tsb
-              newKey = sessionStorage
+              dataKey = sessionStorage
                 .getItem(newKey)
                 .substring(1, this.headerSize);
+
+              newContents = newContents + this.convertToString(newData);
+
+              // Reset header tsb
+              sessionStorage.setItem(newKey, "0" + "---" + newData);
+
+              // Get next header tsb
+              newKey = dataKey;
             }
-            //recall write to function
-            this.writeToFile(fileName, newContents);
+            // TODO: Add appending file message
+
+            // Recall write to function
+            this.writeToFile(fileName, newContents + contents);
           }
-        } else if (
-          contents.length > this.dataSize &&
-          inUseBit == "1" &&
-          headerTSB == "---"
-        ) {
-          //first data to write to file
-          var newDataKey = this.getFreeDataEntry();
-          headerTSB = newDataKey;
+        } else if (contents.length > this.dataSize && inUseBit == "1") {
+          if (headerTSB == "---") {
+            //Get first data to write to file
+            var newDataKey = this.getFreeDataEntry();
+            headerTSB = newDataKey;
 
-          if (newDataKey != null) {
-            var contentSize = 0;
-            var nextContentSize = this.dataSize;
-            while (contentSize < contents.length) {
-              inUseBit = "1";
-              dataData =
-                inUseBit +
-                headerTSB +
-                contents.substring(contentSize, nextContentSize);
+            if (newDataKey != null) {
+              let contentSize = 0;
+              let nextContentSize = this.dataSize;
+              while (contentSize < contents.length) {
+                inUseBit = "1";
+                dataData =
+                  inUseBit +
+                  headerTSB +
+                  contents.substring(contentSize, nextContentSize);
 
-              this.writeData(dataKey, dataData);
-              this.updateHardDiskTable(dataKey);
+                this.writeData(dataKey, dataData);
+                this.updateHardDiskTable(dataKey);
 
-              contentSize = contentSize + this.dataSize;
-              if (
-                contents.length - contentSize >= 0 &&
-                contents.length - contentSize <= this.dataSize
-              ) {
-                nextContentSize = contents.length;
-                dataKey = this.getFreeDataEntry();
-                headerTSB = "---";
-              } else {
-                nextContentSize = contentSize + this.dataSize;
-                dataKey = this.getFreeDataEntry();
+                contentSize = contentSize + this.dataSize;
+                if (
+                  contents.length - contentSize >= 0 &&
+                  contents.length - contentSize <= this.dataSize
+                ) {
+                  nextContentSize = contents.length;
+                  dataKey = this.getFreeDataEntry();
+                  headerTSB = "---";
+                } else {
+                  nextContentSize = contentSize + this.dataSize;
+                  dataKey = this.getFreeDataEntry();
 
-                dataData = sessionStorage.getItem(dataKey);
-                dataData = "1" + dataData.substr(1);
-                sessionStorage.setItem(dataKey, dataData);
+                  dataData = sessionStorage.getItem(dataKey);
+                  dataData = "1" + dataData.substr(1);
 
-                newDataKey = this.getFreeDataEntry();
-                headerTSB = newDataKey;
+                  newDataKey = this.getFreeDataEntry();
+                  headerTSB = newDataKey;
 
-                if (newDataKey == null) {
-                  //TO DO:: Error if file is too large
+                  if (newDataKey == null) {
+                    //TO DO:: Error if file is too large
 
-                  break;
+                    break;
+                  }
                 }
               }
+              //Display success status
+              _StdOut.putText(`[SUCCESS] ${fileName} has been updated!`);
+            } else {
+              //TO DO:: Error if file is too large
             }
-            _StdOut.putText(`[SUCCESS]: ${fileName} has been updated`);
+          } else {
+            // Get readerable data from hard disk
+            var newData = sessionStorage
+              .getItem(dataKey)
+              .substring(this.headerSize);
+
+            let prevContents = this.convertToString(newData);
+            let newContents = prevContents;
+
+            let newKey = sessionStorage
+              .getItem(dataKey)
+              .substring(1, this.headerSize);
+
+            // Reset header tsb
+            sessionStorage.setItem(dataKey, "1" + "---" + newData);
+            while (newKey != "---") {
+              newData = sessionStorage
+                .getItem(newKey)
+                .substring(this.headerSize);
+              dataKey = sessionStorage
+                .getItem(newKey)
+                .substring(1, this.headerSize);
+
+              newContents = newContents + this.convertToString(newData);
+
+              // Reset header tsb
+              sessionStorage.setItem(newKey, "0" + "---" + newData);
+
+              //Get next header tsb
+              newKey = dataKey;
+            }
+            // Call write to function
+            this.writeToFile(fileName, newContents + contents);
           }
         } else {
           //TO DO:: Error if file is too large
@@ -249,6 +285,7 @@ module TSOS {
       }
     }
 
+    // Read file
     public readFile(fileName) {
       let dirKey = this.findFilename(fileName);
       if (dirKey == null) {
@@ -296,6 +333,7 @@ module TSOS {
       }
     }
 
+    // Delete file
     public deleteFile(fileName) {
       let dirKey = this.findFilename(fileName);
       if (dirKey == null) {
