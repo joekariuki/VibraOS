@@ -84,8 +84,26 @@ var TSOS;
                     }
                 }
             }
-            //Display success message
+            // Display success message
             _StdOut.putText("Successfully Formatted");
+        };
+        // List files
+        DeviceDriverFileSystem.prototype.listFiles = function () {
+            for (var i = 0; i < this.sectors; i++) {
+                for (var j = 1; j < this.blocks; j++) {
+                    var key = "0" + i + j;
+                    var inUseBit = sessionStorage.getItem(key).substring(0, 1);
+                    if (inUseBit == "1") {
+                        var data = sessionStorage.getItem(key).substring(this.headerSize);
+                        var fileName = this.convertToString(data);
+                        // Display files name
+                        _StdOut.putText("File(s) available on disk:");
+                        _StdOut.advanceLine();
+                        _StdOut.putText(fileName);
+                        _StdOut.advanceLine();
+                    }
+                }
+            }
         };
         // Write data to a specific TSB key
         DeviceDriverFileSystem.prototype.writeData = function (key, data) {

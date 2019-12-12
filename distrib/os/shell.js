@@ -99,6 +99,9 @@ var TSOS;
             // format
             sc = new TSOS.ShellCommand(this.shellFormat, "format", " - Initialize	all	blocks in all sectors in all tracks.");
             this.commandList[this.commandList.length] = sc;
+            // List files
+            sc = new TSOS.ShellCommand(this.shellListFiles, "ls", "- List all files on disk.");
+            this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
         };
@@ -318,6 +321,9 @@ var TSOS;
                         break;
                     case "format":
                         _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
+                        break;
+                    case "ls":
+                        _StdOut.putText("- List all files on disk");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -731,8 +737,13 @@ var TSOS;
                 _DeviceDriverFileSystem.deleteFile(fileName);
             }
         };
+        // Format
         Shell.prototype.shellFormat = function (args) {
             _DeviceDriverFileSystem.format();
+        };
+        // List files
+        Shell.prototype.shellListFiles = function (args) {
+            _DeviceDriverFileSystem.listFiles();
         };
         return Shell;
     }());

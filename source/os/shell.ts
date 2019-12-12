@@ -218,6 +218,12 @@ module TSOS {
               " - Initialize	all	blocks in all sectors in all tracks.");
             this.commandList[this.commandList.length] = sc;
 
+            // List files
+              sc = new ShellCommand(this.shellListFiles,
+                "ls",
+                "- List all files on disk.");
+            this.commandList[this.commandList.length] = sc;
+
              // Display the initial prompt.
              this.putPrompt();
            }
@@ -465,8 +471,11 @@ module TSOS {
                  case "read":
                     _StdOut.putText("reads and displays contents of a filename");
                     break;
-                    case "format":
-                        _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
+                 case "format":
+                    _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
+                    break;
+                 case "ls":
+                    _StdOut.putText("- List all files on disk");
                     break;
                  default:
                    _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -927,8 +936,16 @@ module TSOS {
              _DeviceDriverFileSystem.deleteFile(fileName);
          }
         }
+
+        // Format
         public shellFormat(args) {
           _DeviceDriverFileSystem.format();
-        }	        
+        }	   
+        
+        // List files
+        public shellListFiles(args) {
+          _DeviceDriverFileSystem.listFiles();
+
+        }
       }
 }
