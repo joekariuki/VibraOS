@@ -230,6 +230,14 @@ module TSOS {
       );
       this.commandList[this.commandList.length] = sc;
 
+      //delete file
+      sc = new ShellCommand(
+        this.shellDeleteFile,
+        "delete",
+        " <filename> - Deletes a filename from storage."
+      );
+      this.commandList[this.commandList.length] = sc;
+
       // Set schedule
       sc = new ShellCommand(
         this.shellSetSchedule,
@@ -486,6 +494,9 @@ module TSOS {
             _StdOut.putText("Writes data to a specified filename");
           case "read":
             _StdOut.putText("reads and displays contents of a filename");
+            break;
+          case "delete":
+            _StdOut.putText("removes filename from storage");
             break;
           case "format":
             _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
@@ -1007,7 +1018,12 @@ module TSOS {
     // Format
     public shellFormat(args) {
       _FormatCommandActive = true;
-      _DeviceDriverFileSystem.format();
+
+      if (!_ReadyQueue) {
+        _StdOut.putText("[ERROR] Cannot format. Empty disk");
+      } else {
+        _DeviceDriverFileSystem.format();
+      }
     }
 
     // List files

@@ -102,6 +102,9 @@ var TSOS;
             // List files
             sc = new TSOS.ShellCommand(this.shellListFiles, "ls", "- List all files on disk.");
             this.commandList[this.commandList.length] = sc;
+            //delete file
+            sc = new TSOS.ShellCommand(this.shellDeleteFile, "delete", " <filename> - Deletes a filename from storage.");
+            this.commandList[this.commandList.length] = sc;
             // Set schedule
             sc = new TSOS.ShellCommand(this.shellSetSchedule, "setschedule", " [rr, fcfs, priority] sets a CPU scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
@@ -324,6 +327,9 @@ var TSOS;
                         _StdOut.putText("Writes data to a specified filename");
                     case "read":
                         _StdOut.putText("reads and displays contents of a filename");
+                        break;
+                    case "delete":
+                        _StdOut.putText("removes filename from storage");
                         break;
                     case "format":
                         _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
@@ -799,7 +805,12 @@ var TSOS;
         // Format
         Shell.prototype.shellFormat = function (args) {
             _FormatCommandActive = true;
-            _DeviceDriverFileSystem.format();
+            if (!_ReadyQueue) {
+                _StdOut.putText("[ERROR] Cannot format. Empty disk");
+            }
+            else {
+                _DeviceDriverFileSystem.format();
+            }
         };
         // List files
         Shell.prototype.shellListFiles = function (args) {

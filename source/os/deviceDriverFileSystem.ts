@@ -135,7 +135,9 @@ module TSOS {
 
           if (inUseBit == "1") {
             var data = sessionStorage.getItem(key).substring(this.headerSize);
+            console.log(data);
             var fileName = this.convertToString(data);
+            console.log(fileName);
             // Display files name
             _StdOut.putText(`File(s) available on disk:`);
             _StdOut.advanceLine();
@@ -192,7 +194,7 @@ module TSOS {
         dirData = sessionStorage.getItem(dirKey);
         // Set inUse bit for directory block to 1
         // Set header tsb to the available dataKey
-        dirData = `1 ${dataKey} ${fileName}`;
+        dirData = "1" + dataKey + fileName;
         // Set data in dirBlock to the file name and write to data
         this.writeData(dirKey, dirData);
 
@@ -431,13 +433,13 @@ module TSOS {
         }
 
         if (!fileName.match(/Process\d+/)) {
-          _StdOut.putText(`[SUCCESS]: Reading ${fileName} ...`);
           _StdOut.advanceLine();
           _StdOut.putText(fileData);
         }
+        console.log(fileData);
         return fileData;
       }
-      _Kernel.krnTrace(`${fileName} read.`);
+      _Kernel.krnTrace(fileName + "read.");
     }
 
     // Delete file
@@ -534,11 +536,10 @@ module TSOS {
       let data = "";
       let inUseBit = "";
       let fileNameHex = this.convertToHex(fileName);
-      console.log(`file: ${fileName} file hex: ${fileNameHex}`);
 
       for (let i = 0; i < this.sectors; i++) {
         for (let j = 0; j < this.blocks; j++) {
-          key = `0 ${i} ${j}`;
+          key = "0" + i + j;
           data = sessionStorage.getItem(key).substring(this.headerSize);
           inUseBit = sessionStorage.getItem(key).substring(0, 1);
 
