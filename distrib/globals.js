@@ -12,7 +12,7 @@
 //
 var APP_NAME = "VibraOS"; // 'cause Bob and I were at a loss for a better name.
 var APP_VERSION = "1.0"; // What did you expect?
-var CPU_CLOCK_INTERVAL = 100; // This is in ms (milliseconds) so 1000 = 1 second.
+var CPU_CLOCK_INTERVAL = 50; // This is in ms (milliseconds) so 1000 = 1 second.
 var TIMER_IRQ = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
 var KEYBOARD_IRQ = 1;
@@ -54,6 +54,9 @@ var PS_WAITING = "Waiting";
 var PS_TERMINATED = "Terminated";
 // Run all
 var _RunAll = false;
+// Run one program
+var _RunOne = false;
+var _RunHDProgram;
 // Reset Memory
 var _ResetMem = false;
 var _DONE = false;
@@ -92,6 +95,8 @@ var _BaseProgram = 0;
 var _ProgramInput = "";
 // Default CPU scheduling
 var _CpuSchedule = "rr";
+var _IsProgramName = false; // Checks if format command is enterred or not
+var _FormatCommandActive = false; // Checks if format command is enterred or not
 // UI
 var _Console;
 var _OsShell;

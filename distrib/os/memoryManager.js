@@ -6,7 +6,7 @@ var TSOS;
         MemoryManager.prototype.loadProgToMem = function () {
             // Remove spaces from input
             var programInput = _ProgramInput.replace(/[\s]/g, "");
-            var base = -20;
+            var base = -1;
             // Get new base
             for (var i = 0; i <= 512; i += 256) {
                 if (_MemoryArray[i] == "00") {
@@ -14,109 +14,120 @@ var TSOS;
                     break;
                 }
             }
-            if (base != -20) {
+            _PID++;
+            _CurrentProgram = new TSOS.PCB();
+            _CurrentProgram.init();
+            _CurrentProgram.pcbProgram = programInput;
+            if (base != -1) {
                 var j = base;
                 for (var i = 0; i < programInput.length; i++) {
                     _MemoryArray[j] = programInput[i] + programInput[i + 1];
                     j++;
                     i++;
                 }
-                _PID++;
-                _CurrentProgram = new TSOS.PCB();
-                _CurrentProgram.init();
-                _CurrentProgram.pcbProgram = programInput;
                 _CurrentProgram.startIndex = base;
                 _CurrentProgram.limit = base + (_ProgramSize - 1);
-                _CurrentProgram.base = base;
-                _CurrentProgram.state = PS_NEW;
-                _CurrentProgram.priority = _Priority;
-                _ResidentQueue.push(_CurrentProgram);
-                _StdOut.putText("PID " + _PID + " Loaded");
-                //Create row and insert into PCB table
-                var pcbTab = (document.getElementById("pcbTabDisplay"));
-                var newRow = pcbTab.insertRow(pcbTab.rows.length);
-                // Insert a cell in the row at index 0
-                var newCell1 = newRow.insertCell(0);
-                // Create PID text node
-                var pidNode = document.createTextNode("" + _CurrentProgram.PID);
-                // Append PID node to the cell
-                newCell1.appendChild(pidNode);
-                // Insert a cell in the row at index 1
-                var newCell2 = newRow.insertCell(1);
-                // Create PC text node
-                var pcNode = document.createTextNode("" + _CurrentProgram.PC);
-                // Append PC text node to the cell
-                newCell2.appendChild(pcNode);
-                // Insert a cell in the row at index 2
-                var newCell3 = newRow.insertCell(2);
-                // Create IR text node
-                var IRNode = document.createTextNode("" + _CurrentProgram.IR);
-                // Append a IR node to the cell
-                newCell3.appendChild(IRNode);
-                // Insert a cell in the row at index 4
-                var newCell4 = newRow.insertCell(3);
-                // Create Acc text node
-                var AccNode = document.createTextNode("" + _CurrentProgram.Acc);
-                // Append a Acc node to the cell
-                newCell4.appendChild(AccNode);
-                // Insert a cell in the row at index 5
-                var newCell5 = newRow.insertCell(4);
-                // Create Xreg text node
-                var XregNode = document.createTextNode("" + _CurrentProgram.Xreg);
-                // Append a Xreg text node to the cell
-                newCell5.appendChild(XregNode);
-                // Insert a cell in the row at index 6
-                var newCell6 = newRow.insertCell(5);
-                // Create Yreg text node
-                var YregNode = document.createTextNode("" + _CurrentProgram.Yreg);
-                // Append a Yreg text node to the cell
-                newCell6.appendChild(YregNode);
-                // Insert a cell in the row at index 7
-                var newCell7 = newRow.insertCell(6);
-                // Create Zflag text node
-                var ZflagNode = document.createTextNode("" + _CurrentProgram.Zflag);
-                // Append a Zflag text node to the cell
-                newCell7.appendChild(ZflagNode);
-                // Insert a cell in the row at index 8
-                var newCell8 = newRow.insertCell(7);
-                // Create a base text node
-                var baseNode = document.createTextNode("" + _CurrentProgram.base);
-                // Append base text node to the cell
-                newCell8.appendChild(baseNode);
-                // Insert a cell in the row at index 9
-                var newCell9 = newRow.insertCell(8);
-                //  Create limit text node
-                var limitNode = document.createTextNode("" + _CurrentProgram.limit);
-                // Append a limit text node to the cell
-                newCell9.appendChild(limitNode);
-                // Insert a cell in the row at index 10
-                var newCell10 = newRow.insertCell(9);
-                // Append a wait node to the cell
-                var waitNode = document.createTextNode("" + _CurrentProgram.waitTime);
-                newCell10.appendChild(waitNode);
-                // Insert a cell in the row at index 11
-                var newCell11 = newRow.insertCell(10);
-                // Append a tatime node to the cell
-                var taTime = document.createTextNode("" + _CurrentProgram.taTime);
-                newCell11.appendChild(taTime);
-                // Insert a cell in the row at index 12
-                var newCell12 = newRow.insertCell(11);
-                // Create state text node
-                var stateNode = document.createTextNode("" + _CurrentProgram.state);
-                // Append a state node to the cell
-                newCell12.appendChild(stateNode);
-                // Insert a cell in the row at index 12
-                var newCell13 = newRow.insertCell(12);
-                // Create state text node
-                var priorityNode = document.createTextNode("" + _CurrentProgram.state);
-                // Append a priority node to the cell
-                newCell13.appendChild(priorityNode);
-                //Create CPU log
-                this.cpuTableLog();
+                _CurrentProgram.location = "Memory";
             }
             else {
-                _StdOut.putText("Memory Full... Can't load Program");
+                _IsProgramName = true;
+                _DeviceDriverFileSystem.createFile("process: " + _PID);
+                _DeviceDriverFileSystem.writeToFile("process: " + _PID, programInput);
+                _CurrentProgram.location = "Hard Disk";
+                _IsProgramName = false;
             }
+            _CurrentProgram.base = base;
+            _CurrentProgram.state = PS_NEW;
+            _CurrentProgram.priority = _Priority;
+            _ResidentQueue.push(_CurrentProgram);
+            _StdOut.putText("PID " + _PID + " Loaded");
+            //Create row and insert into PCB table
+            var pcbTab = (document.getElementById("pcbTabDisplay"));
+            var newRow = pcbTab.insertRow(pcbTab.rows.length);
+            // Insert a cell in the row at index 0
+            var newCell1 = newRow.insertCell(0);
+            // Create PID text node
+            var pidNode = document.createTextNode("" + _CurrentProgram.PID);
+            // Append PID node to the cell
+            newCell1.appendChild(pidNode);
+            // Insert a cell in the row at index 1
+            var newCell2 = newRow.insertCell(1);
+            // Create PC text node
+            var pcNode = document.createTextNode("" + _CurrentProgram.PC);
+            // Append PC text node to the cell
+            newCell2.appendChild(pcNode);
+            // Insert a cell in the row at index 2
+            var newCell3 = newRow.insertCell(2);
+            // Create IR text node
+            var IRNode = document.createTextNode("" + _CurrentProgram.IR);
+            // Append a IR node to the cell
+            newCell3.appendChild(IRNode);
+            // Insert a cell in the row at index 4
+            var newCell4 = newRow.insertCell(3);
+            // Create Acc text node
+            var AccNode = document.createTextNode("" + _CurrentProgram.Acc);
+            // Append a Acc node to the cell
+            newCell4.appendChild(AccNode);
+            // Insert a cell in the row at index 5
+            var newCell5 = newRow.insertCell(4);
+            // Create Xreg text node
+            var XregNode = document.createTextNode("" + _CurrentProgram.Xreg);
+            // Append a Xreg text node to the cell
+            newCell5.appendChild(XregNode);
+            // Insert a cell in the row at index 6
+            var newCell6 = newRow.insertCell(5);
+            // Create Yreg text node
+            var YregNode = document.createTextNode("" + _CurrentProgram.Yreg);
+            // Append a Yreg text node to the cell
+            newCell6.appendChild(YregNode);
+            // Insert a cell in the row at index 7
+            var newCell7 = newRow.insertCell(6);
+            // Create Zflag text node
+            var ZflagNode = document.createTextNode("" + _CurrentProgram.Zflag);
+            // Append a Zflag text node to the cell
+            newCell7.appendChild(ZflagNode);
+            // Insert a cell in the row at index 8
+            var newCell8 = newRow.insertCell(7);
+            // Create a base text node
+            var baseNode = document.createTextNode("" + _CurrentProgram.base);
+            // Append base text node to the cell
+            newCell8.appendChild(baseNode);
+            // Insert a cell in the row at index 9
+            var newCell9 = newRow.insertCell(8);
+            //  Create limit text node
+            var limitNode = document.createTextNode("" + _CurrentProgram.limit);
+            // Append a limit text node to the cell
+            newCell9.appendChild(limitNode);
+            // Insert a cell in the row at index 10
+            var newCell10 = newRow.insertCell(9);
+            // Append a wait node to the cell
+            var waitNode = document.createTextNode("" + _CurrentProgram.waitTime);
+            newCell10.appendChild(waitNode);
+            // Insert a cell in the row at index 11
+            var newCell11 = newRow.insertCell(10);
+            // Append a tatime node to the cell
+            var taTime = document.createTextNode("" + _CurrentProgram.taTime);
+            newCell11.appendChild(taTime);
+            // Insert a cell in the row at index 12
+            var newCell12 = newRow.insertCell(11);
+            // Create state text node
+            var stateNode = document.createTextNode("" + _CurrentProgram.state);
+            // Append a state node to the cell
+            newCell12.appendChild(stateNode);
+            // Insert a cell in the row at index 13
+            var newCell13 = newRow.insertCell(12);
+            // Create state text node
+            var priorityNode = document.createTextNode("" + _CurrentProgram.state);
+            // Append a priority node to the cell
+            newCell13.appendChild(priorityNode);
+            // Insert a cell in the row at index 14
+            var newCell14 = newRow.insertCell(13);
+            // Create state text node
+            var locationNode = document.createTextNode("" + _CurrentProgram.location);
+            // Append a priority node to the cell
+            newCell14.appendChild(locationNode);
+            //Create CPU log
+            this.cpuTableLog();
         };
         MemoryManager.prototype.updateCell = function (index) {
             var memoryTable = (document.getElementById("memoryTabDisplay"));
@@ -282,7 +293,8 @@ var TSOS;
                     rows[i].cells[9].innerHTML = "" + pcb.waitTime;
                     rows[i].cells[10].innerHTML = "" + pcb.taTime;
                     rows[i].cells[11].innerHTML = "" + pcb.priority;
-                    rows[i].cells[11].innerHTML = "" + pcb.state;
+                    rows[i].cells[12].innerHTML = "" + pcb.state;
+                    rows[i].cells[13].innerHTML = "" + pcb.location;
                     break;
                 }
             }

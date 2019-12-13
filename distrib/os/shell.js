@@ -449,34 +449,49 @@ var TSOS;
                 _StdOut.putText("[SUCCESS] Valid hex. Program loaded");
                 _Console.advanceLine();
                 var programInput = _ProgramInput.replace(/[\s]/g, "");
-                var programLength = programInput.length / 2;
-                if (programLength <= _ProgramSize) {
-                    if (_CPU.isExecuting != true) {
-                        // Add new memory instance
-                        _MemoryManager = new TSOS.MemoryManager();
-                        // Load program to memory
-                        _MemoryManager.loadProgToMem();
-                        // Update Memory Table with current program
-                        _MemoryManager.updateMemTable(_CurrentProgram);
+                if ((args.length == 1 && args == parseInt(args, 10)) ||
+                    args.length == 0) {
+                    if (args.length == 1) {
+                        _Priority = args;
+                    }
+                    var programLength = programInput.length / 2;
+                    if (programLength <= _ProgramSize) {
+                        if (_CPU.isExecuting != true) {
+                            // Add new memory instance
+                            _MemoryManager = new TSOS.MemoryManager();
+                            // Load program to memory
+                            _MemoryManager.loadProgToMem();
+                            //  Check if current program base is not -1
+                            if (_CurrentProgram.base != -1) {
+                                // Update Memory Table with current program
+                                _MemoryManager.updateMemTable(_CurrentProgram);
+                            }
+                        }
+                        else {
+                            var newprog = new TSOS.PCB();
+                            newprog = _CurrentProgram;
+                            _MemoryManager = new TSOS.MemoryManager();
+                            // Load program to memory
+                            _MemoryManager.loadProgToMem();
+                            //  Check if current program base is not -1
+                            if (_CurrentProgram.base != -1) {
+                                // Update Memory Table with current program
+                                _MemoryManager.updateMemTable(_CurrentProgram);
+                            }
+                            _CurrentProgram = newprog;
+                        }
                     }
                     else {
-                        var newprog = new TSOS.PCB();
-                        newprog = _CurrentProgram;
-                        _MemoryManager = new TSOS.MemoryManager();
-                        //load program to memory
-                        _MemoryManager.loadProgToMem();
-                        // Update memory table
-                        _MemoryManager.updateMemTable(_CurrentProgram);
-                        _CurrentProgram = newprog;
+                        // Error if program is bigger than or equal to 256 bytes
+                        _StdOut.putText("Program too Large.. ");
                     }
                 }
                 else {
-                    // Error if program is bigger than or equal to 256 bytes
-                    _StdOut.putText("Program too Large.. ");
+                    _StdOut.putText("[ERROR] Invalid priority. Please enter valid priority");
                 }
             }
             else {
-                _StdOut.putText("[ERROR] Invalid hex. Only characters are 0-9, a-z, and A-z are valid!");
+                _StdOut.putText("INVALID HEX");
                 // Reset program input if not valid
                 _ProgramInput = "";
             }
@@ -498,9 +513,9 @@ var TSOS;
                 for (index = 0; index < _ResidentQueue.length; index++) {
                     if (args == _ResidentQueue[index].PID) {
                         pid = _ResidentQueue[index].PID;
-                        // Set process to ready
-                        // _ResidentQueue[index].state = PS_READY;
+                        // Remove process from resident queue
                         _CurrentProgram = _ResidentQueue[index];
+                        //  Set program state to ready
                         _CurrentProgram.state = PS_READY;
                         _ResidentQueue.splice(index, 1);
                         // Add program to ready queue
@@ -510,21 +525,37 @@ var TSOS;
                         break;
                     }
                 }
+                // Swap current program with  program in memory if current program is on Hard Disk
+                if (_CurrentProgram.location == "Hard Disk") {
+                    for (var i = 0; i < _ResidentQueue.length; i++) {
+                        if (_ResidentQueue[i].location == "Memory") {
+                            TSOS.CpuScheduler.swapProgram(_ResidentQueue[i], _CurrentProgram);
+                            _ResidentQueue[i].location = "Hard Disk";
+                            _CurrentProgram.location = "Memory";
+                            _MemoryManager.updatePcbTable(_CurrentProgram);
+                            _MemoryManager.updatePcbTable(_ResidentQueue[i]);
+                            break;
+                        }
+                    }
+                }
                 if (_CurrentProgram.state == PS_READY) {
                     _StdOut.putText("Running PID " + pid);
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
+                    _RunOne = true;
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
                         _CPU.cycle();
                     }
                     else {
                         if (_ReadyQueue.length > 1) {
                             _CurrentProgram = activeProg;
                             _ClockTicks++;
+                            _RunOne = false;
                             _RunAll = true;
                             _CPU.isExecuting = true;
                         }
                         else {
-                            //base to start running program
+                            // Base to start running program
+                            _RunOne = true;
                             _CPU.init();
                             _CPU.startIndex = _CurrentProgram.startIndex;
                             _CPU.isExecuting = true;
@@ -577,18 +608,15 @@ var TSOS;
                     //Update PCB Table
                     _MemoryManager.updatePcbTable(_CurrentProgram);
                 }
-                if (_CpuSchedule == "rr" || _CpuSchedule == "fcfs") {
-                    _CurrentProgram = _ReadyQueue[0];
-                }
-                else {
+                _CurrentProgram = _ReadyQueue[0];
+                if (_CpuSchedule == "priority") {
                     TSOS.CpuScheduler.priority();
                 }
-                _CurrentProgram = _ReadyQueue[0];
                 _CPU.startIndex = _CurrentProgram.base;
                 if (_CurrentProgram.state != PS_TERMINATED) {
                     _StdOut.putText("Running all Programs...");
-                    if (document.getElementById("singleStep")
-                        .value == "Exit") {
+                    if (document.getElementById("singleStep").value ==
+                        "Exit") {
                         _ClockTicks++;
                         _CPU.cycle();
                     }
@@ -604,12 +632,18 @@ var TSOS;
             }
         };
         Shell.prototype.shellQuantum = function (args) {
-            //Sets quantum number for round robin
-            if (args == parseInt(args, 10)) {
-                _Quantum = args;
+            if (_CpuSchedule == "fcfs") {
+                // Do not allow user to change quantum number if current scheduling is fcfs
+                _StdOut.putText("[ERROR]: Cannot set quantum at fcfs CPU schedule");
             }
             else {
-                _StdOut.putText("Please enter an integer");
+                //Sets quantum number for round robin
+                if (args == parseInt(args, 10)) {
+                    _Quantum = args;
+                }
+                else {
+                    _StdOut.putText("Please enter an integer");
+                }
             }
         };
         Shell.prototype.shellActivePids = function (args) {
@@ -681,8 +715,14 @@ var TSOS;
         };
         // Create file
         Shell.prototype.shellCreateFile = function (args) {
+            var str = args + "";
+            // Check if file name is same as program/process on hard disk
+            if (str.match(/process\d+/)) {
+                _StdOut.putText("[ERROR]: File in use by OS. Use a different file name");
+                _StdOut.advanceLine();
+            }
             // Check if filename is given
-            if (args.length == 0) {
+            else if (args.length == 0) {
                 _StdOut.putText("[ERROR]: Empty file name. Please specify the name of file");
                 _StdOut.advanceLine();
             }
@@ -693,7 +733,7 @@ var TSOS;
             }
             else {
                 // Create file if checks pass
-                var fileName = args;
+                var fileName = args + "";
                 _DeviceDriverFileSystem.createFile(fileName);
                 console.log(fileName + " from Shell");
             }
@@ -703,7 +743,7 @@ var TSOS;
             // Handle spaces enterred in data
             var dataString = "";
             for (var i = 1; i < args.length; i++) {
-                if (i == (args.length - 1)) {
+                if (i == args.length - 1) {
                     dataString = dataString + args[i];
                 }
                 else {
@@ -716,7 +756,8 @@ var TSOS;
                 _StdOut.advanceLine();
                 _StdOut.putText("Please specify name of file or the data you want to write");
             }
-            else if (dataString[0] != "\"" || dataString[dataString.length - 1] != "\"") {
+            else if (dataString[0] != "\"" ||
+                dataString[dataString.length - 1] != "\"") {
                 // Error if data is incorrectly entered
                 _StdOut.putText("[ERROR]: Missing quotes!");
                 _StdOut.advanceLine();
@@ -757,6 +798,7 @@ var TSOS;
         };
         // Format
         Shell.prototype.shellFormat = function (args) {
+            _FormatCommandActive = true;
             _DeviceDriverFileSystem.format();
         };
         // List files
@@ -766,7 +808,7 @@ var TSOS;
         // Sets Schedule
         Shell.prototype.shellSetSchedule = function (args) {
             if (args.length > 1) {
-                _StdOut.putText("[ERROR] Too many operands");
+                _StdOut.putText("[ERROR]: Too many operands");
                 _StdOut.putText("Correct command is -- setschedule [rr, fcfs, priority]");
             }
             else if (args == "rr") {

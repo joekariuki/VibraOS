@@ -6,7 +6,8 @@ module TSOS {
       public sectors: number = 8,
       public blocks: number = 8,
       public dataSize: number = 60,
-      public headerSize: number = 4
+      public headerSize: number = 4,
+      public formatCount: number = 1
     ) {
       super();
       this.driverEntry = this.krnFsDriverEntry;
@@ -48,6 +49,7 @@ module TSOS {
     // Converts string-data provided to hex
     public convertToHex(data) {
       let hexString = "";
+      data += "";
 
       // Converts a char at an index to hex and builds the string
       for (let i = 0; i < data.length; i++) {
@@ -64,25 +66,72 @@ module TSOS {
 
     // Format
     public format() {
-      for (let i = 0; i < this.tracks; i++) {
-        for (let j = 0; j < this.sectors; j++) {
-          for (let k = 0; k < this.blocks; k++) {
-            let key = i.toString() + j.toString() + k.toString();
-            sessionStorage.setItem(key, this.initializeBlock());
-            this.updateHardDiskTable(key);
+      let format = true;
+
+      if (_ReadyQueue.length > 1) {
+        for (let i = 0; i < _ReadyQueue.length; i++) {
+          if (_ReadyQueue[i].location == "Hard Disk") {
+            format = false;
+            if (this.formatCount == 1) {
+              _StdOut.putText("[LOADING] FORMAT WAITING...");
+              _StdOut.advanceLine();
+              this.formatCount++;
+            }
+            break;
+          }
+        }
+      } else if (_ResidentQueue.length > 1) {
+        for (let i = 0; i < _ResidentQueue.length; i++) {
+          if (_ResidentQueue[i].location == "Hard Disk") {
+            format = false;
+            _StdOut.putText(
+              "[ERROR] Cannot format HD now. There are programs on Hard Disk waiting to be executed."
+            );
+            // Deactive format command
+            _FormatCommandActive = false;
+            // Set format count to 1
+            this.formatCount = 1;
+            break;
           }
         }
       }
-      // Display success message
-      _StdOut.putText("Successfully Formatted");
+
+      if (format == true) {
+        for (let i = 0; i < this.tracks; i++) {
+          for (let j = 0; j < this.sectors; j++) {
+            for (let k = 0; k < this.blocks; k++) {
+              let key = i.toString() + j.toString() + k.toString();
+
+              let data = this.initializeBlock();
+
+              if (key == "000") {
+                data = "1000" + data.substring(this.headerSize);
+              }
+
+              sessionStorage.setItem(key, data);
+              this.updateHardDiskTable(key);
+            }
+          }
+        }
+        // Check if executing
+        if (_FormatCommandActive == true) {
+          _StdOut.advanceLine();
+        }
+        // Display success message
+        _StdOut.putText("Successfully Formatted");
+        // Set format count to 1
+        this.formatCount = 1;
+        // Deactive format command
+        _FormatCommandActive = false;
+      }
     }
 
     // List files
     public listFiles() {
-      for (var i = 0; i < this.sectors; i++) {
-        for (var j = 1; j < this.blocks; j++) {
-          var key = "0" + i + j;
-          var inUseBit = sessionStorage.getItem(key).substring(0, 1);
+      for (let i = 0; i < this.sectors; i++) {
+        for (let j = 1; j < this.blocks; j++) {
+          let key = "0" + i + j;
+          let inUseBit = sessionStorage.getItem(key).substring(0, 1);
 
           if (inUseBit == "1") {
             var data = sessionStorage.getItem(key).substring(this.headerSize);
@@ -95,6 +144,7 @@ module TSOS {
           }
         }
       }
+      _Kernel.krnTrace("List files on Hard Disk ");
     }
 
     // Write data to a specific TSB key
@@ -129,11 +179,14 @@ module TSOS {
           "File name too long. Please enter a file name less than 60 characters."
         );
       } else if (dirKey == null || dataKey == null) {
-        _StdOut.putText("[ERROR]");
+        _StdOut.putText("[ERROR]: Memory out of space");
         _StdOut.advanceLine();
-        _StdOut.putText(
-          "Memory out of space.There is no free space to create this file"
-        );
+        _StdOut.putText("There is no free space to create this file");
+      } else if (this.findFilename(fileName) != null) {
+        // Check if file already exist then don't create it.
+        _StdOut.putText("[ERROR]: File already exist");
+        _StdOut.advanceLine();
+        _StdOut.putText("Create file using a different file name");
       } else {
         // Create file
         dirData = sessionStorage.getItem(dirKey);
@@ -153,8 +206,11 @@ module TSOS {
         // Update hard  disk with dataKey
         this.updateHardDiskTable(dataKey);
 
-        _StdOut.putText(`[SUCCESS]: ${fileName} has been created`);
+        if (!fileName.match(/Process\d+/)) {
+          _StdOut.putText(`[SUCCESS]: ${fileName} has been created`);
+        }
       }
+      _Kernel.krnTrace(`${fileName} created and and stored on Hard Disk`);
     }
 
     public writeToFile(fileName, contents) {
@@ -189,9 +245,10 @@ module TSOS {
               sessionStorage.setItem(dataKey, dataData);
               this.writeData(dataKey, dataData);
               this.updateHardDiskTable(dataKey);
-
-              // Display success message
-              _StdOut.putText(`[SUCCESS]: ${fileName} has been updated!`);
+              if (!fileName.match(/Process\d+/)) {
+                // Display success message
+                _StdOut.putText(`[SUCCESS]: ${fileName} has been updated!`);
+              }
             }
           } else {
             // Get readable data from disk
@@ -250,33 +307,44 @@ module TSOS {
                 this.updateHardDiskTable(dataKey);
 
                 contentSize = contentSize + this.dataSize;
-                if (
-                  contents.length - contentSize >= 0 &&
-                  contents.length - contentSize <= this.dataSize
-                ) {
+                if (contents.length - contentSize <= this.dataSize) {
                   nextContentSize = contents.length;
                   dataKey = this.getFreeDataEntry();
+
+                  if (dataKey == null) {
+                    // Stop writing to file when HD is out of space
+                    break;
+                  }
+
                   headerTSB = "---";
                 } else {
                   nextContentSize = contentSize + this.dataSize;
                   dataKey = this.getFreeDataEntry();
 
+                  if (dataKey == null) {
+                    // Stop writing to file when HD is out of space
+                    break;
+                  }
+
                   dataData = sessionStorage.getItem(dataKey);
                   dataData = "1" + dataData.substr(1);
                   sessionStorage.setItem(dataKey, dataData);
 
+                  this.updateHardDiskTable(dataKey);
                   newDataKey = this.getFreeDataEntry();
                   headerTSB = newDataKey;
 
                   if (newDataKey == null) {
-                    //TO DO:: Error if file is too large
+                    // Stop writing to file when HD is out of space
 
                     break;
                   }
                 }
               }
-              //Display success status
-              _StdOut.putText(`[SUCCESS] ${fileName} has been updated!`);
+              if (!fileName.match(/Process\d+/)) {
+                //Display success status
+                _StdOut.putText(`[SUCCESS] ${fileName} has been updated!`);
+              }
             } else {
               //TO DO:: Error if file is too large
             }
@@ -362,10 +430,14 @@ module TSOS {
           }
         }
 
-        _StdOut.putText(`[SUCCESS]: Reading ${fileName} ...`);
-        _StdOut.advanceLine();
-        _StdOut.putText(fileData);
+        if (!fileName.match(/Process\d+/)) {
+          _StdOut.putText(`[SUCCESS]: Reading ${fileName} ...`);
+          _StdOut.advanceLine();
+          _StdOut.putText(fileData);
+        }
+        return fileData;
       }
+      _Kernel.krnTrace(`${fileName} read.`);
     }
 
     // Delete file
@@ -403,9 +475,12 @@ module TSOS {
 
           nextDataKey = dataKey;
         }
-        // Display success message
-        _StdOut.putText(`[SUCCESS]: ${fileName} has been deleted!`);
+        if (!_IsProgramName) {
+          // Display success message
+          _StdOut.putText(`[SUCCESS]: ${fileName} has been deleted!`);
+        }
       }
+      _Kernel.krnTrace(`${fileName} deleted from Hard Disk`);
     }
 
     // Get available dir that is not in use
@@ -415,7 +490,7 @@ module TSOS {
       let inUseBit = "";
 
       for (let i = 0; i < this.sectors; i++) {
-        for (let j = 1; j < this.blocks; j++) {
+        for (let j = 0; j < this.blocks; j++) {
           key = "0" + i + j;
           data = sessionStorage.getItem(key);
           inUseBit = data.substring(0, 1);

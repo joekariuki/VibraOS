@@ -139,11 +139,16 @@ var TSOS;
             var hardDiskHTML = document.getElementById("fsBody");
             hardDiskHTML.innerHTML = "";
             var key = "";
-            var data = _DeviceDriverFileSystem.initializeBlock();
             for (var i = 0; i < _DeviceDriverFileSystem.tracks; i++) {
                 for (var j = 0; j < _DeviceDriverFileSystem.sectors; j++) {
                     for (var k = 0; k < _DeviceDriverFileSystem.blocks; k++) {
                         key = i.toString() + j.toString() + k.toString();
+                        var data = _DeviceDriverFileSystem.initializeBlock();
+                        // Set MBR inUse bit to 1
+                        if (key == "000") {
+                            data =
+                                "1000" + data.substring(_DeviceDriverFileSystem.headerSize);
+                        }
                         // Save data to session storage
                         sessionStorage.setItem(key, data);
                         // Update hard disk table display

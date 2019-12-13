@@ -282,7 +282,7 @@ var TSOS;
                 _MemoryManager.updatePcbTable(_CurrentProgram);
                 // Update CPU table
                 _MemoryManager.updateCpuTable();
-                // Perform round robbin if ready queue is greater than 0
+                // Perform round robbin or fcfs if ready queue is greater than 0
                 if (_ReadyQueue.length > 1 && _CpuSchedule != "priority") {
                     TSOS.CpuScheduler.roundRobin();
                 }
@@ -318,6 +318,10 @@ var TSOS;
                         }
                         this.isExecuting = true;
                         TSOS.CpuScheduler.priority();
+                        // Execute format command
+                        if (_FormatCommandActive == true) {
+                            _DeviceDriverFileSystem.format();
+                        }
                     }
                     if (_MemoryManager.fetch(this.startIndex) != "00" &&
                         _CurrentProgram.state != PS_RUNNING) {
@@ -335,6 +339,41 @@ var TSOS;
                     _MemoryManager.deleteRowPcb(_CurrentProgram);
                     _StdOut.advanceLine();
                     _StdOut.putText(">");
+                    // Roll swapped program during single run back into memory
+                    if (_RunOne == true && _RunHDProgram.location == "Hard Disk") {
+                        _IsProgramName = true;
+                        TSOS.CpuScheduler.rollin(_RunHDProgram);
+                        _IsProgramName = false;
+                        _RunHDProgram.location = "Memory";
+                        _MemoryManager.updatePcbTable(_RunHDProgram);
+                        _RunOne = false;
+                    }
+                    if (_RunOne == true && _CurrentProgram.location == "Memory") {
+                        // Load program from HD to memory if there is an empty partition
+                        if (_ResidentQueue.length > 1) {
+                            for (var i = 0; i < _ResidentQueue.length; i++) {
+                                if (_ResidentQueue[i].location == "Hard Disk") {
+                                    if (_ResidentQueue[i].base == -1) {
+                                        _ResidentQueue[i].startIndex = _CurrentProgram.base;
+                                    }
+                                    else {
+                                        //Get  start index for the next program
+                                        _ResidentQueue[i].startIndex =
+                                            _ResidentQueue[i].startIndex -
+                                                _ResidentQueue[i].base +
+                                                _CurrentProgram.base;
+                                    }
+                                    _ResidentQueue[i].base = _CurrentProgram.base;
+                                    _ResidentQueue[i].limit = _CurrentProgram.limit;
+                                    TSOS.CpuScheduler.rollin(_ResidentQueue[i]);
+                                    _ResidentQueue[i].location = "Memory";
+                                    _MemoryManager.updatePcbTable(_ResidentQueue[i]);
+                                    _RunOne = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     this.init();
                     _IR = "NA";
                     _MemoryManager.updateCpuTable();

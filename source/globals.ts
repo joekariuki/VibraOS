@@ -14,7 +14,7 @@
 const APP_NAME: string = "VibraOS"; // 'cause Bob and I were at a loss for a better name.
 const APP_VERSION: string = "1.0"; // What did you expect?
 
-const CPU_CLOCK_INTERVAL: number = 100; // This is in ms (milliseconds) so 1000 = 1 second.
+const CPU_CLOCK_INTERVAL: number = 50; // This is in ms (milliseconds) so 1000 = 1 second.
 
 const TIMER_IRQ: number = 0; // Pages 23 (timer), 9 (interrupts), and 561 (interrupt priority).
 // NOTE: The timer is different from hardware/host clock pulses. Don't confuse these.
@@ -65,6 +65,9 @@ var PS_TERMINATED: string = "Terminated";
 
 // Run all
 var _RunAll: Boolean = false;
+// Run one program
+var _RunOne: boolean = false;
+var _RunHDProgram: TSOS.PCB;
 // Reset Memory
 var _ResetMem: Boolean = false;
 
@@ -110,6 +113,9 @@ var _BaseProgram: number = 0;
 var _ProgramInput = "";
 // Default CPU scheduling
 var _CpuSchedule = "rr";
+
+var _IsProgramName = false; // Checks if format command is enterred or not
+var _FormatCommandActive = false; // Checks if format command is enterred or not
 
 // UI
 var _Console: TSOS.Console;
