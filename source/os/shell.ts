@@ -139,7 +139,7 @@ module TSOS {
              sc = new ShellCommand(
                this.shellLoad,
                "load",
-               "<HEX>- Loads program with valid HEX from user program input"
+               "[<priority>] - Loads program with valid HEX from user program input"
              );
              this.commandList[this.commandList.length] = sc;
              // run
@@ -222,6 +222,18 @@ module TSOS {
               sc = new ShellCommand(this.shellListFiles,
                 "ls",
                 "- List all files on disk.");
+            this.commandList[this.commandList.length] = sc;
+
+             // Set schedule
+              sc = new ShellCommand(this.shellSetSchedule,
+                "setschedule",
+                " [rr, fcfs, priority] sets a CPU scheduling algorithm.");
+            this.commandList[this.commandList.length] = sc;
+
+            // Get schedule
+             sc = new ShellCommand(this.shellGetSchedule,
+                "getschedule",
+                "gets the current CPU scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
 
              // Display the initial prompt.
@@ -445,7 +457,7 @@ module TSOS {
                    break;
                  case "load":
                    _StdOut.putText(
-                     "<HEX>- Loads program with valid HEX from user program input"
+                     "- Loads program to memory and sets priority of program if specified."
                    );
                    break;
                  case "run":
@@ -475,7 +487,13 @@ module TSOS {
                     _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
                     break;
                  case "ls":
-                    _StdOut.putText("- List all files on disk");
+                    _StdOut.putText(" - List all files on disk");
+                    break;
+                 case "setschedule":
+                    _StdOut.putText(" - Sets a CPU scheduling algorithm");
+                    break;
+                 case "getschedule":
+                    _StdOut.putText(" - Gets the current CPU scheduling algorithm");
                     break;
                  default:
                    _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -617,7 +635,7 @@ module TSOS {
                    // Add new memory instance
                    _MemoryManager = new MemoryManager();
 
-                   //load program to memory
+                   // Load program to memory
                    _MemoryManager.loadProgToMem();
 
                    // Update Memory Table with current program
@@ -751,6 +769,13 @@ module TSOS {
                  //Update PCB Table
                  _MemoryManager.updatePcbTable(_CurrentProgram);
                }
+
+               if (_CpuSchedule == "rr" || _CpuSchedule == "fcfs") {
+                _CurrentProgram = _ReadyQueue[0];
+              }
+            else{
+                 CpuScheduler.priority();
+            }	                
 
                _CurrentProgram = _ReadyQueue[0];
                _CPU.startIndex = _CurrentProgram.base;
@@ -946,6 +971,36 @@ module TSOS {
         public shellListFiles(args) {
           _DeviceDriverFileSystem.listFiles();
 
+        }
+
+        // Sets Schedule
+        public shellSetSchedule(args) {
+            if (args.length > 1) {
+                _StdOut.putText("[ERROR] Too many operands");
+                _StdOut.putText("Correct command is -- setschedule [rr, fcfs, priority]");
+            }
+            else if (args == "rr") {
+                _CpuSchedule = args;
+                 _Quantum = 6;
+            }
+            else if (args == "fcfs") {
+                _CpuSchedule = args;
+                _Quantum = Number.MAX_VALUE;
+
+            }
+            else if (args == "priority") {
+                _CpuSchedule = args;
+
+            }
+            else {
+                _StdOut.putText("[ERROR] Invalid scheduling input");
+                _StdOut.putText(`Available scheduling are "rr", "fcfs" and "priority"`);
+
+            }
+        }
+        // Get Schedule
+        public shellGetSchedule(args) {
+            _StdOut.putText(`Current CPU scheduling is ${_CpuSchedule}`);
         }
       }
 }

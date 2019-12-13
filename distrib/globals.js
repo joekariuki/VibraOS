@@ -45,6 +45,7 @@ var _Quantum = 6; //Default Quantum number
 var _ClockTicks = 0; // Number of clock ticks
 var _WaitTime = 1; // Initialize wait time
 var _TaTime = 1; // Initialize turn around time
+var _Priority = 120;
 // PCB process states
 var PS_NEW = "New";
 var PS_READY = "Ready";
@@ -89,6 +90,8 @@ var _MemoryAccessor;
 var _BaseProgram = 0;
 // Declare program input
 var _ProgramInput = "";
+// Default CPU scheduling
+var _CpuSchedule = "rr";
 // UI
 var _Console;
 var _OsShell;

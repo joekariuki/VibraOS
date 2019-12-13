@@ -67,7 +67,7 @@ var TSOS;
             sc = new TSOS.ShellCommand(this.shellCrash, "nuke", " - [WARNING] Crashes the entire OS.");
             this.commandList[this.commandList.length] = sc;
             // load
-            sc = new TSOS.ShellCommand(this.shellLoad, "load", "<HEX>- Loads program with valid HEX from user program input");
+            sc = new TSOS.ShellCommand(this.shellLoad, "load", "[<priority>] - Loads program with valid HEX from user program input");
             this.commandList[this.commandList.length] = sc;
             // run
             sc = new TSOS.ShellCommand(this.shellRun, "run", " <pid> - runs a valid process.");
@@ -101,6 +101,12 @@ var TSOS;
             this.commandList[this.commandList.length] = sc;
             // List files
             sc = new TSOS.ShellCommand(this.shellListFiles, "ls", "- List all files on disk.");
+            this.commandList[this.commandList.length] = sc;
+            // Set schedule
+            sc = new TSOS.ShellCommand(this.shellSetSchedule, "setschedule", " [rr, fcfs, priority] sets a CPU scheduling algorithm.");
+            this.commandList[this.commandList.length] = sc;
+            // Get schedule
+            sc = new TSOS.ShellCommand(this.shellGetSchedule, "getschedule", "gets the current CPU scheduling algorithm.");
             this.commandList[this.commandList.length] = sc;
             // Display the initial prompt.
             this.putPrompt();
@@ -294,7 +300,7 @@ var TSOS;
                         _StdOut.putText(" - [WARNING] Crashes the entire OS.");
                         break;
                     case "load":
-                        _StdOut.putText("<HEX>- Loads program with valid HEX from user program input");
+                        _StdOut.putText("- Loads program to memory and sets priority of program if specified.");
                         break;
                     case "run":
                         _StdOut.putText("Runs a valid process.");
@@ -323,7 +329,13 @@ var TSOS;
                         _StdOut.putText("Initialize	all	blocks in all sectors in all tracks");
                         break;
                     case "ls":
-                        _StdOut.putText("- List all files on disk");
+                        _StdOut.putText(" - List all files on disk");
+                        break;
+                    case "setschedule":
+                        _StdOut.putText(" - Sets a CPU scheduling algorithm");
+                        break;
+                    case "getschedule":
+                        _StdOut.putText(" - Gets the current CPU scheduling algorithm");
                         break;
                     default:
                         _StdOut.putText("No manual entry for " + args[0] + ".");
@@ -442,7 +454,7 @@ var TSOS;
                     if (_CPU.isExecuting != true) {
                         // Add new memory instance
                         _MemoryManager = new TSOS.MemoryManager();
-                        //load program to memory
+                        // Load program to memory
                         _MemoryManager.loadProgToMem();
                         // Update Memory Table with current program
                         _MemoryManager.updateMemTable(_CurrentProgram);
@@ -564,6 +576,12 @@ var TSOS;
                     _ReadyQueue.push(_CurrentProgram);
                     //Update PCB Table
                     _MemoryManager.updatePcbTable(_CurrentProgram);
+                }
+                if (_CpuSchedule == "rr" || _CpuSchedule == "fcfs") {
+                    _CurrentProgram = _ReadyQueue[0];
+                }
+                else {
+                    TSOS.CpuScheduler.priority();
                 }
                 _CurrentProgram = _ReadyQueue[0];
                 _CPU.startIndex = _CurrentProgram.base;
@@ -744,6 +762,32 @@ var TSOS;
         // List files
         Shell.prototype.shellListFiles = function (args) {
             _DeviceDriverFileSystem.listFiles();
+        };
+        // Sets Schedule
+        Shell.prototype.shellSetSchedule = function (args) {
+            if (args.length > 1) {
+                _StdOut.putText("[ERROR] Too many operands");
+                _StdOut.putText("Correct command is -- setschedule [rr, fcfs, priority]");
+            }
+            else if (args == "rr") {
+                _CpuSchedule = args;
+                _Quantum = 6;
+            }
+            else if (args == "fcfs") {
+                _CpuSchedule = args;
+                _Quantum = Number.MAX_VALUE;
+            }
+            else if (args == "priority") {
+                _CpuSchedule = args;
+            }
+            else {
+                _StdOut.putText("[ERROR] Invalid scheduling input");
+                _StdOut.putText("Available scheduling are \"rr\", \"fcfs\" and \"priority\"");
+            }
+        };
+        // Get Schedule
+        Shell.prototype.shellGetSchedule = function (args) {
+            _StdOut.putText("Current CPU scheduling is " + _CpuSchedule);
         };
         return Shell;
     }());

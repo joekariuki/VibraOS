@@ -282,8 +282,8 @@ var TSOS;
                 _MemoryManager.updatePcbTable(_CurrentProgram);
                 // Update CPU table
                 _MemoryManager.updateCpuTable();
-                //Perform round robbin if ready queue is greater than 0
-                if (_ReadyQueue.length > 1) {
+                // Perform round robbin if ready queue is greater than 0
+                if (_ReadyQueue.length > 1 && _CpuSchedule != "priority") {
                     TSOS.CpuScheduler.roundRobin();
                 }
             }
@@ -300,6 +300,25 @@ var TSOS;
                 _MemoryManager.updatePcbTable(_CurrentProgram);
                 if ((_RunAll == true && _DONE != true) || _ReadyQueue.length > 1) {
                     TSOS.CpuScheduler.roundRobin();
+                    if (_CpuSchedule == "rr" || _CpuSchedule == "fcfs") {
+                        TSOS.CpuScheduler.roundRobin();
+                        _ClockTicks = 1;
+                    }
+                    else {
+                        if (_CurrentProgram.state == PS_TERMINATED) {
+                            for (var i = 0; i < _ReadyQueue.length; i++) {
+                                if (_ReadyQueue[i].PID == _CurrentProgram.PID) {
+                                    _ReadyQueue.splice(i, 1);
+                                    _MemoryManager.resetPartition(_CurrentProgram);
+                                    _MemoryManager.updateMemTable(_CurrentProgram);
+                                    _MemoryManager.deleteRowPcb(_CurrentProgram);
+                                    break;
+                                }
+                            }
+                        }
+                        this.isExecuting = true;
+                        TSOS.CpuScheduler.priority();
+                    }
                     if (_MemoryManager.fetch(this.startIndex) != "00" &&
                         _CurrentProgram.state != PS_RUNNING) {
                         this.startIndex = _CurrentProgram.startIndex;

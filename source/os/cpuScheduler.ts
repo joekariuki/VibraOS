@@ -80,6 +80,34 @@ module TSOS {
       _CPU.Zflag = _CurrentProgram.Zflag;
     }
 
+    public static priority() {
+      _CurrentProgram = this.priorityNextProgram();
+
+      // Load next program
+      _CPU.startIndex = _CurrentProgram.startIndex;
+      _CPU.PC = _CurrentProgram.PC;
+      _CPU.Acc = _CurrentProgram.Acc;
+      _CPU.Xreg = _CurrentProgram.Xreg;
+      _CPU.Yreg = _CurrentProgram.Yreg;
+      _CPU.Zflag = _CurrentProgram.Zflag;
+
+      if (_ReadyQueue.length == 1) {
+        _RunAll = false;
+      }
+    }
+    public static priorityNextProgram() {
+      let lowestPriority = _ReadyQueue[0].priority;
+      _CurrentProgram = _ReadyQueue[0];
+      for (let i = 1; i < _ReadyQueue.length; i++) {
+        if (_ReadyQueue[i].priority < lowestPriority) {
+          lowestPriority = _ReadyQueue[i].priority;
+          _CurrentProgram = _ReadyQueue[i];
+        }
+      }
+
+      return _CurrentProgram;
+    }
+
     // Get next program in memory
     public static getNextprogram() {
       let nextProgram = new PCB();

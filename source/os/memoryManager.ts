@@ -33,6 +33,7 @@ module TSOS {
 
         _CurrentProgram.base = base;
         _CurrentProgram.state = PS_NEW;
+        _CurrentProgram.priority = _Priority;
         _ResidentQueue.push(_CurrentProgram);
 
         _StdOut.putText(`PID ${_PID} Loaded`);
@@ -124,6 +125,13 @@ module TSOS {
         let stateNode = document.createTextNode(`${_CurrentProgram.state}`);
         // Append a state node to the cell
         newCell12.appendChild(stateNode);
+
+        // Insert a cell in the row at index 12
+        let newCell13 = newRow.insertCell(12);
+        // Create state text node
+        let priorityNode = document.createTextNode(`${_CurrentProgram.state}`);
+        // Append a priority node to the cell
+        newCell13.appendChild(priorityNode);
 
         //Create CPU log
         this.cpuTableLog();
@@ -328,6 +336,7 @@ module TSOS {
           rows[i].cells[8].innerHTML = `${pcb.limit}`;
           rows[i].cells[9].innerHTML = `${pcb.waitTime}`;
           rows[i].cells[10].innerHTML = `${pcb.taTime}`;
+          rows[i].cells[11].innerHTML = `${pcb.priority}`;
           rows[i].cells[11].innerHTML = `${pcb.state}`;
           break;
         }

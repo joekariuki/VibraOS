@@ -54,6 +54,7 @@ var _Quantum: number = 6; //Default Quantum number
 var _ClockTicks: number = 0; // Number of clock ticks
 var _WaitTime: number = 1; // Initialize wait time
 var _TaTime: number = 1; // Initialize turn around time
+var _Priority: number = 120;
 
 // PCB process states
 var PS_NEW: string = "New";
@@ -107,6 +108,8 @@ var _MemoryAccessor: TSOS.MemoryAccessor;
 var _BaseProgram: number = 0;
 // Declare program input
 var _ProgramInput = "";
+// Default CPU scheduling
+var _CpuSchedule = "rr";
 
 // UI
 var _Console: TSOS.Console;
