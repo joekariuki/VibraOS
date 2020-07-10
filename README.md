@@ -11,4 +11,4 @@ This is the development environment for my OS project
 
 3. [Project 3](https://github.com/joekariuki/VibraOS/tree/iProject3) - :white_check_mark: This branch has all the work I wish to submit for grading for project 3
 
-4. [Project 4](https://github.com/joekariuki/VibraOS/tree/iProject4) - :construction: This branch has all the work I wish to submit for grading for project 4
+4. [Project 4](https://github.com/joekariuki/VibraOS/tree/iProject4) - :white_check_mark: This branch has all the work I wish to submit for grading for project 4
